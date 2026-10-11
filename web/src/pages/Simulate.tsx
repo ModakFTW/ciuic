@@ -34,6 +34,7 @@ import { PageTitle } from "../components/PageTitle";
 import { MetricCard } from "../components/MetricCard";
 import { ErrorToast } from "../components/ErrorToast";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
+import { ChartTooltip } from "../components/ChartTooltip";
 import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
 import type { RebalanceFrequency, Period } from "../api/types";
 
@@ -258,7 +259,7 @@ export const SimulatePage: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => handleSelectRegime(null)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
                   activeRegime === null
                     ? "bg-teal/15 text-teal border-teal/40 font-semibold shadow-glass-sm"
                     : "bg-white/[0.03] text-secondary border-[rgba(226,235,244,0.12)] hover:text-main hover:bg-white/[0.06]"
@@ -270,7 +271,7 @@ export const SimulatePage: React.FC = () => {
                 <button
                   key={regime.id}
                   onClick={() => handleSelectRegime(regime.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
                     activeRegime === regime.id
                       ? "bg-teal/15 text-teal border-teal/40 font-semibold shadow-glass-sm"
                       : "bg-white/[0.03] text-secondary border-[rgba(226,235,244,0.12)] hover:text-main hover:bg-white/[0.06]"
@@ -292,7 +293,7 @@ export const SimulatePage: React.FC = () => {
                 <button
                   key={f}
                   onClick={() => setRebalance(f)}
-                  className={`px-3 py-1 text-xs font-medium rounded-lg capitalize transition-all ${
+                  className={`px-3 py-1 text-xs font-medium rounded-lg capitalize transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
                     rebalance === f
                       ? "bg-teal text-background-base font-bold shadow-sm"
                       : "text-secondary hover:text-main"
@@ -318,7 +319,7 @@ export const SimulatePage: React.FC = () => {
                   setStartDate(e.target.value);
                   setActiveRegime(null);
                 }}
-                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main focus:outline-none focus:border-teal transition-colors"
+                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 transition-colors"
               />
               <span className="text-secondary">To:</span>
               <input
@@ -328,7 +329,7 @@ export const SimulatePage: React.FC = () => {
                   setEndDate(e.target.value);
                   setActiveRegime(null);
                 }}
-                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main focus:outline-none focus:border-teal transition-colors"
+                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 transition-colors"
               />
             </div>
           </div>
@@ -338,7 +339,7 @@ export const SimulatePage: React.FC = () => {
             {!showComparison ? (
               <button
                 onClick={() => setShowComparison(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-teal/10 text-teal border border-teal/30 hover:bg-teal/20 transition-all cursor-pointer shadow-glass-sm"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-teal/10 text-teal border border-teal/30 hover:bg-teal/20 transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 cursor-pointer shadow-glass-sm"
               >
                 <Plus className="w-3.5 h-3.5 stroke-[2]" />
                 <span>Compare Second Weight Set</span>
@@ -349,7 +350,7 @@ export const SimulatePage: React.FC = () => {
                 <select
                   value={comparisonPreset}
                   onChange={(e) => setComparisonPreset(e.target.value as any)}
-                  className="bg-transparent text-main font-mono focus:outline-none cursor-pointer"
+                  className="bg-transparent text-main font-mono focus-visible:outline-none cursor-pointer"
                 >
                   <option value="recommended" className="bg-[#0C1118] text-main">
                     ML Recommended Weights
@@ -360,7 +361,7 @@ export const SimulatePage: React.FC = () => {
                 </select>
                 <button
                   onClick={() => setShowComparison(false)}
-                  className="text-secondary hover:text-negative transition-colors ml-1 p-0.5 rounded"
+                  className="text-secondary hover:text-negative transition-colors ml-1 p-0.5 rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-negative/60"
                   title="Remove comparison line"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -440,65 +441,76 @@ export const SimulatePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="h-80 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
-              <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
-              <YAxis
-                stroke="#9BA7B5"
-                fontSize={11}
-                tickLine={false}
-                tickFormatter={(v) =>
-                  currency === "INR"
-                    ? `₹${(v / 100000).toFixed(1)}L`
-                    : `$${(v / 1000).toFixed(0)}k`
-                }
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || !payload.length) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-3 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md space-y-1">
-                      <div className="text-secondary font-bold border-b border-white/[0.08] pb-1">
-                        {item.date}
-                      </div>
-                      <div className="text-teal">
-                        Primary: {currency === "INR" ? "₹" : "$"}
-                        {item.primary?.toLocaleString()}
-                      </div>
-                      {showComparison && item.comparison && (
-                        <div className="text-warning">
-                          Comparison ({comparisonPreset}): {currency === "INR" ? "₹" : "$"}
-                          {item.comparison?.toLocaleString()}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="primary"
-                name="Primary Portfolio"
-                stroke="#74C7BE"
-                strokeWidth={2.5}
-                dot={false}
-              />
-              {showComparison && (
+        <div className="h-80 w-full min-h-[320px]">
+          {chartData.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-xs font-mono text-secondary">
+              No historical price data available for the chosen date range.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
+                <CartesianGrid strokeDasharray="2 4" stroke="rgba(226,235,244,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(226,235,244,0.14)"
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                  tickLine={false}
+                />
+                <YAxis
+                  stroke="rgba(226,235,244,0.14)"
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                  tickLine={false}
+                  tickFormatter={(v) =>
+                    currency === "INR"
+                      ? `₹${(v / 100000).toFixed(1)}L`
+                      : `$${(v / 1000).toFixed(0)}k`
+                  }
+                />
+                <Tooltip
+                  content={({ payload }) => {
+                    if (!payload || !payload.length) return null;
+                    const item = payload[0].payload;
+                    const items = [
+                      {
+                        label: "Primary Portfolio",
+                        value: formatCurrency(item.primary, currency),
+                        color: "#74C7BE",
+                      },
+                    ];
+                    if (showComparison && item.comparison) {
+                      items.push({
+                        label: `Comparison (${comparisonPreset})`,
+                        value: formatCurrency(item.comparison, currency),
+                        color: "#D9B675",
+                      });
+                    }
+                    return <ChartTooltip active title={item.date} items={items} />;
+                  }}
+                />
                 <Line
                   type="monotone"
-                  dataKey="comparison"
-                  name="Comparison Portfolio"
-                  stroke="#D9B675"
+                  dataKey="primary"
+                  name="Primary Portfolio"
+                  stroke="#74C7BE"
                   strokeWidth={2}
-                  strokeDasharray="3 3"
                   dot={false}
+                  isAnimationActive={false}
                 />
-              )}
-            </LineChart>
-          </ResponsiveContainer>
+                {showComparison && (
+                  <Line
+                    type="monotone"
+                    dataKey="comparison"
+                    name="Comparison Portfolio"
+                    stroke="#D9B675"
+                    strokeWidth={1.8}
+                    strokeDasharray="3 3"
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -515,64 +527,79 @@ export const SimulatePage: React.FC = () => {
           <span className="text-xs font-mono text-secondary">Unit: % drawdown</span>
         </div>
 
-        <div className="h-48 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
-              <defs>
-                <linearGradient id="drawdownGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#E47782" stopOpacity={0.0} />
-                  <stop offset="95%" stopColor="#E47782" stopOpacity={0.35} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
-              <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
-              <YAxis
-                stroke="#9BA7B5"
-                fontSize={11}
-                tickLine={false}
-                domain={["auto", 0]}
-                tickFormatter={(v) => `${v}%`}
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || !payload.length) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-2.5 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md space-y-1">
-                      <div className="text-secondary">{item.date}</div>
-                      <div className="text-negative font-bold">
-                        Primary Drawdown: {item.primaryDD}%
-                      </div>
-                      {showComparison && item.comparisonDD !== null && (
-                        <div className="text-warning font-bold">
-                          Comparison Drawdown: {item.comparisonDD}%
-                        </div>
-                      )}
-                    </div>
-                  );
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="primaryDD"
-                name="Primary Drawdown"
-                stroke="#E47782"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#drawdownGradient)"
-              />
-              {showComparison && (
+        <div className="h-48 w-full min-h-[192px]">
+          {chartData.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-xs font-mono text-secondary">
+              No drawdown data available for this horizon.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
+                <defs>
+                  <linearGradient id="drawdownGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#E47782" stopOpacity={0.0} />
+                    <stop offset="95%" stopColor="#E47782" stopOpacity={0.25} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="2 4" stroke="rgba(226,235,244,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(226,235,244,0.14)"
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                  tickLine={false}
+                />
+                <YAxis
+                  stroke="rgba(226,235,244,0.14)"
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                  tickLine={false}
+                  domain={["auto", 0]}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <Tooltip
+                  content={({ payload }) => {
+                    if (!payload || !payload.length) return null;
+                    const item = payload[0].payload;
+                    const items = [
+                      {
+                        label: "Primary Drawdown",
+                        value: `${item.primaryDD}%`,
+                        color: "#E47782",
+                      },
+                    ];
+                    if (showComparison && item.comparisonDD !== null) {
+                      items.push({
+                        label: `Comparison (${comparisonPreset})`,
+                        value: `${item.comparisonDD}%`,
+                        color: "#D9B675",
+                      });
+                    }
+                    return <ChartTooltip active title={item.date} items={items} />;
+                  }}
+                />
                 <Area
                   type="monotone"
-                  dataKey="comparisonDD"
-                  name="Comparison Drawdown"
-                  stroke="#D9B675"
-                  strokeWidth={1.5}
-                  fillOpacity={0}
+                  dataKey="primaryDD"
+                  name="Primary Drawdown"
+                  stroke="#E47782"
+                  strokeWidth={1.8}
+                  fillOpacity={1}
+                  fill="url(#drawdownGradient)"
+                  isAnimationActive={false}
                 />
-              )}
-            </AreaChart>
-          </ResponsiveContainer>
+                {showComparison && (
+                  <Area
+                    type="monotone"
+                    dataKey="comparisonDD"
+                    name="Comparison Drawdown"
+                    stroke="#D9B675"
+                    strokeWidth={1.4}
+                    fillOpacity={0}
+                    isAnimationActive={false}
+                  />
+                )}
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 

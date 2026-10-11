@@ -30,6 +30,7 @@ import { RiskBadge } from "../components/RiskBadge";
 import { ErrorToast } from "../components/ErrorToast";
 import { CardSkeleton } from "../components/Skeleton";
 import { ShieldPanel } from "../components/ShieldPanel";
+import { ChartTooltip } from "../components/ChartTooltip";
 import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
 
 export const StrategiesPage: React.FC = () => {
@@ -107,10 +108,10 @@ export const StrategiesPage: React.FC = () => {
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal hover:bg-teal/90 text-background-base font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-teal/50 shadow-glass-sm"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal hover:bg-teal/90 text-background-base font-bold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96] shadow-glass-sm"
           >
             <span>Return to Portfolio Builder</span>
-            <ArrowRight className="w-4 h-4 stroke-[2]" />
+            <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
           </Link>
         </div>
       </div>
@@ -187,86 +188,94 @@ export const StrategiesPage: React.FC = () => {
         </div>
 
         <div className="h-84 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
-              <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
-              <YAxis
-                stroke="#9BA7B5"
-                fontSize={11}
-                tickLine={false}
-                tickFormatter={(v) =>
-                  currency === "INR"
-                    ? `₹${(v / 100000).toFixed(1)}L`
-                    : `$${(v / 1000).toFixed(0)}k`
-                }
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || !payload.length) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-3 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md space-y-1.5 min-w-48">
-                      <div className="text-secondary font-bold border-b border-white/[0.08] pb-1">
-                        {item.date}
-                      </div>
-                      <div className="text-negative">
-                        Original: {formatCurrency(item.original, currency)}
-                      </div>
-                      <div className="text-teal">
-                        Recommended: {formatCurrency(item.recommended, currency)}
-                      </div>
-                      <div className="text-warning">
-                        Equal-Weight: {formatCurrency(item.equal_weight, currency)}
-                      </div>
-                      <div className="text-positive font-bold">
-                        Insured (CPPI): {formatCurrency(item.insured, currency)}
-                      </div>
-                      <div className="text-secondary">
-                        Benchmark: {formatCurrency(item.benchmark, currency)}
-                      </div>
-                    </div>
-                  );
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="original"
-                stroke="#E47782"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="recommended"
-                stroke="#74C7BE"
-                strokeWidth={2.5}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="equal_weight"
-                stroke="#D9B675"
-                strokeWidth={1.8}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="insured"
-                stroke="#86C8A0"
-                strokeWidth={2.5}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="benchmark"
-                stroke="#9BA7B5"
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {chartData.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+              No backtest series data available for the current selection.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
+                <CartesianGrid strokeDasharray="2 4" stroke="rgba(226,235,244,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(226,235,244,0.12)"
+                  fontSize={10}
+                  tickLine={false}
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                />
+                <YAxis
+                  stroke="rgba(226,235,244,0.12)"
+                  fontSize={10}
+                  tickLine={false}
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                  tickFormatter={(v) =>
+                    currency === "INR"
+                      ? `₹${(v / 100000).toFixed(1)}L`
+                      : `$${(v / 1000).toFixed(0)}k`
+                  }
+                />
+                <Tooltip
+                  content={({ payload }) => {
+                    if (!payload || !payload.length) return null;
+                    const item = payload[0].payload;
+                    return (
+                      <ChartTooltip
+                        title={item.date}
+                        items={[
+                          { label: "Original", value: formatCurrency(item.original, currency), color: "#E47782" },
+                          { label: "Recommended", value: formatCurrency(item.recommended, currency), color: "#74C7BE" },
+                          { label: "Equal-Weight", value: formatCurrency(item.equal_weight, currency), color: "#D9B675" },
+                          { label: "Insured (CPPI)", value: formatCurrency(item.insured, currency), color: "#86C8A0" },
+                          { label: "Benchmark", value: formatCurrency(item.benchmark, currency), color: "#9BA7B5" },
+                        ]}
+                      />
+                    );
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="original"
+                  stroke="#E47782"
+                  strokeWidth={2}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="recommended"
+                  stroke="#74C7BE"
+                  strokeWidth={2.5}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="equal_weight"
+                  stroke="#D9B675"
+                  strokeWidth={1.8}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="insured"
+                  stroke="#86C8A0"
+                  strokeWidth={2.5}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="benchmark"
+                  stroke="#9BA7B5"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 

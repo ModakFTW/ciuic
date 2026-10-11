@@ -34,6 +34,7 @@ import { MetricCard } from "../components/MetricCard";
 import { RiskBadge } from "../components/RiskBadge";
 import { ErrorToast } from "../components/ErrorToast";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
+import { ChartTooltip } from "../components/ChartTooltip";
 import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
 
 export const RecommendPage: React.FC = () => {
@@ -67,7 +68,7 @@ export const RecommendPage: React.FC = () => {
           <div className="pt-2">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
             >
               <span>Return to Portfolio Builder</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
@@ -166,7 +167,7 @@ export const RecommendPage: React.FC = () => {
         actions={
           <button
             onClick={handleApplyAllocation}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-semibold bg-teal/20 hover:bg-teal/30 text-teal border border-teal/40 transition-all shadow-glass-sm active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-semibold bg-teal/20 hover:bg-teal/30 text-teal border border-teal/40 transition-all shadow-glass-sm active:scale-[0.96] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
           >
             <Check className="w-4 h-4 stroke-[2]" />
             <span>Apply Recommended Weights</span>
@@ -494,69 +495,87 @@ export const RecommendPage: React.FC = () => {
           </div>
 
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(226, 235, 244, 0.08)" />
-                <XAxis
-                  type="number"
-                  dataKey="volatility"
-                  name="Volatility"
-                  unit="%"
-                  stroke="#687787"
-                  fontSize={11}
-                  tickLine={false}
-                  label={{
-                    value: "Annualized Volatility (%)",
-                    position: "insideBottom",
-                    offset: -10,
-                    fill: "#9BA7B5",
-                    fontSize: 11,
-                  }}
-                />
-                <YAxis
-                  type="number"
-                  dataKey="ann_return"
-                  name="Return"
-                  unit="%"
-                  stroke="#687787"
-                  fontSize={11}
-                  tickLine={false}
-                  label={{
-                    value: "Expected CAGR (%)",
-                    angle: -90,
-                    position: "insideLeft",
-                    fill: "#9BA7B5",
-                    fontSize: 11,
-                  }}
-                />
-                <Tooltip
-                  cursor={{ strokeDasharray: "3 3", stroke: "rgba(226, 235, 244, 0.2)" }}
-                  content={({ payload }) => {
-                    if (!payload || !payload.length) return null;
-                    const p = payload[0].payload;
-                    return (
-                      <div className="glass-panel p-2.5 rounded-xl text-xs font-mono shadow-glass border border-[rgba(226,235,244,0.25)] space-y-1">
-                        <div className="font-bold text-main border-b border-[rgba(226,235,244,0.12)] pb-1">
-                          {p.label}
-                        </div>
-                        <div className="text-secondary">Volatility: {p.volatility}%</div>
-                        <div className="text-teal font-semibold">CAGR: {p.ann_return}%</div>
-                      </div>
-                    );
-                  }}
-                />
-                <Scatter data={frontierData} shape="circle">
-                  {frontierData.map((entry, index) => (
-                    <Cell
-                      key={`frontier-${index}`}
-                      fill={entry.fill}
-                      stroke={entry.isCurrent || entry.isRecommended ? "#FFFFFF" : "transparent"}
-                      strokeWidth={entry.isCurrent || entry.isRecommended ? 2 : 0}
-                    />
-                  ))}
-                </Scatter>
-              </ScatterChart>
-            </ResponsiveContainer>
+            {frontierData.length === 0 ? (
+              <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+                No frontier simulation points available.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
+                  <CartesianGrid strokeDasharray="2 4" stroke="rgba(226, 235, 244, 0.06)" />
+                  <XAxis
+                    type="number"
+                    dataKey="volatility"
+                    name="Volatility"
+                    unit="%"
+                    stroke="rgba(226,235,244,0.12)"
+                    fontSize={10}
+                    tickLine={false}
+                    tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                    label={{
+                      value: "Annualized Volatility (%)",
+                      position: "insideBottom",
+                      offset: -10,
+                      fill: "#9BA7B5",
+                      fontSize: 10,
+                      fontFamily: "IBM Plex Mono, monospace",
+                    }}
+                  />
+                  <YAxis
+                    type="number"
+                    dataKey="ann_return"
+                    name="Return"
+                    unit="%"
+                    stroke="rgba(226,235,244,0.12)"
+                    fontSize={10}
+                    tickLine={false}
+                    tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                    label={{
+                      value: "Expected CAGR (%)",
+                      angle: -90,
+                      position: "insideLeft",
+                      fill: "#9BA7B5",
+                      fontSize: 10,
+                      fontFamily: "IBM Plex Mono, monospace",
+                    }}
+                  />
+                  <Tooltip
+                    cursor={{ strokeDasharray: "2 4", stroke: "rgba(226, 235, 244, 0.2)" }}
+                    content={({ payload }) => {
+                      if (!payload || !payload.length) return null;
+                      const p = payload[0].payload;
+                      return (
+                        <ChartTooltip
+                          title={p.label}
+                          items={[
+                            {
+                              label: "Volatility",
+                              value: `${p.volatility}%`,
+                              color: p.fill,
+                            },
+                            {
+                              label: "Expected CAGR",
+                              value: `${p.ann_return}%`,
+                              color: "#74C7BE",
+                            },
+                          ]}
+                        />
+                      );
+                    }}
+                  />
+                  <Scatter data={frontierData} shape="circle" isAnimationActive={false}>
+                    {frontierData.map((entry, index) => (
+                      <Cell
+                        key={`frontier-${index}`}
+                        fill={entry.fill}
+                        stroke={entry.isCurrent || entry.isRecommended ? "#FFFFFF" : "transparent"}
+                        strokeWidth={entry.isCurrent || entry.isRecommended ? 2 : 0}
+                      />
+                    ))}
+                  </Scatter>
+                </ScatterChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>

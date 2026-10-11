@@ -38,6 +38,7 @@ import { MetricCard } from "../components/MetricCard";
 import { RiskBadge } from "../components/RiskBadge";
 import { ErrorToast } from "../components/ErrorToast";
 import { CardSkeleton, Skeleton } from "../components/Skeleton";
+import { ChartTooltip } from "../components/ChartTooltip";
 import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
 import type { LookbackPeriod, PositionIn, Benchmark } from "../api/types";
 
@@ -180,16 +181,13 @@ export const TrackPage: React.FC = () => {
             {/* Auto-refresh timer badge */}
             <div
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel-elevated border border-[rgba(226,235,244,0.18)] text-xs font-mono text-secondary shadow-glass-sm"
-              title="Automatically pulls live market closes and daily FX series every 60 seconds"
+              title="Pulls market closes and daily FX series on a 60-second schedule"
             >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-teal" />
-              </span>
+              <span className="w-2 h-2 rounded-full bg-teal flex-shrink-0" />
               <span>Last updated: {lastUpdated}</span>
               <button
                 onClick={() => refetch()}
-                className="p-1 text-secondary hover:text-teal rounded transition-colors"
+                className="p-1 text-secondary hover:text-teal rounded-md transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
                 title="Refresh prices now"
               >
                 <RefreshCw className="w-3 h-3 stroke-[2]" />
@@ -216,7 +214,7 @@ export const TrackPage: React.FC = () => {
 
           <button
             onClick={handleUseDemoHoldings}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-teal/10 text-teal border border-teal/30 hover:bg-teal/20 transition-all cursor-pointer shadow-glass-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-teal/10 text-teal border border-teal/30 hover:bg-teal/20 transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 cursor-pointer shadow-glass-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-teal stroke-[1.75]" />
             <span>Use Demo Holdings</span>
@@ -259,7 +257,7 @@ export const TrackPage: React.FC = () => {
                             parseFloat(e.target.value) || 0
                           )
                         }
-                        className="w-24 px-2 py-1 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus:outline-none focus:border-teal transition-colors tabular-nums"
+                        className="w-24 px-2 py-1 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 transition-colors tabular-nums"
                       />
                     </td>
                     <td className="p-3.5 text-right">
@@ -275,7 +273,7 @@ export const TrackPage: React.FC = () => {
                             parseFloat(e.target.value) || 0
                           )
                         }
-                        className="w-28 px-2 py-1 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus:outline-none focus:border-teal transition-colors tabular-nums"
+                        className="w-28 px-2 py-1 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 transition-colors tabular-nums"
                       />
                     </td>
                     <td className="p-3.5 text-right text-secondary font-semibold tabular-nums">
@@ -286,7 +284,7 @@ export const TrackPage: React.FC = () => {
                       <button
                         onClick={() => handleRemovePosition(idx)}
                         disabled={positions.length <= 1}
-                        className={`p-1.5 rounded-lg transition-colors ${
+                        className={`p-1.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96] ${
                           positions.length <= 1
                             ? "text-secondary/40 cursor-not-allowed"
                             : "text-secondary hover:text-negative hover:bg-white/[0.04]"
@@ -314,7 +312,7 @@ export const TrackPage: React.FC = () => {
             placeholder="Ticker (e.g. INFY.NS)"
             value={newTicker}
             onChange={(e) => setNewTicker(e.target.value)}
-            className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main placeholder-secondary/50 focus:outline-none focus:border-teal uppercase transition-colors"
+            className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main placeholder-secondary/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 uppercase transition-colors"
           />
           <input
             type="number"
@@ -322,7 +320,7 @@ export const TrackPage: React.FC = () => {
             placeholder="Qty"
             value={newQuantity}
             onChange={(e) => setNewQuantity(parseFloat(e.target.value) || 0)}
-            className="w-20 px-2 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus:outline-none focus:border-teal tabular-nums transition-colors"
+            className="w-20 px-2 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 tabular-nums transition-colors"
           />
           <input
             type="number"
@@ -330,11 +328,11 @@ export const TrackPage: React.FC = () => {
             placeholder="Buy Price"
             value={newBuyPrice}
             onChange={(e) => setNewBuyPrice(parseFloat(e.target.value) || 0)}
-            className="w-28 px-2 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus:outline-none focus:border-teal tabular-nums transition-colors"
+            className="w-28 px-2 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 tabular-nums transition-colors"
           />
           <button
             type="submit"
-            className="px-3 py-1.5 bg-teal/10 hover:bg-teal/20 text-teal border border-teal/30 rounded-xl font-semibold transition-all flex items-center gap-1 shadow-glass-sm"
+            className="px-3 py-1.5 bg-teal/10 hover:bg-teal/20 text-teal border border-teal/30 rounded-xl font-semibold transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 flex items-center gap-1 shadow-glass-sm"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2]" />
             <span>Add Row</span>
@@ -533,7 +531,7 @@ export const TrackPage: React.FC = () => {
                   <button
                     key={b}
                     onClick={() => setBenchmark(b)}
-                    className={`px-2.5 py-1 rounded-lg transition-all ${
+                    className={`px-2.5 py-1 rounded-lg transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
                       benchmark === b
                         ? "bg-teal text-background-base font-bold shadow-sm"
                         : "text-secondary hover:text-main"
@@ -550,7 +548,7 @@ export const TrackPage: React.FC = () => {
                   <button
                     key={lb}
                     onClick={() => setLookback(lb)}
-                    className={`px-2 py-1 rounded-lg uppercase transition-all ${
+                    className={`px-2 py-1 rounded-lg uppercase transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
                       lookback === lb
                         ? "bg-teal text-background-base font-bold shadow-sm"
                         : "text-secondary hover:text-main"
@@ -563,59 +561,72 @@ export const TrackPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
-                <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
-                <YAxis
-                  stroke="#9BA7B5"
-                  fontSize={11}
-                  tickLine={false}
-                  tickFormatter={(v) =>
-                    currency === "INR"
-                      ? `₹${(v / 100000).toFixed(1)}L`
-                      : `$${(v / 1000).toFixed(0)}k`
-                  }
-                />
-                <Tooltip
-                  content={({ payload }) => {
-                    if (!payload || !payload.length) return null;
-                    const item = payload[0].payload;
-                    return (
-                      <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-2.5 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md space-y-1">
-                        <div className="text-secondary font-bold border-b border-white/[0.08] pb-1">
-                          {item.date}
-                        </div>
-                        <div className="text-teal">
-                          Portfolio: {currency === "INR" ? "₹" : "$"}{item.portfolio?.toLocaleString()}
-                        </div>
-                        <div className="text-secondary">
-                          {benchmark}: {currency === "INR" ? "₹" : "$"}{item.benchmark?.toLocaleString()}
-                        </div>
-                      </div>
-                    );
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="portfolio"
-                  name="Portfolio"
-                  stroke="#74C7BE"
-                  strokeWidth={2.5}
-                  dot={false}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="benchmark"
-                  name={benchmark}
-                  stroke="#9BA7B5"
-                  strokeWidth={1.8}
-                  strokeDasharray="4 4"
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="h-64 w-full min-h-[256px]">
+            {chartData.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-xs font-mono text-secondary">
+                No benchmark comparison series available.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
+                  <CartesianGrid strokeDasharray="2 4" stroke="rgba(226,235,244,0.06)" vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    stroke="rgba(226,235,244,0.14)"
+                    tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    stroke="rgba(226,235,244,0.14)"
+                    tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                    tickLine={false}
+                    tickFormatter={(v) =>
+                      currency === "INR"
+                        ? `₹${(v / 100000).toFixed(1)}L`
+                        : `$${(v / 1000).toFixed(0)}k`
+                    }
+                  />
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || !payload.length) return null;
+                      const item = payload[0].payload;
+                      const items = [
+                        {
+                          label: "Portfolio",
+                          value: formatCurrency(item.portfolio, currency),
+                          color: "#74C7BE",
+                        },
+                        {
+                          label: benchmark,
+                          value: formatCurrency(item.benchmark, currency),
+                          color: "#9BA7B5",
+                        },
+                      ];
+                      return <ChartTooltip active title={item.date} items={items} />;
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="portfolio"
+                    name="Portfolio"
+                    stroke="#74C7BE"
+                    strokeWidth={2}
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="benchmark"
+                    name={benchmark}
+                    stroke="#9BA7B5"
+                    strokeWidth={1.6}
+                    strokeDasharray="4 4"
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -629,37 +640,49 @@ export const TrackPage: React.FC = () => {
             <span className="text-xs font-mono text-secondary">% Share</span>
           </div>
 
-          <div className="h-44 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={allocationPie}
-                  innerRadius={48}
-                  outerRadius={72}
-                  paddingAngle={3}
-                  dataKey="value"
-                >
-                  {allocationPie.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  content={({ payload }) => {
-                    if (!payload || !payload.length) return null;
-                    const p = payload[0].payload;
-                    return (
-                      <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-2 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md">
-                        <span className="font-bold text-main">{p.name}: </span>
-                        <span className="text-teal">{p.value}%</span>
-                      </div>
-                    );
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="h-44 w-full min-h-[176px] flex items-center justify-center">
+            {allocationPie.length === 0 ? (
+              <div className="text-xs font-mono text-secondary">No allocation weights recorded</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={allocationPie}
+                    innerRadius={48}
+                    outerRadius={72}
+                    paddingAngle={3}
+                    dataKey="value"
+                    isAnimationActive={false}
+                  >
+                    {allocationPie.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || !payload.length) return null;
+                      const p = payload[0].payload;
+                      return (
+                        <ChartTooltip
+                          active
+                          title="Asset Weight"
+                          items={[
+                            {
+                              label: p.name,
+                              value: `${p.value}%`,
+                              color: p.fill,
+                            },
+                          ]}
+                        />
+                      );
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-3 border-t border-[rgba(226,235,244,0.1)]">

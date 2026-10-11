@@ -27,6 +27,7 @@ import { shieldPortfolio } from "../api/client";
 import { MetricCard } from "./MetricCard";
 import { ErrorToast } from "./ErrorToast";
 import { CardSkeleton } from "./Skeleton";
+import { ChartTooltip } from "./ChartTooltip";
 import { formatCurrency, formatPercent } from "../utils/format";
 import type { Period, Currency } from "../api/types";
 
@@ -140,7 +141,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
               step="0.01"
               value={floor}
               onChange={(e) => setFloor(parseFloat(e.target.value))}
-              className="w-full accent-teal cursor-pointer h-1.5 bg-white/[0.08] rounded-lg"
+              className="w-full accent-teal cursor-pointer h-1.5 bg-white/[0.08] rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
             />
           </div>
           <div className="flex justify-between text-[10px] text-secondary/70 font-mono">
@@ -167,7 +168,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
               step="1"
               value={multiplier}
               onChange={(e) => setMultiplier(parseInt(e.target.value, 10))}
-              className="w-full accent-teal cursor-pointer h-1.5 bg-white/[0.08] rounded-lg"
+              className="w-full accent-teal cursor-pointer h-1.5 bg-white/[0.08] rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
             />
           </div>
           <div className="flex justify-between text-[10px] text-secondary/70 font-mono">
@@ -255,66 +256,88 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
         </div>
 
         <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 10, right: 15, bottom: 0, left: 15 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
-              <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
-              <YAxis
-                stroke="#9BA7B5"
-                fontSize={11}
-                tickLine={false}
-                tickFormatter={(v) =>
-                  currency === "INR"
-                    ? `₹${(v / 100000).toFixed(1)}L`
-                    : `$${(v / 1000).toFixed(0)}k`
-                }
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || !payload.length) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-2.5 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md space-y-1">
-                      <div className="text-secondary font-medium border-b border-white/[0.08] pb-1">
-                        {item.date}
-                      </div>
-                      <div className="text-negative">
-                        Unprotected: {currency === "INR" ? "₹" : "$"}{item.unprotected?.toLocaleString()}
-                      </div>
-                      <div className="text-positive font-medium">
-                        Insured: {currency === "INR" ? "₹" : "$"}{item.insured?.toLocaleString()}
-                      </div>
-                      <div className="text-secondary">
-                        Floor: {currency === "INR" ? "₹" : "$"}{item.floor?.toLocaleString()}
-                      </div>
-                    </div>
-                  );
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="unprotected"
-                stroke="#E47782"
-                strokeWidth={1.75}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="insured"
-                stroke="#86C8A0"
-                strokeWidth={2.2}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="floor"
-                stroke="#86C8A0"
-                strokeWidth={1.2}
-                strokeDasharray="3 3"
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {chartData.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+              No shield trajectory data available.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 10, right: 15, bottom: 0, left: 15 }}>
+                <CartesianGrid strokeDasharray="2 4" stroke="rgba(226,235,244,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(226,235,244,0.12)"
+                  fontSize={10}
+                  tickLine={false}
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                />
+                <YAxis
+                  stroke="rgba(226,235,244,0.12)"
+                  fontSize={10}
+                  tickLine={false}
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                  tickFormatter={(v) =>
+                    currency === "INR"
+                      ? `₹${(v / 100000).toFixed(1)}L`
+                      : `$${(v / 1000).toFixed(0)}k`
+                  }
+                />
+                <Tooltip
+                  content={({ payload }) => {
+                    if (!payload || !payload.length) return null;
+                    const item = payload[0].payload;
+                    return (
+                      <ChartTooltip
+                        title={item.date}
+                        items={[
+                          {
+                            label: "Unprotected",
+                            value: formatCurrency(item.unprotected, currency),
+                            color: "#E47782",
+                          },
+                          {
+                            label: "Insured (CPPI)",
+                            value: formatCurrency(item.insured, currency),
+                            color: "#86C8A0",
+                          },
+                          {
+                            label: "Floor",
+                            value: formatCurrency(item.floor, currency),
+                            color: "#86C8A0",
+                          },
+                        ]}
+                      />
+                    );
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="unprotected"
+                  stroke="#E47782"
+                  strokeWidth={1.75}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="insured"
+                  stroke="#86C8A0"
+                  strokeWidth={2.2}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="floor"
+                  stroke="#86C8A0"
+                  strokeWidth={1.2}
+                  strokeDasharray="3 3"
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -334,45 +357,65 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
         </div>
 
         <div className="h-36 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 10, right: 15, bottom: 0, left: 15 }}>
-              <defs>
-                <linearGradient id="riskyGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#74C7BE" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#74C7BE" stopOpacity={0.02} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
-              <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
-              <YAxis
-                stroke="#9BA7B5"
-                fontSize={11}
-                tickLine={false}
-                domain={[0, 100]}
-                tickFormatter={(v) => `${v}%`}
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || !payload.length) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-2 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md">
-                      <span className="text-secondary">{item.date}: </span>
-                      <span className="text-teal font-medium">{item.risky_share}% Risky</span>
-                    </div>
-                  );
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="risky_share"
-                stroke="#74C7BE"
-                strokeWidth={1.75}
-                fillOpacity={1}
-                fill="url(#riskyGradient)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {chartData.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+              No allocation share data available.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 10, right: 15, bottom: 0, left: 15 }}>
+                <defs>
+                  <linearGradient id="riskyGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#74C7BE" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#74C7BE" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="2 4" stroke="rgba(226,235,244,0.06)" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(226,235,244,0.12)"
+                  fontSize={10}
+                  tickLine={false}
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                />
+                <YAxis
+                  stroke="rgba(226,235,244,0.12)"
+                  fontSize={10}
+                  tickLine={false}
+                  domain={[0, 100]}
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                  tickFormatter={(v) => `${v}%`}
+                />
+                <Tooltip
+                  content={({ payload }) => {
+                    if (!payload || !payload.length) return null;
+                    const item = payload[0].payload;
+                    return (
+                      <ChartTooltip
+                        title={item.date}
+                        items={[
+                          {
+                            label: "Risky Allocation",
+                            value: `${item.risky_share}%`,
+                            color: "#74C7BE",
+                          },
+                        ]}
+                      />
+                    );
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="risky_share"
+                  stroke="#74C7BE"
+                  strokeWidth={1.75}
+                  fillOpacity={1}
+                  fill="url(#riskyGradient)"
+                  isAnimationActive={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 

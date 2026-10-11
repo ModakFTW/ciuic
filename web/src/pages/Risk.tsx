@@ -34,6 +34,7 @@ import { MetricCard } from "../components/MetricCard";
 import { RiskBadge } from "../components/RiskBadge";
 import { CardSkeleton } from "../components/Skeleton";
 import { ErrorToast } from "../components/ErrorToast";
+import { ChartTooltip } from "../components/ChartTooltip";
 import { formatPercent, formatRatio } from "../utils/format";
 
 const PRECISION_SECTOR_COLORS = [
@@ -98,7 +99,7 @@ export const RiskPage: React.FC = () => {
           <div className="pt-2">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
             >
               <span>Return to Portfolio Builder</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
@@ -168,7 +169,7 @@ export const RiskPage: React.FC = () => {
           data?.counterfactual && data.risk_label === "High" ? (
             <button
               onClick={() => setShowCounterfactualModal(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium glass-panel-interactive text-main border border-warning/30 hover:border-warning/60 transition-all min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium glass-panel-interactive text-main border border-warning/30 hover:border-warning/60 transition-all min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
               title="Compare and morph risk to Medium using counterfactual frontier optimization"
             >
               <span className="w-2 h-2 rounded-full bg-warning shadow-sm" />
@@ -345,72 +346,87 @@ export const RiskPage: React.FC = () => {
         </div>
 
         <div className="h-72 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              layout="vertical"
-              data={assetContributionData}
-              margin={{ top: 10, right: 30, left: 30, bottom: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226, 235, 244, 0.08)" horizontal={false} />
-              <XAxis
-                type="number"
-                unit="%"
-                stroke="#687787"
-                fontSize={11}
-                tickLine={false}
-                label={{
-                  value: "Contribution (%)",
-                  position: "insideBottom",
-                  offset: -10,
-                  fill: "#9BA7B5",
-                  fontSize: 11,
-                }}
-              />
-              <YAxis
-                type="category"
-                dataKey="ticker"
-                stroke="#687787"
-                fontSize={11}
-                tickLine={false}
-              />
-              <Tooltip
-                content={({ payload }) => {
-                  if (!payload || !payload.length) return null;
-                  const item = payload[0].payload;
-                  return (
-                    <div className="glass-panel p-3 rounded-xl text-xs font-mono shadow-glass space-y-1.5 border border-[rgba(226,235,244,0.25)]">
-                      <div className="font-bold text-main border-b border-[rgba(226,235,244,0.12)] pb-1">
-                        {item.ticker} (Weight: {item.weight}%)
-                      </div>
-                      <div className="text-negative font-medium">
-                        Risk Contribution: {item.risk_contribution}%
-                      </div>
-                      <div className="text-positive font-medium">
-                        Return Contribution: {item.return_contribution}%
-                      </div>
-                    </div>
-                  );
-                }}
-              />
-              <Legend
-                verticalAlign="top"
-                align="right"
-                wrapperStyle={{ paddingBottom: 10, fontSize: 11, fontFamily: "IBM Plex Mono" }}
-              />
-              <Bar
-                dataKey="risk_contribution"
-                name="Risk Contribution (%)"
-                fill="#E47782"
-                radius={[0, 4, 4, 0]}
-              />
-              <Bar
-                dataKey="return_contribution"
-                name="Return Contribution (%)"
-                fill="#86C8A0"
-                radius={[0, 4, 4, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          {assetContributionData.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+              No asset contribution statistics available.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                layout="vertical"
+                data={assetContributionData}
+                margin={{ top: 10, right: 30, left: 30, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="2 4" stroke="rgba(226, 235, 244, 0.06)" horizontal={false} />
+                <XAxis
+                  type="number"
+                  unit="%"
+                  stroke="rgba(226,235,244,0.12)"
+                  fontSize={10}
+                  tickLine={false}
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                  label={{
+                    value: "Contribution (%)",
+                    position: "insideBottom",
+                    offset: -10,
+                    fill: "#9BA7B5",
+                    fontSize: 10,
+                    fontFamily: "IBM Plex Mono, monospace",
+                  }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="ticker"
+                  stroke="rgba(226,235,244,0.12)"
+                  fontSize={10}
+                  tickLine={false}
+                  tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                />
+                <Tooltip
+                  content={({ payload }) => {
+                    if (!payload || !payload.length) return null;
+                    const item = payload[0].payload;
+                    return (
+                      <ChartTooltip
+                        title={`${item.ticker} (Weight: ${item.weight}%)`}
+                        items={[
+                          {
+                            label: "Risk Contribution",
+                            value: `${item.risk_contribution}%`,
+                            color: "#E47782",
+                          },
+                          {
+                            label: "Return Contribution",
+                            value: `${item.return_contribution}%`,
+                            color: "#86C8A0",
+                          },
+                        ]}
+                      />
+                    );
+                  }}
+                />
+                <Legend
+                  verticalAlign="top"
+                  align="right"
+                  wrapperStyle={{ paddingBottom: 10, fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                />
+                <Bar
+                  dataKey="risk_contribution"
+                  name="Risk Contribution (%)"
+                  fill="#E47782"
+                  radius={[0, 4, 4, 0]}
+                  isAnimationActive={false}
+                />
+                <Bar
+                  dataKey="return_contribution"
+                  name="Return Contribution (%)"
+                  fill="#86C8A0"
+                  radius={[0, 4, 4, 0]}
+                  isAnimationActive={false}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -427,58 +443,71 @@ export const RiskPage: React.FC = () => {
           </div>
 
           <div className="h-60 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                layout="vertical"
-                data={riskDriversData}
-                margin={{ top: 10, right: 30, left: 60, bottom: 15 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(226, 235, 244, 0.08)" horizontal={false} />
-                <XAxis
-                  type="number"
-                  stroke="#687787"
-                  fontSize={11}
-                  tickLine={false}
-                  label={{
-                    value: "Impact Magnitude (%)",
-                    position: "insideBottom",
-                    offset: -10,
-                    fill: "#9BA7B5",
-                    fontSize: 11,
-                  }}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="factor"
-                  stroke="#687787"
-                  fontSize={10}
-                  tickLine={false}
-                  width={140}
-                />
-                <Tooltip
-                  content={({ payload }) => {
-                    if (!payload || !payload.length) return null;
-                    const p = payload[0].payload;
-                    return (
-                      <div className="glass-panel p-2.5 rounded-xl text-xs font-mono shadow-glass border border-[rgba(226,235,244,0.22)] space-y-1">
-                        <div className="font-bold text-main">{p.factor}</div>
-                        <div className={p.rawImpact > 0 ? "text-negative" : "text-positive"}>
-                          Impact: {p.impact}% ({p.direction})
-                        </div>
-                      </div>
-                    );
-                  }}
-                />
-                <Bar dataKey="impact" radius={[0, 4, 4, 0]}>
-                  {riskDriversData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.rawImpact > 0 ? "#E47782" : "#86C8A0"}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            {riskDriversData.length === 0 ? (
+              <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+                No factor attribution drivers detected.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  layout="vertical"
+                  data={riskDriversData}
+                  margin={{ top: 10, right: 30, left: 60, bottom: 15 }}
+                >
+                  <CartesianGrid strokeDasharray="2 4" stroke="rgba(226, 235, 244, 0.06)" horizontal={false} />
+                  <XAxis
+                    type="number"
+                    stroke="rgba(226,235,244,0.12)"
+                    fontSize={10}
+                    tickLine={false}
+                    tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                    label={{
+                      value: "Impact Magnitude (%)",
+                      position: "insideBottom",
+                      offset: -10,
+                      fill: "#9BA7B5",
+                      fontSize: 10,
+                      fontFamily: "IBM Plex Mono, monospace",
+                    }}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="factor"
+                    stroke="rgba(226,235,244,0.12)"
+                    fontSize={10}
+                    tickLine={false}
+                    tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
+                    width={140}
+                  />
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || !payload.length) return null;
+                      const p = payload[0].payload;
+                      return (
+                        <ChartTooltip
+                          title={p.factor}
+                          items={[
+                            {
+                              label: p.direction === "increases_risk" ? "Risk Increase" : "Risk Cushion",
+                              value: `${p.impact}%`,
+                              color: p.rawImpact > 0 ? "#E47782" : "#86C8A0",
+                            },
+                          ]}
+                        />
+                      );
+                    }}
+                  />
+                  <Bar dataKey="impact" radius={[0, 4, 4, 0]} isAnimationActive={false}>
+                    {riskDriversData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.rawImpact > 0 ? "#E47782" : "#86C8A0"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -495,45 +524,58 @@ export const RiskPage: React.FC = () => {
           </div>
 
           <div className="h-60 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={sectorData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={3}
-                  dataKey="value"
-                  stroke="#080B10"
-                  strokeWidth={2}
-                >
-                  {sectorData.map((entry, index) => (
-                    <Cell
-                      key={`sector-${index}`}
-                      fill={PRECISION_SECTOR_COLORS[index % PRECISION_SECTOR_COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  content={({ payload }) => {
-                    if (!payload || !payload.length) return null;
-                    const p = payload[0].payload;
-                    return (
-                      <div className="glass-panel p-2.5 rounded-xl text-xs font-mono shadow-glass border border-[rgba(226,235,244,0.22)]">
-                        <span className="font-bold text-main">{p.name}: </span>
-                        <span className="text-teal font-semibold">{p.value}%</span>
-                      </div>
-                    );
-                  }}
-                />
-                <Legend
-                  verticalAlign="bottom"
-                  align="center"
-                  wrapperStyle={{ fontSize: 11, fontFamily: "IBM Plex Mono", paddingTop: 8 }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {sectorData.length === 0 ? (
+              <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+                No sector allocation data available.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={sectorData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={85}
+                    paddingAngle={3}
+                    dataKey="value"
+                    stroke="#080B10"
+                    strokeWidth={2}
+                    isAnimationActive={false}
+                  >
+                    {sectorData.map((entry, index) => (
+                      <Cell
+                        key={`sector-${index}`}
+                        fill={PRECISION_SECTOR_COLORS[index % PRECISION_SECTOR_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ payload }) => {
+                      if (!payload || !payload.length) return null;
+                      const p = payload[0].payload;
+                      return (
+                        <ChartTooltip
+                          title={p.name}
+                          items={[
+                            {
+                              label: "Allocation",
+                              value: `${p.value}%`,
+                              color: "#74C7BE",
+                            },
+                          ]}
+                        />
+                      );
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    wrapperStyle={{ fontSize: 10, fontFamily: "IBM Plex Mono, monospace", paddingTop: 8 }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>
@@ -626,13 +668,13 @@ export const RiskPage: React.FC = () => {
             <div className="pt-3 border-t border-[rgba(226,235,244,0.12)] flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowCounterfactualModal(false)}
-                className="px-3.5 py-2 rounded-xl text-xs font-mono font-medium text-secondary hover:text-main bg-white/[0.04] hover:bg-white/[0.08] border border-[rgba(226,235,244,0.15)] transition-all cursor-pointer min-h-[38px]"
+                className="px-3.5 py-2 rounded-xl text-xs font-mono font-medium text-secondary hover:text-main bg-white/[0.04] hover:bg-white/[0.08] border border-[rgba(226,235,244,0.15)] transition-all cursor-pointer min-h-[38px] active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
               >
                 Cancel
               </button>
               <button
                 onClick={handleApplyCounterfactual}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-semibold text-main bg-warning/20 hover:bg-warning/30 border border-warning/50 text-warning transition-all shadow-glass-sm cursor-pointer min-h-[38px] flex items-center gap-2"
+                className="px-4 py-2 rounded-xl text-xs font-mono font-semibold text-main bg-warning/20 hover:bg-warning/30 border border-warning/50 text-warning transition-all shadow-glass-sm cursor-pointer min-h-[38px] flex items-center gap-2 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60"
               >
                 <Check className="w-3.5 h-3.5 stroke-[2]" />
                 <span>Apply Medium Risk Weights</span>

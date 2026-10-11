@@ -209,7 +209,7 @@ export const StressPage: React.FC = () => {
             <button
               key={sc.id}
               onClick={() => handleSelectScenario(sc.id, sc.defaultMag)}
-              className={`p-4 rounded-xl text-left cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-teal relative overflow-hidden ${
+              className={`p-4 rounded-xl text-left cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96] relative overflow-hidden ${
                 isSelected
                   ? "glass-panel-selected border-[rgba(226,235,244,0.38)]"
                   : "glass-panel-interactive"
@@ -301,7 +301,7 @@ export const StressPage: React.FC = () => {
                 setMagnitude(parseFloat(e.target.value));
                 setReplay(null);
               }}
-              className="w-full cursor-pointer h-2 bg-white/[0.08] rounded-full focus:outline-none focus:ring-2 focus:ring-teal"
+              className="w-full cursor-pointer h-2 bg-white/[0.08] rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
               aria-label="Scenario shock magnitude slider"
             />
 
@@ -338,7 +338,7 @@ export const StressPage: React.FC = () => {
               onChange={(e) => setSelectedSector(e.target.value)}
               className={`w-full px-3 py-2 rounded-xl text-xs font-mono border transition-all ${
                 activeScenario === "sector_downturn"
-                  ? "bg-[#0C1118] border-[rgba(226,235,244,0.30)] text-main cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal shadow-glass-sm"
+                  ? "bg-[#0C1118] border-[rgba(226,235,244,0.30)] text-main cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 shadow-glass-sm"
                   : "bg-white/[0.02] border-white/[0.06] text-secondary/50 cursor-not-allowed"
               }`}
             >
@@ -372,7 +372,7 @@ export const StressPage: React.FC = () => {
                 setReplay("covid_2020");
                 setMagnitude(-0.35);
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-warning active:scale-[0.98] ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60 active:scale-[0.96] ${
                 replay === "covid_2020"
                   ? "bg-warning/20 text-warning border-warning/50 font-semibold shadow-glass-sm"
                   : "bg-white/[0.04] text-secondary border-[rgba(226,235,244,0.15)] hover:text-main hover:bg-white/[0.08]"
@@ -388,7 +388,7 @@ export const StressPage: React.FC = () => {
                 setSelectedSector("Technology");
                 setMagnitude(-0.30);
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-warning active:scale-[0.98] ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60 active:scale-[0.96] ${
                 replay === "bear_2022"
                   ? "bg-warning/20 text-warning border-warning/50 font-semibold shadow-glass-sm"
                   : "bg-white/[0.04] text-secondary border-[rgba(226,235,244,0.15)] hover:text-main hover:bg-white/[0.08]"
@@ -427,7 +427,7 @@ export const StressPage: React.FC = () => {
             </span>
             <button
               onClick={() => refetch()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-main border border-[rgba(226,235,244,0.25)] text-xs font-mono font-semibold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-main border border-[rgba(226,235,244,0.25)] text-xs font-mono font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
             >
               <RefreshCw className="w-3.5 h-3.5 stroke-[2]" />
               <span>Retry Calculation</span>
