@@ -521,3 +521,17 @@ def optimize_portfolio(
         result["capacity_note"] = capacity_note
 
     return result
+
+
+def optimize_weights(
+    tickers: list[str],
+    prices: pd.DataFrame,
+    risk_level: str,
+    currency: str = "INR",
+) -> dict[str, Any]:
+    """Compatibility adapter for compare engine (Hardik router)."""
+    res = optimize_portfolio(tickers=tickers, prices=prices, risk_level=risk_level, currency=currency)
+    w_map = {r["ticker"]: r["weight"] for r in res.get("recommended", [])}
+    w_list = [w_map.get(t, 1.0 / len(tickers)) for t in tickers]
+    return {"weights": w_list, "result": res}
+
