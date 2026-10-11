@@ -442,16 +442,16 @@ def optimize_portfolio(
         if w_i > 0.005:
             if rc_i > w_i:
                 rationale = (
-                    f"{t}: {w_i:.1%} allocation. Annual volatility of {vol_i:.1%} and {corr_i:.2f} "
-                    f"correlation to portfolio drives {rc_i:.1%} of portfolio risk."
+                    f"{t}: {w_i:.1%} portfolio weight ({amt_i:,.0f} {currency}). With an annual price volatility of {vol_i:.1%} and {corr_i:.2f} "
+                    f"market correlation, this holding drives {rc_i:.1%} of overall portfolio risk."
                 )
             else:
                 rationale = (
-                    f"{t}: {w_i:.1%} allocation. Annual vol of {vol_i:.1%} with {corr_i:.2f} "
-                    f"correlation provides diversification, contributing {rc_i:.1%} to total risk."
+                    f"{t}: {w_i:.1%} portfolio weight ({amt_i:,.0f} {currency}). Annual volatility of {vol_i:.1%} with {corr_i:.2f} "
+                    f"market correlation provides valuable diversification, contributing only {rc_i:.1%} to total risk."
                 )
         else:
-            rationale = f"{t}: 0.0% allocation constrained by risk cap or suboptimal risk-adjusted return."
+            rationale = f"{t}: 0.0% allocation — excluded to protect your capital from disproportionate volatility and improve overall return efficiency."
 
         recommended_list.append({
             "ticker": t,
@@ -488,9 +488,9 @@ def optimize_portfolio(
 
     # ── 8. Explanations ────────────────────────────────────────────────
     explanations = [
-        f"Portfolio optimized for {req_level} risk using Ledoit-Wolf covariance shrinkage and SLSQP quadratic programming.",
-        f"Expected annual return changes by {tradeoff['return_change']:+.1%} while volatility changes by {tradeoff['volatility_change']:+.1%}.",
-        f"ML gate verified recommended allocation as {pred_risk_after['label']} risk with {pred_risk_after['confidence']:.0%} confidence.",
+        f"Portfolio rebalanced for {req_level} risk using institutional-grade risk reduction to maximize your capital efficiency.",
+        f"Expected annual return changes by {tradeoff['return_change']:+.1%} while annual price volatility changes by {tradeoff['volatility_change']:+.1%}.",
+        f"AI risk model confirms the recommended allocation qualifies as {pred_risk_after['label']} risk with {pred_risk_after['confidence']:.0%} confidence.",
     ]
     if capacity_note:
         explanations.append(capacity_note)

@@ -216,7 +216,7 @@ def apply_scenario(
         for t in tickers:
             asset_shocks[t] = clipped_betas[t] * mag
         explanations.append(
-            f"Simulated market crash of {mag*100:.1f}% magnitude applied, scaled by each asset's beta against the blended benchmark."
+            f"Simulated market crash: If the broader market drops by {abs(mag)*100:.1f}%, your holdings are stress-tested based on their historical sensitivity to market downturns."
         )
 
     elif scenario == "market_recovery":
@@ -225,7 +225,7 @@ def apply_scenario(
         for t in tickers:
             asset_shocks[t] = clipped_betas[t] * mag
         explanations.append(
-            f"Simulated market recovery of +{mag*100:.1f}% magnitude applied, scaled by each asset's beta against the blended benchmark."
+            f"Simulated market recovery: If the broader market rebounds by +{mag*100:.1f}%, your holdings are projected to gain based on how strongly they participate in market rallies."
         )
 
     elif scenario == "sector_downturn":
@@ -243,7 +243,7 @@ def apply_scenario(
                 asset_shocks[t] = 0.25 * clipped_betas[t] * mag
 
         explanations.append(
-            f"Sector downturn of {mag*100:.1f}% on '{sec_clean.capitalize()}' sector; non-sector assets dampened to 0.25 × beta × magnitude."
+            f"Simulated sector crash: A {abs(mag)*100:.1f}% drop in the '{sec_clean.capitalize()}' sector directly impacts exposed holdings, while other holdings experience a milder cushioned spillover."
         )
 
     elif scenario == "high_volatility":
@@ -280,7 +280,7 @@ def apply_scenario(
             "p95": round(p95, 4),
         }
         explanations.append(
-            f"High volatility scenario doubles covariance (annualized vol = {sigma_port*100:.1f}%); 1,000 Monte Carlo 6-month paths simulated."
+            f"Simulated high market turbulence: Doubling volatility pushes expected annual price swings to {sigma_port*100:.1f}%. Across 1,000 statistical market projections over 6 months, 90% of outcomes range between {p5*100:+.1f}% and {p95*100:+.1f}%."
         )
 
     else:
@@ -301,10 +301,10 @@ def apply_scenario(
         worst_t, worst_r = sorted_shocks[0]
         best_t, best_r = sorted_shocks[-1]
         explanations.append(
-            f"Asset impacts range from {worst_t} ({worst_r*100:+.1f}%, beta={clipped_betas.get(worst_t, 1.0):.2f}) to {best_t} ({best_r*100:+.1f}%, beta={clipped_betas.get(best_t, 1.0):.2f})."
+            f"Individual asset reactions range from hardest hit {worst_t} ({worst_r*100:+.1f}%, market sensitivity {clipped_betas.get(worst_t, 1.0):.2f}x) to most resilient {best_t} ({best_r*100:+.1f}%, market sensitivity {clipped_betas.get(best_t, 1.0):.2f}x)."
         )
     explanations.append(
-        f"Portfolio value moves from {value_before:,.0f} to {value_after:,.0f} ({impact_pct*100:+.1f}%)."
+        f"Estimated portfolio value moves from {value_before:,.0f} to {value_after:,.0f} ({impact_pct*100:+.1f}% net change)."
     )
     explanations.append("Educational stress-test simulation. Not financial advice.")
 

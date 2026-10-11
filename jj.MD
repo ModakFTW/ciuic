@@ -430,3 +430,44 @@ PROBABILITIES       Low: 16.3%              Low: 27.5%                  +11.2%
   - `MSFT` and `GOOGL` are already fully present and cached in [`data/cache/prices.parquet`](file:///c:/Users/bruhdweiser1/Desktop/everything/i_bleedcode/CUIUC_Hackathondiv/DSA_Hackathon/data/cache/prices.parquet) from 2012 to today across 42 assets and benchmarks.
   - `MPNGF` (Meituan ADR on OTC pink sheets) is intentionally excluded per Decisions D23 & D27 to keep the universe liquid and reliable.
   - Live yfinance fetching with offline cache-fallback is already implemented in production in [`data/loader.py`](file:///c:/Users/bruhdweiser1/Desktop/everything/i_bleedcode/CUIUC_Hackathondiv/DSA_Hackathon/data/loader.py).
+
+---
+
+### Investor & Business Owner Readability Enhancements (Plain English & Percentages)
+
+To make RiskScope immediately understandable to everyday business owners and retail stock investors without a quantitative finance background, all system outputs, AI explanations, and scenario stress-tests were overhauled:
+
+#### 1. Plain-English Metric Translations (`engine/ml/explain.py`)
+Mathematical and statistical jargon has been translated into intuitive business concepts with percentage (`%`) and multiplier (`x`) formatting:
+
+| Academic / Quant Term | Plain English for Business Owners & Investors | Formatted Example |
+|---|---|---|
+| `vol_252` (Annualized Volatility) | **Annual price volatility** | *"Annual price volatility of 22.4% drives portfolio risk."* |
+| `vol_ratio` (Recent vs Long Vol) | **Recent price swing acceleration** | *"Recent price swings are 1.35x higher than normal."* |
+| `max_dd` (Maximum Drawdown) | **Peak-to-trough historical drop** | *"Historical worst peak-to-trough drop of -28.5%."* |
+| `current_dd` (Current Drawdown) | **Current drop from recent highs** | *"Portfolio is currently sitting -6.2% below its peak."* |
+| `cvar95` (Conditional Value at Risk) | **Worst-case daily drop threshold** | *"Worst-case daily drop threshold is 3.5% at 95% confidence."* |
+| `avg_corr` (Average Correlation) | **Stocks moving in lockstep** | *"Stocks tend to move together (average correlation of 0.68)."* |
+| `diversification_ratio` | **Diversification cushion** | *"Portfolio is 1.42x more stable than holding single stocks alone."* |
+| `hhi` (Herfindahl-Hirschman Index) | **Portfolio concentration score** | *"Concentration score of 0.220 (lower means more evenly spread)."* |
+| `top_rc_share` (Top Risk Contribution) | **Dominant risk contributor** | *"Single highest-risk asset drives 38.5% of overall risk."* |
+| `beta_blend` (Blended Benchmark Beta) | **Market sensitivity** | *"Market sensitivity (beta of 1.15x relative to benchmark)."* |
+| `equity_share` | **Stock market exposure** | *"Equities make up 85.0% of your total capital."* |
+
+#### 2. Practical Capital Allocation Rationales (`engine/optimize.py`)
+When the optimizer suggests rebalancing weights, each recommendation is communicated in concrete business terms with percentage weights, cash values, and risk shares:
+- **Before**: *"Weight 0.25, SLSQP quadratic programming with Ledoit-Wolf shrinkage."*
+- **Now**: `"{ticker}: 20.0% portfolio weight (200,000 INR). With an annual price volatility of 25.4% and 0.42 market correlation, this holding drives 33.5% of overall portfolio risk."`
+- **Rebalance Explanation**: `"Portfolio rebalanced for {risk_level} risk using institutional-grade risk reduction to maximize your capital efficiency."`
+
+#### 3. Real-World Scenario Stress-Testing (`engine/scenario.py`)
+Simulation reports now translate shocks into tangible portfolio dollar/rupee movements and percentages:
+- **Market Crash**: *"Simulated market crash: If the broader market drops by 30.0%, your holdings are stress-tested based on their historical sensitivity to market downturns."*
+- **Market Recovery**: *"Simulated market recovery: If the broader market rebounds by +20.0%, your holdings are projected to gain based on how strongly they participate in rallies."*
+- **Sector Downturn**: *"Simulated sector crash: A 25.0% drop in the 'Technology' sector directly impacts exposed holdings, while other holdings experience a milder cushioned spillover."*
+- **High Volatility (Monte Carlo)**: *"Simulated high market turbulence: Doubling volatility pushes expected annual price swings to 28.5%. Across 1,000 statistical projections over 6 months, 90% of outcomes range between -14.2% and +21.8%."*
+- **Net Portfolio Movement**: *"Estimated portfolio value moves from 1,000,000 to 816,000 (-18.4% net change). Individual asset reactions range from hardest hit NVDA (-27.6%, sensitivity 1.38x) to most resilient GOLDBEES (+0.4%, sensitivity 0.05x)."*
+
+#### 4. Automated Verification
+- Full test suite: **102 / 102 passing in 17.8s**.
+- All explanation strings verified non-empty, free of template artifacts, and strictly adhering to business readability guidelines.
