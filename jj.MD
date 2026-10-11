@@ -357,3 +357,35 @@ PROBABILITIES       Low: 16.3%              Low: 27.5%                  +11.2%
   - `tests/test_scenario.py` (8 passed)
   - `tests/test_simulate_no_lookahead.py` (6 passed)
 - Overall status: **102 passed in 15.87s** (100% passing).
+
+---
+
+### Machine Learning Architecture & Model Specification
+
+#### What ML Model Are We Using?
+- **Is it Random Forest?** **No, it is NOT Random Forest.**
+- **Actual Model:** **`HistGradientBoostingClassifier` wrapped in `CalibratedClassifierCV`** (`sklearn.ensemble.HistGradientBoostingClassifier` + `sklearn.calibration.CalibratedClassifierCV`).
+
+#### Detailed Specification:
+1. **Primary Estimator**:
+   - `sklearn.ensemble.HistGradientBoostingClassifier`
+   - Configured with histogram-based binning for numerical financial features.
+2. **Probability Calibration**:
+   - Wrapped in `CalibratedClassifierCV(estimator=base_hgb, method="sigmoid", cv=TimeSeriesSplit(3))`.
+   - Ensures predicted probabilities ($p_{\text{Low}}, p_{\text{Medium}}, p_{\text{High}}$) are well-calibrated confidence scores rather than raw tree votes.
+3. **Walk-Forward Temporal Split (No Lookahead / No Leakage)**:
+   - **Train set**: $t < 2022-06-30$ (sorted chronologically).
+   - **Purge window**: 126 trading days ($[2022-06-30, 2023-01-01)$) dropped to prevent forward-label overlap.
+   - **Test set**: $t \ge 2023-01-01$ (includes market shocks).
+   - Cutpoints ($33^{\text{rd}}$ and $66^{\text{th}}$ percentiles) computed **strictly on TRAIN** and frozen.
+4. **Explainability**:
+   - `shap.TreeExplainer` runs directly on the base `HistGradientBoostingClassifier` tree ensembles to extract top-5 SHAP feature attributions per portfolio prediction.
+   - Local perturbation sensitivity fallback if SHAP tree extraction encounters non-standard inputs.
+5. **Baselines Compared (Evaluated in `eval.json`)**:
+   - `LogisticRegression` (with `StandardScaler`).
+   - `Persistence` baseline (classifying from lookback window risk score).
+   - `Majority` class baseline.
+6. **Why HistGradientBoosting over RandomForest (Decision D35)**:
+   - Significantly faster inference (< 5ms per candidate evaluation, crucial for the 25-candidate ML gate).
+   - Superior probability calibration when paired with `TimeSeriesSplit` Platt sigmoid scaling.
+   - Native integration with tree-based SHAP explanations without memory-heavy leaf node expansion.
