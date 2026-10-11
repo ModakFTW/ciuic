@@ -8,18 +8,21 @@ interface DisclaimerProps {
 export const Disclaimer: React.FC<DisclaimerProps> = ({ className = "" }) => {
   return (
     <footer
-      className={`mt-12 pt-6 pb-8 border-t border-border text-xs text-text-muted flex flex-col md:flex-row items-center justify-between gap-4 ${className}`}
+      className={`mt-14 pt-6 pb-10 border-t border-[rgba(226,235,244,0.12)] text-xs text-secondary flex flex-col md:flex-row items-center justify-between gap-4 ${className}`}
     >
-      <div className="flex items-center gap-2 text-text-secondary">
-        <ShieldCheck className="w-4 h-4 text-accent flex-shrink-0" strokeWidth={1.75} />
-        <span className="font-semibold text-text-primary">RiskScope</span>
-        <span className="text-border">|</span>
-        <span className="text-text-muted">Portfolio Risk Engine</span>
+      <div className="flex items-center gap-2.5 text-main">
+        <div className="w-5 h-5 rounded-md bg-teal/15 border border-teal/30 flex items-center justify-center text-teal">
+          <ShieldCheck className="w-3.5 h-3.5 stroke-[2]" />
+        </div>
+        <span className="font-semibold text-main tracking-tight">RiskScope</span>
+        <span className="text-white/[0.15]">|</span>
+        <span className="text-secondary/80 font-mono text-[11px]">Precision Financial Terminal</span>
       </div>
 
-      <div className="text-center md:text-right max-w-2xl leading-relaxed text-text-muted font-mono text-[11px]">
+      <div className="text-center md:text-right max-w-2xl leading-relaxed text-secondary/80 font-mono text-[11px]">
         Educational simulation. Not financial advice. Past performance does not predict future results. The Drawdown Shield is a simulated strategy, not an insurance policy.
       </div>
     </footer>
   );
 };
+

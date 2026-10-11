@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertCircle, X } from "lucide-react";
+import { AlertCircle, X, RefreshCw } from "lucide-react";
 
 interface ErrorToastProps {
   error: Error | string | null;
@@ -22,23 +22,26 @@ export const ErrorToast: React.FC<ErrorToastProps> = ({
   return (
     <div
       role="alert"
-      className={`flex items-start justify-between gap-3 p-4 rounded-lg border border-risk-high-border bg-surface-elevated text-text-primary shadow-sm ${className}`}
+      className={`flex items-start justify-between gap-3 p-4 rounded-xl border border-negative/30 bg-negative/10 backdrop-blur-md text-main shadow-glass-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ${className}`}
     >
       <div className="flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-risk-high mt-0.5 flex-shrink-0" strokeWidth={1.75} />
+        <div className="p-1 rounded-md bg-negative/20 text-negative mt-0.5 flex-shrink-0">
+          <AlertCircle className="w-4 h-4 stroke-[2]" />
+        </div>
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-risk-high">
-            Error
+          <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-negative">
+            Connection Error
           </p>
-          <p className="text-xs font-mono text-text-secondary break-words select-text">
+          <p className="text-xs font-mono text-secondary break-words select-text">
             {message}
           </p>
           {onRetry && (
             <button
               onClick={onRetry}
-              className="mt-2 inline-flex items-center text-xs font-medium text-text-primary hover:text-white underline underline-offset-2 transition-colors min-h-[36px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+              className="mt-2 inline-flex items-center gap-1.5 text-xs font-mono font-medium text-main hover:text-white px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] border border-[rgba(226,235,244,0.18)] transition-all min-h-[32px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal"
             >
-              Retry request
+              <RefreshCw className="w-3 h-3 text-secondary" />
+              <span>Retry Request</span>
             </button>
           )}
         </div>
@@ -47,13 +50,14 @@ export const ErrorToast: React.FC<ErrorToastProps> = ({
       {onDismiss && (
         <button
           onClick={onDismiss}
-          className="text-text-muted hover:text-text-primary p-2 rounded-md hover:bg-surface-hover transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+          className="text-secondary hover:text-main p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal"
           title="Dismiss notification"
           aria-label="Dismiss notification"
         >
-          <X className="w-4 h-4" strokeWidth={1.75} />
+          <X className="w-4 h-4 stroke-[1.75]" />
         </button>
       )}
     </div>
   );
 };
+

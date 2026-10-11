@@ -17,17 +17,17 @@ export const PageTitle: React.FC<PageTitleProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-border-subtle ${className}`}
+      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 border-b border-[rgba(226,235,244,0.12)] ${className}`}
     >
       <div className="space-y-1">
         <div className="flex items-center gap-2.5 flex-wrap">
-          <h1 className="text-xl font-bold tracking-tight text-terminal-bright sm:text-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-main sm:text-2xl font-sans">
             {title}
           </h1>
           {badge}
         </div>
         {description && (
-          <p className="text-xs text-terminal-muted max-w-2xl leading-relaxed">
+          <p className="text-xs text-secondary max-w-2xl leading-relaxed font-sans">
             {description}
           </p>
         )}
@@ -41,3 +41,4 @@ export const PageTitle: React.FC<PageTitleProps> = ({
     </div>
   );
 };
+

@@ -26,32 +26,32 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 }) => {
   return (
     <div
-      className={`rounded-lg border p-3.5 transition-colors duration-150 shadow-sm ${
+      className={`rounded-xl border p-4 transition-all duration-150 backdrop-blur-md shadow-glass-sm ${
         highlight
-          ? "bg-surface-elevated border-accent/40"
-          : "bg-surface border-border hover:border-border-focus"
+          ? "bg-white/[0.06] border-[rgba(226,235,244,0.30)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]"
+          : "bg-white/[0.035] border-[rgba(226,235,244,0.18)] hover:border-[rgba(226,235,244,0.28)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
       } ${className}`}
     >
       <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-2xs font-semibold uppercase tracking-wider text-terminal-muted">
+        <span className="text-[11px] font-mono uppercase tracking-wider text-secondary">
           {title}
         </span>
         {badge}
       </div>
 
       <div className="flex items-baseline justify-between gap-2">
-        <div className="text-xl font-bold text-terminal-bright font-mono tabular-nums tracking-tight">
+        <div className="text-xl font-bold text-main font-mono tabular-nums tracking-tight">
           {value}
         </div>
 
         {trendValue && (
           <div
-            className={`flex items-center text-2xs font-semibold px-1.5 py-0.5 rounded border font-mono tabular-nums ${
+            className={`flex items-center text-[11px] font-mono font-medium px-2 py-0.5 rounded-md border tabular-nums ${
               trend === "up"
-                ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30"
+                ? "text-positive bg-positive/10 border-positive/30"
                 : trend === "down"
-                ? "text-rose-400 bg-rose-500/10 border-rose-500/30"
-                : "text-terminal-muted bg-surface-hover border-border"
+                ? "text-negative bg-negative/10 border-negative/30"
+                : "text-secondary bg-white/[0.04] border-white/[0.10]"
             }`}
           >
             {trend === "up" && <TrendingUp className="w-3 h-3 mr-1 stroke-[1.75]" />}
@@ -63,11 +63,12 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       </div>
 
       {(subtitle || helper) && (
-        <div className="mt-2.5 pt-2 border-t border-border-subtle flex items-center justify-between text-xs text-terminal-muted font-sans">
+        <div className="mt-3 pt-2.5 border-t border-[rgba(226,235,244,0.10)] flex items-center justify-between text-xs text-secondary font-sans">
           {subtitle && <span className="truncate">{subtitle}</span>}
-          {helper && <span className="text-terminal-dim font-mono text-2xs">{helper}</span>}
+          {helper && <span className="text-secondary/70 font-mono text-[11px]">{helper}</span>}
         </div>
       )}
     </div>
   );
 };
+
