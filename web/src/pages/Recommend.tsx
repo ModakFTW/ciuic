@@ -2,19 +2,13 @@ import React from "react";
 import {
   Sparkles,
   ArrowRight,
-  TrendingDown,
-  TrendingUp,
   Sliders,
-  CheckCircle,
   BarChart3,
   Layers,
-  Info,
   ArrowDown,
   ArrowUp,
-  Table,
   AlertTriangle,
   Check,
-  CheckCircle2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -22,7 +16,6 @@ import {
   Scatter,
   XAxis,
   YAxis,
-  ZAxis,
   Tooltip,
   ResponsiveContainer,
   Cell,
@@ -30,10 +23,9 @@ import {
 } from "recharts";
 import { usePortfolio } from "../state/PortfolioContext";
 import { PageTitle } from "../components/PageTitle";
-import { MetricCard } from "../components/MetricCard";
 import { RiskBadge } from "../components/RiskBadge";
 import { ErrorToast } from "../components/ErrorToast";
-import { CardSkeleton, Skeleton } from "../components/Skeleton";
+import { CardSkeleton } from "../components/Skeleton";
 import { ChartTooltip } from "../components/ChartTooltip";
 import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
 
@@ -46,7 +38,6 @@ export const RecommendPage: React.FC = () => {
     refetchAllocate,
     currency,
     applyCounterfactual,
-    amount,
     holdings,
   } = usePortfolio();
 
@@ -57,7 +48,7 @@ export const RecommendPage: React.FC = () => {
           title="Optimization & Recommendations"
           description="SLSQP Ledoit-Wolf optimizer with forward ML risk gate and per-asset explainability rationales."
         />
-        <div className="p-12 rounded-2xl glass-panel text-center space-y-4 max-w-xl mx-auto shadow-glass">
+        <div className="p-12 rounded-lg glass-panel text-center space-y-4 max-w-xl mx-auto shadow-glass">
           <div className="w-12 h-12 rounded-xl bg-warning/15 border border-warning/30 flex items-center justify-center text-warning mx-auto">
             <AlertTriangle className="w-6 h-6 stroke-[1.75]" />
           </div>
@@ -68,7 +59,7 @@ export const RecommendPage: React.FC = () => {
           <div className="pt-2">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
             >
               <span>Return to Portfolio Builder</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
@@ -152,7 +143,7 @@ export const RecommendPage: React.FC = () => {
     "Rebalancing eliminates excess concentration risk while preserving targeted upside.";
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="space-y-6">
       <PageTitle
         title="Optimization & Recommendations"
         description="Constrained Ledoit-Wolf mean-variance optimization gated by the forward ML risk classifier. Compare current vs recommended allocations and optimal tradeoffs."
@@ -167,7 +158,7 @@ export const RecommendPage: React.FC = () => {
         actions={
           <button
             onClick={handleApplyAllocation}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-semibold bg-teal/20 hover:bg-teal/30 text-teal border border-teal/40 transition-all shadow-glass-sm active:scale-[0.96] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-xs font-mono font-semibold bg-teal/20 hover:bg-teal/30 text-teal border border-teal/40 transition-colors duration-150 shadow-glass-sm active:scale-[0.96] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
           >
             <Check className="w-4 h-4 stroke-[2]" />
             <span>Apply Recommended Weights</span>
@@ -179,10 +170,10 @@ export const RecommendPage: React.FC = () => {
         <ErrorToast error={allocateError} onRetry={refetchAllocate} />
       )}
 
-      {/* 1. Tradeoff Summary Callout Banner */}
-      <div className="p-5 rounded-2xl glass-panel-elevated shadow-glass border-[rgba(226,235,244,0.22)]">
+      {/* Tradeoff Summary Callout Banner */}
+      <div className="p-5 rounded-lg glass-panel-elevated shadow-glass border-[rgba(226,235,244,0.22)]">
         <div className="flex items-start gap-3.5">
-          <div className="p-2 rounded-xl bg-teal/15 text-teal flex-shrink-0">
+          <div className="p-2 rounded-lg bg-teal/15 text-teal flex-shrink-0">
             <Sparkles className="w-5 h-5 stroke-[1.75]" />
           </div>
           <div>
@@ -196,9 +187,9 @@ export const RecommendPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Before/After Metrics Side by Side */}
+      {/* Before/After Metrics Side by Side */}
       {alloc?.before && alloc?.after && (
-        <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+        <div className="rounded-lg glass-panel p-5 space-y-4 shadow-glass">
           <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.10)]">
             <h3 className="text-sm font-bold text-main flex items-center gap-2 font-sans">
               <Sliders className="w-4 h-4 text-teal stroke-[1.75]" />
@@ -210,8 +201,7 @@ export const RecommendPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {/* Ann Return */}
-            <div className="p-3.5 rounded-xl bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
+            <div className="p-3.5 rounded-lg bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
               <span className="text-[10px] font-mono uppercase tracking-wider text-secondary block">
                 Ann. Return
               </span>
@@ -225,8 +215,7 @@ export const RecommendPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Volatility */}
-            <div className="p-3.5 rounded-xl bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
+            <div className="p-3.5 rounded-lg bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
               <span className="text-[10px] font-mono uppercase tracking-wider text-secondary block">
                 Volatility
               </span>
@@ -240,8 +229,7 @@ export const RecommendPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Max Drawdown */}
-            <div className="p-3.5 rounded-xl bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
+            <div className="p-3.5 rounded-lg bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
               <span className="text-[10px] font-mono uppercase tracking-wider text-secondary block">
                 Max Drawdown
               </span>
@@ -255,8 +243,7 @@ export const RecommendPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Sharpe Ratio */}
-            <div className="p-3.5 rounded-xl bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
+            <div className="p-3.5 rounded-lg bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
               <span className="text-[10px] font-mono uppercase tracking-wider text-secondary block">
                 Sharpe Ratio
               </span>
@@ -270,8 +257,7 @@ export const RecommendPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Sortino */}
-            <div className="p-3.5 rounded-xl bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
+            <div className="p-3.5 rounded-lg bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
               <span className="text-[10px] font-mono uppercase tracking-wider text-secondary block">
                 Sortino Ratio
               </span>
@@ -285,8 +271,7 @@ export const RecommendPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Diversification Ratio */}
-            <div className="p-3.5 rounded-xl bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
+            <div className="p-3.5 rounded-lg bg-white/[0.025] border border-[rgba(226,235,244,0.12)] space-y-1">
               <span className="text-[10px] font-mono uppercase tracking-wider text-secondary block">
                 Diversif. Ratio
               </span>
@@ -303,8 +288,8 @@ export const RecommendPage: React.FC = () => {
         </div>
       )}
 
-      {/* 3. Recommended Allocation: Current vs Recommended Delta & Rationale Cards */}
-      <div className="rounded-2xl glass-panel p-5 space-y-5 shadow-glass">
+      {/* Recommended Allocation: Current vs Recommended Delta & Rationale Cards */}
+      <div className="rounded-lg glass-panel p-5 space-y-5 shadow-glass">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[rgba(226,235,244,0.10)]">
           <div>
             <h3 className="text-sm font-bold text-main flex items-center gap-2 font-sans tracking-tight">
@@ -317,11 +302,11 @@ export const RecommendPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-3 text-xs font-mono">
             <span className="flex items-center gap-1.5 text-secondary">
-              <span className="w-2.5 h-2.5 rounded bg-white/[0.15] inline-block" />
+              <span className="w-2.5 h-2.5 rounded-sm bg-white/[0.15] inline-block" />
               Current Weight
             </span>
             <span className="flex items-center gap-1.5 text-teal">
-              <span className="w-2.5 h-2.5 rounded bg-teal inline-block" />
+              <span className="w-2.5 h-2.5 rounded-sm bg-teal inline-block" />
               Recommended Weight
             </span>
           </div>
@@ -340,7 +325,7 @@ export const RecommendPage: React.FC = () => {
             return (
               <div
                 key={rec.ticker}
-                className="p-4 rounded-xl border border-[rgba(226,235,244,0.12)] bg-white/[0.025] hover:bg-white/[0.05] transition-all space-y-2.5 shadow-glass-sm"
+                className="p-4 rounded-lg border border-[rgba(226,235,244,0.12)] bg-white/[0.025] space-y-2.5 shadow-glass-sm"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-3">
@@ -352,7 +337,6 @@ export const RecommendPage: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Weight Delta Tag */}
                   <div className="flex items-center gap-3 font-mono text-xs">
                     <span className="text-secondary tabular-nums">
                       Current: {(curWeight * 100).toFixed(1)}%
@@ -375,23 +359,19 @@ export const RecommendPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Horizontal Comparison Bar */}
                 <div className="space-y-1">
                   <div className="relative h-2.5 bg-[#080B10] rounded-full overflow-hidden border border-[rgba(226,235,244,0.12)]">
-                    {/* Current Weight Bar */}
                     <div
                       className="absolute top-0 bottom-0 left-0 bg-white/[0.20] rounded-full"
                       style={{ width: `${Math.min(100, curWeight * 100)}%` }}
                     />
-                    {/* Recommended Weight Bar */}
                     <div
-                      className="absolute top-0 bottom-0 left-0 bg-teal/80 rounded-full transition-all duration-300"
+                      className="absolute top-0 bottom-0 left-0 bg-teal/80 rounded-full transition-[width] duration-300 ease-out"
                       style={{ width: `${Math.min(100, recWeight * 100)}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Rationale Text */}
                 <p className="text-xs text-secondary/90 font-sans leading-relaxed pt-1">
                   {rec.rationale}
                 </p>
@@ -401,10 +381,9 @@ export const RecommendPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Asset Statistics & Correlation Matrix */}
+      {/* Asset Statistics & Correlation Matrix */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Correlation Heatmap */}
-        <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+        <div className="rounded-lg glass-panel p-5 space-y-4 shadow-glass">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[rgba(226,235,244,0.10)]">
             <div>
               <h3 className="text-sm font-bold text-main flex items-center gap-2 font-sans">
@@ -415,18 +394,17 @@ export const RecommendPage: React.FC = () => {
                 Blue indicates negative hedge correlation; red indicates co-movement.
               </p>
             </div>
-            {/* Legend */}
             <div className="flex items-center gap-2 text-[10px] font-mono">
               <span className="flex items-center gap-1 text-blue-300">
-                <span className="w-2.5 h-2.5 rounded bg-blue-500/30 inline-block border border-blue-400/40" />
+                <span className="w-2.5 h-2.5 rounded-sm bg-blue-500/30 inline-block border border-blue-400/40" />
                 &lt; 0 (Hedge)
               </span>
               <span className="flex items-center gap-1 text-secondary">
-                <span className="w-2.5 h-2.5 rounded bg-white/[0.04] inline-block" />
+                <span className="w-2.5 h-2.5 rounded-sm bg-white/[0.04] inline-block" />
                 0.0–0.3
               </span>
               <span className="flex items-center gap-1 text-negative">
-                <span className="w-2.5 h-2.5 rounded bg-negative/30 inline-block border border-negative/40" />
+                <span className="w-2.5 h-2.5 rounded-sm bg-negative/30 inline-block border border-negative/40" />
                 &gt; 0.5 (Co-move)
               </span>
             </div>
@@ -440,7 +418,6 @@ export const RecommendPage: React.FC = () => {
                   gridTemplateColumns: `repeat(${analyze.correlation.tickers.length + 1}, minmax(0, 1fr))`,
                 }}
               >
-                {/* Header Row */}
                 <div className="p-1.5 text-[10px] font-bold font-mono text-secondary/60 text-center">
                   Ticker
                 </div>
@@ -453,7 +430,6 @@ export const RecommendPage: React.FC = () => {
                   </div>
                 ))}
 
-                {/* Matrix Rows */}
                 {analyze.correlation.tickers.map((rowTicker, rIdx) => (
                   <React.Fragment key={`row-${rowTicker}`}>
                     <div className="p-1.5 text-[10px] font-bold font-mono text-secondary flex items-center justify-center bg-[#080B10]/70 rounded-lg">
@@ -462,7 +438,7 @@ export const RecommendPage: React.FC = () => {
                     {analyze.correlation.matrix[rIdx].map((val, cIdx) => (
                       <div
                         key={`cell-${rIdx}-${cIdx}`}
-                        className={`p-2 rounded-lg text-xs font-mono text-center flex items-center justify-center transition-transform hover:scale-105 ${getCorrelationColor(
+                        className={`p-2 rounded-lg text-xs font-mono text-center flex items-center justify-center ${getCorrelationColor(
                           val
                         )}`}
                         title={`${rowTicker} ↔ ${analyze.correlation.tickers[cIdx]}: ${val.toFixed(2)}`}
@@ -477,8 +453,7 @@ export const RecommendPage: React.FC = () => {
           )}
         </div>
 
-        {/* Efficient Frontier Scatter Plot */}
-        <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+        <div className="rounded-lg glass-panel p-5 space-y-4 shadow-glass">
           <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.10)]">
             <div>
               <h3 className="text-sm font-bold text-main flex items-center gap-2 font-sans">

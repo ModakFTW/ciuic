@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   Flame,
   Zap,
@@ -17,7 +17,6 @@ import {
   RefreshCw,
   Activity,
   AlertCircle,
-  ShieldCheck,
   Check,
 } from "lucide-react";
 import { usePortfolio } from "../state/PortfolioContext";
@@ -86,6 +85,7 @@ export const StressPage: React.FC = () => {
         replay,
       }),
     enabled: isScenarioEligible,
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -144,7 +144,7 @@ export const StressPage: React.FC = () => {
           title="Macro Stress Testing & Scenario Analysis"
           description="Evaluate portfolio resilience under extreme shocks and systemic market dislocations."
         />
-        <div className="p-12 rounded-2xl glass-panel text-center space-y-4 max-w-2xl mx-auto">
+        <div className="p-12 rounded-lg glass-panel text-center space-y-4 max-w-2xl mx-auto">
           <div className="w-12 h-12 rounded-xl bg-warning/15 border border-warning/30 flex items-center justify-center text-warning mx-auto">
             <AlertTriangle className="w-6 h-6 stroke-[1.75]" />
           </div>
@@ -155,7 +155,7 @@ export const StressPage: React.FC = () => {
           <div className="pt-2">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-all focus:outline-none focus:ring-2 focus:ring-teal active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
             >
               <span>Return to Portfolio Builder</span>
               <ArrowRight className="w-4 h-4" strokeWidth={1.75} />
@@ -167,7 +167,6 @@ export const StressPage: React.FC = () => {
   }
 
   // Derive metrics safely only when data is present
-  const hasData = !!stressData && !stressError;
   const impactPct = stressData?.impact_pct ?? magnitude;
   const isLoss = impactPct < 0;
   const valBefore = stressData?.value_before ?? amount;
@@ -180,14 +179,13 @@ export const StressPage: React.FC = () => {
     : 0.5;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Header */}
+    <div className="space-y-6">
       <PageTitle
         title="Macro Stress Testing & Scenario Analysis"
         description="Simulate extreme market events, liquidity shocks, sector downturns, and multi-path Monte Carlo stress tests."
         badge={
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/[0.05] border border-[rgba(226,235,244,0.18)] text-secondary">
+            <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-sm bg-white/[0.05] border border-[rgba(226,235,244,0.18)] text-secondary">
               Engine: Covariance Shock
             </span>
             {isFetching && (
@@ -209,7 +207,7 @@ export const StressPage: React.FC = () => {
             <button
               key={sc.id}
               onClick={() => handleSelectScenario(sc.id, sc.defaultMag)}
-              className={`p-4 rounded-xl text-left cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96] relative overflow-hidden ${
+              className={`p-4 rounded-lg text-left cursor-pointer transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96] relative overflow-hidden ${
                 isSelected
                   ? "glass-panel-selected border-[rgba(226,235,244,0.38)]"
                   : "glass-panel-interactive"
@@ -223,7 +221,7 @@ export const StressPage: React.FC = () => {
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center border ${
+                    className={`w-7 h-7 rounded-md flex items-center justify-center border ${
                       isSelected
                         ? "bg-teal/20 text-teal border-teal/40"
                         : "bg-white/[0.04] text-secondary border-white/[0.08]"
@@ -240,7 +238,7 @@ export const StressPage: React.FC = () => {
                     <Check className="w-2.5 h-2.5 stroke-[2.5]" />
                   </span>
                 ) : (
-                  <span className="text-[10px] font-mono text-secondary/70 px-1.5 py-0.5 rounded bg-white/[0.03] border border-white/[0.06]">
+                  <span className="text-[10px] font-mono text-secondary/70 px-1.5 py-0.5 rounded-sm bg-white/[0.03] border border-white/[0.06]">
                     {sc.badge}
                   </span>
                 )}
@@ -255,7 +253,7 @@ export const StressPage: React.FC = () => {
       </div>
 
       {/* 2. Coherent Control Surface: Shock Slider + Sector Targeting + Crisis Replays */}
-      <div className="p-5 rounded-2xl glass-panel-elevated space-y-5">
+      <div className="p-5 rounded-lg glass-panel-elevated space-y-5">
         <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.10)]">
           <div className="flex items-center gap-2">
             <Sliders className="w-4 h-4 text-teal stroke-[1.75]" />
@@ -336,7 +334,7 @@ export const StressPage: React.FC = () => {
               disabled={activeScenario !== "sector_downturn"}
               value={selectedSector}
               onChange={(e) => setSelectedSector(e.target.value)}
-              className={`w-full px-3 py-2 rounded-xl text-xs font-mono border transition-all ${
+              className={`w-full px-3 py-2 rounded-md text-xs font-mono border transition-colors duration-150 ${
                 activeScenario === "sector_downturn"
                   ? "bg-[#0C1118] border-[rgba(226,235,244,0.30)] text-main cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 shadow-glass-sm"
                   : "bg-white/[0.02] border-white/[0.06] text-secondary/50 cursor-not-allowed"
@@ -372,7 +370,7 @@ export const StressPage: React.FC = () => {
                 setReplay("covid_2020");
                 setMagnitude(-0.35);
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60 active:scale-[0.96] ${
+              className={`px-3 py-1.5 rounded-md text-xs font-mono border transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60 active:scale-[0.96] ${
                 replay === "covid_2020"
                   ? "bg-warning/20 text-warning border-warning/50 font-semibold shadow-glass-sm"
                   : "bg-white/[0.04] text-secondary border-[rgba(226,235,244,0.15)] hover:text-main hover:bg-white/[0.08]"
@@ -388,7 +386,7 @@ export const StressPage: React.FC = () => {
                 setSelectedSector("Technology");
                 setMagnitude(-0.30);
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60 active:scale-[0.96] ${
+              className={`px-3 py-1.5 rounded-md text-xs font-mono border transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60 active:scale-[0.96] ${
                 replay === "bear_2022"
                   ? "bg-warning/20 text-warning border-warning/50 font-semibold shadow-glass-sm"
                   : "bg-white/[0.04] text-secondary border-[rgba(226,235,244,0.15)] hover:text-main hover:bg-white/[0.08]"
@@ -403,9 +401,9 @@ export const StressPage: React.FC = () => {
 
       {/* 3. Error State (Never display fabricated results if API call failed) */}
       {stressError && (
-        <div className="p-6 rounded-2xl border border-negative/30 bg-negative/10 backdrop-blur-md space-y-4 shadow-glass">
+        <div className="p-6 rounded-lg border border-negative/30 bg-negative/10 backdrop-blur-md space-y-4 shadow-glass">
           <div className="flex items-start gap-3.5">
-            <div className="p-2 rounded-xl bg-negative/20 text-negative flex-shrink-0">
+            <div className="p-2 rounded-md bg-negative/20 text-negative flex-shrink-0">
               <AlertCircle className="w-5 h-5 stroke-[2]" />
             </div>
             <div className="space-y-1 flex-1">
@@ -427,7 +425,7 @@ export const StressPage: React.FC = () => {
             </span>
             <button
               onClick={() => refetch()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-main border border-[rgba(226,235,244,0.25)] text-xs font-mono font-semibold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-white/[0.08] hover:bg-white/[0.15] text-main border border-[rgba(226,235,244,0.25)] text-xs font-mono font-semibold transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
             >
               <RefreshCw className="w-3.5 h-3.5 stroke-[2]" />
               <span>Retry Calculation</span>
@@ -439,7 +437,7 @@ export const StressPage: React.FC = () => {
       {/* 4. Valuation, Shock-Impact, and Risk Transition (Rendered when loading or data available) */}
       {!stressError && (
         <>
-          {isStressing ? (
+          {isStressing && !stressData ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <CardSkeleton />
               <CardSkeleton />
@@ -526,7 +524,7 @@ export const StressPage: React.FC = () => {
           )}
 
           {/* 5. Per-Asset Impact Bars */}
-          <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+          <div className="rounded-lg glass-panel p-5 space-y-4 shadow-glass">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[rgba(226,235,244,0.10)]">
               <div>
                 <h2 className="text-sm font-bold text-main flex items-center gap-2 font-sans tracking-tight">
@@ -551,7 +549,7 @@ export const StressPage: React.FC = () => {
               </div>
             </div>
 
-            {isStressing ? (
+            {isStressing && !stressData ? (
               <div className="space-y-3">
                 <Skeleton className="h-11 w-full rounded-xl" />
                 <Skeleton className="h-11 w-full rounded-xl" />
@@ -570,7 +568,7 @@ export const StressPage: React.FC = () => {
                   return (
                     <div
                       key={asset.ticker}
-                      className="p-3 rounded-xl border border-[rgba(226,235,244,0.12)] bg-white/[0.025] hover:bg-white/[0.05] hover:border-[rgba(226,235,244,0.22)] transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-glass-sm"
+                      className="p-3 rounded-lg border border-[rgba(226,235,244,0.12)] bg-white/[0.025] flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-glass-sm"
                     >
                       {/* Ticker & Status Badge */}
                       <div className="w-full md:w-44 flex items-center justify-between md:justify-start gap-2.5">
@@ -578,7 +576,7 @@ export const StressPage: React.FC = () => {
                           {asset.ticker}
                         </span>
                         <span
-                          className={`text-[10px] font-mono px-2 py-0.5 rounded-md flex items-center gap-1 border tabular-nums ${
+                          className={`text-[10px] font-mono px-2 py-0.5 rounded-sm flex items-center gap-1 border tabular-nums ${
                             isNegative
                               ? "bg-negative/10 text-negative border-negative/30"
                               : "bg-positive/10 text-positive border-positive/30"
@@ -596,19 +594,16 @@ export const StressPage: React.FC = () => {
                       {/* Zero-Centered Horizontal Impact Bar */}
                       <div className="flex-1 flex items-center gap-3">
                         <div className="relative flex-1 h-3 bg-[#080B10] rounded-full overflow-hidden border border-[rgba(226,235,244,0.15)] shadow-inner">
-                          {/* Zero center axis tick */}
                           <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white/40 z-10" />
 
                           {isNegative ? (
-                            /* Negative bar extends left from center */
                             <div
-                              className="absolute top-0 bottom-0 right-1/2 bg-negative rounded-l-full transition-all duration-300"
+                              className="absolute top-0 bottom-0 right-1/2 bg-negative rounded-l-full transition-[width] duration-300 ease-out"
                               style={{ width: `${barPercent / 2}%` }}
                             />
                           ) : (
-                            /* Positive bar extends right from center */
                             <div
-                              className="absolute top-0 bottom-0 left-1/2 bg-positive rounded-r-full transition-all duration-300"
+                              className="absolute top-0 bottom-0 left-1/2 bg-positive rounded-r-full transition-[width] duration-300 ease-out"
                               style={{ width: `${barPercent / 2}%` }}
                             />
                           )}
@@ -636,7 +631,7 @@ export const StressPage: React.FC = () => {
 
           {/* 6. Monte Carlo Regime Stress Range (p5 / p50 / p95) */}
           {(activeScenario === "high_volatility" || stressData?.mc) && (
-            <div className="rounded-2xl glass-panel-elevated p-5 space-y-4 shadow-glass border-[rgba(226,235,244,0.22)]">
+            <div className="rounded-lg glass-panel-elevated p-5 space-y-4 shadow-glass border-[rgba(226,235,244,0.22)]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[rgba(226,235,244,0.10)]">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-md bg-warning/15 border border-warning/30 flex items-center justify-center text-warning">
@@ -646,7 +641,7 @@ export const StressPage: React.FC = () => {
                     Monte Carlo Stress Spectrum: p5 / p50 / p95 (1,000 Paths)
                   </h3>
                 </div>
-                <span className="text-[11px] font-mono text-warning px-2 py-0.5 rounded-md bg-warning/10 border border-warning/30 font-semibold">
+                <span className="text-[11px] font-mono text-warning px-2 py-0.5 rounded-sm bg-warning/10 border border-warning/30 font-semibold">
                   Forward 6-Month Projection
                 </span>
               </div>
@@ -658,7 +653,7 @@ export const StressPage: React.FC = () => {
               {/* Range Visualizer Metrics */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 {/* p5 (Tail Risk Floor) */}
-                <div className="p-3.5 rounded-xl bg-negative/10 border border-negative/25 space-y-1">
+                <div className="p-3.5 rounded-md bg-negative/10 border border-negative/25 space-y-1">
                   <div className="flex items-center gap-1.5 text-negative font-mono text-xs font-bold">
                     <TrendingDown className="w-3.5 h-3.5 stroke-[2]" />
                     <span>p5 (Tail Floor)</span>
@@ -670,7 +665,7 @@ export const StressPage: React.FC = () => {
                 </div>
 
                 {/* p50 (Median Trajectory) */}
-                <div className="p-3.5 rounded-xl bg-teal/10 border border-teal/25 space-y-1">
+                <div className="p-3.5 rounded-md bg-teal/10 border border-teal/25 space-y-1">
                   <div className="flex items-center gap-1.5 text-teal font-mono text-xs font-bold">
                     <Activity className="w-3.5 h-3.5 stroke-[2]" />
                     <span>p50 (Median Trajectory)</span>
@@ -682,7 +677,7 @@ export const StressPage: React.FC = () => {
                 </div>
 
                 {/* p95 (Bullish Rebound) */}
-                <div className="p-3.5 rounded-xl bg-positive/10 border border-positive/25 space-y-1">
+                <div className="p-3.5 rounded-md bg-positive/10 border border-positive/25 space-y-1">
                   <div className="flex items-center gap-1.5 text-positive font-mono text-xs font-bold">
                     <TrendingUp className="w-3.5 h-3.5 stroke-[2]" />
                     <span>p95 (Optimistic Upside)</span>
@@ -720,7 +715,7 @@ export const StressPage: React.FC = () => {
 
           {/* 7. Explanations Rendered Verbatim */}
           {stressData?.explanations && stressData.explanations.length > 0 && (
-            <div className="p-5 rounded-2xl glass-panel space-y-3">
+            <div className="p-5 rounded-lg glass-panel space-y-3">
               <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-main flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-teal stroke-[2]" />
                 Scenario Diagnostics & Findings

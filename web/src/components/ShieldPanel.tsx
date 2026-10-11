@@ -15,18 +15,14 @@ import {
   ShieldCheck,
   ShieldAlert,
   Sliders,
-  DollarSign,
-  TrendingDown,
   TrendingUp,
   Percent,
   CheckCircle2,
-  AlertTriangle,
   Info,
 } from "lucide-react";
 import { shieldPortfolio } from "../api/client";
 import { MetricCard } from "./MetricCard";
 import { ErrorToast } from "./ErrorToast";
-import { CardSkeleton } from "./Skeleton";
 import { ChartTooltip } from "./ChartTooltip";
 import { formatCurrency, formatPercent } from "../utils/format";
 import type { Period, Currency } from "../api/types";
@@ -53,7 +49,6 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
 
   const {
     data: shieldData,
-    isLoading,
     error,
     refetch,
   } = useQuery({
@@ -80,18 +75,18 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
     })) || [];
 
   return (
-    <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-5 shadow-glass-sm">
+    <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-5 shadow-glass-sm">
       {/* Header and Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[rgba(226,235,244,0.14)] pb-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-teal/10 text-teal border border-teal/20">
+            <div className="p-2 rounded-md bg-teal/10 text-teal border border-teal/20">
               <ShieldCheck className="w-4 h-4 stroke-[1.75]" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-main font-heading flex items-center gap-2">
                 <span>Drawdown Shield</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-teal/15 text-teal border border-teal/30 font-medium">
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm bg-teal/15 text-teal border border-teal/30 font-medium">
                   simulated
                 </span>
               </h3>
@@ -105,12 +100,12 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
         {/* Floor breached or intact status */}
         <div>
           {shieldData?.floor_breached ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-negative/15 text-negative border border-negative/30 shadow-glass-sm">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold bg-negative/15 text-negative border border-negative/30 shadow-glass-sm">
               <ShieldAlert className="w-3.5 h-3.5 stroke-[1.75]" />
               Floor Breached
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-positive/15 text-positive border border-positive/30 shadow-glass-sm">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold bg-positive/15 text-positive border border-positive/30 shadow-glass-sm">
               <CheckCircle2 className="w-3.5 h-3.5 stroke-[1.75]" />
               Floor Intact (0 Breaches)
             </span>
@@ -141,7 +136,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
               step="0.01"
               value={floor}
               onChange={(e) => setFloor(parseFloat(e.target.value))}
-              className="w-full accent-teal cursor-pointer h-1.5 bg-white/[0.08] rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
+              className="w-full accent-teal cursor-pointer h-1.5 bg-white/[0.08] rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
             />
           </div>
           <div className="flex justify-between text-[10px] text-secondary/70 font-mono">
@@ -168,7 +163,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
               step="1"
               value={multiplier}
               onChange={(e) => setMultiplier(parseInt(e.target.value, 10))}
-              className="w-full accent-teal cursor-pointer h-1.5 bg-white/[0.08] rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
+              className="w-full accent-teal cursor-pointer h-1.5 bg-white/[0.08] rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
             />
           </div>
           <div className="flex justify-between text-[10px] text-secondary/70 font-mono">
@@ -257,7 +252,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
 
         <div className="h-64 w-full">
           {chartData.length === 0 ? (
-            <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+            <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-lg">
               No shield trajectory data available.
             </div>
           ) : (
@@ -269,6 +264,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
                   stroke="rgba(226,235,244,0.12)"
                   fontSize={10}
                   tickLine={false}
+                  minTickGap={45}
                   tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
                 />
                 <YAxis
@@ -342,7 +338,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
       </div>
 
       {/* Risky Share Area Chart */}
-      <div className="rounded-xl glass-panel-elevated border border-[rgba(226,235,244,0.14)] p-4 sm:p-5 space-y-3">
+      <div className="rounded-lg glass-panel-elevated border border-[rgba(226,235,244,0.14)] p-4 sm:p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-secondary flex items-center gap-2 font-heading">
@@ -358,7 +354,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
 
         <div className="h-36 w-full">
           {chartData.length === 0 ? (
-            <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
+            <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-lg">
               No allocation share data available.
             </div>
           ) : (
@@ -376,6 +372,7 @@ export const ShieldPanel: React.FC<ShieldPanelProps> = ({
                   stroke="rgba(226,235,244,0.12)"
                   fontSize={10}
                   tickLine={false}
+                  minTickGap={45}
                   tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
                 />
                 <YAxis

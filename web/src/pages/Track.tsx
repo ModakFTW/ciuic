@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   TrendingUp,
   TrendingDown,
@@ -7,7 +7,6 @@ import {
   PieChart as PieIcon,
   CheckCircle2,
   DollarSign,
-  Radio,
   ArrowUpRight,
   ArrowDownRight,
   RefreshCw,
@@ -16,8 +15,6 @@ import {
   Sparkles,
   Award,
   Layers,
-  Clock,
-  AlertCircle,
 } from "lucide-react";
 import {
   LineChart,
@@ -37,9 +34,8 @@ import { PageTitle } from "../components/PageTitle";
 import { MetricCard } from "../components/MetricCard";
 import { RiskBadge } from "../components/RiskBadge";
 import { ErrorToast } from "../components/ErrorToast";
-import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { ChartTooltip } from "../components/ChartTooltip";
-import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
+import { formatCurrency, formatPercent } from "../utils/format";
 import type { LookbackPeriod, PositionIn, Benchmark } from "../api/types";
 
 const COLORS = ["#74C7BE", "#86C8A0", "#D9B675", "#A4B3C6", "#6A94C7", "#E47782"];
@@ -68,15 +64,10 @@ export const TrackPage: React.FC = () => {
   // Lookback chips: 1m, 6m, 1y, 3y
   const [lookback, setLookback] = useState<LookbackPeriod>("6m");
 
-  // Last updated timestamp
-  const [lastUpdated, setLastUpdated] = useState<string>(() =>
-    new Date().toLocaleTimeString()
-  );
-
   // Auto-refresh prices every 60 seconds
   const {
     data: trackData,
-    isLoading: isTracking,
+    isFetching,
     error: trackError,
     refetch,
     dataUpdatedAt,
@@ -90,15 +81,14 @@ export const TrackPage: React.FC = () => {
         currency,
       }),
     enabled: positions.length >= 1,
+    placeholderData: keepPreviousData,
     refetchInterval: 60000, // Auto-refresh every 60 seconds
     staleTime: 1000 * 30,
   });
 
-  useEffect(() => {
-    if (dataUpdatedAt) {
-      setLastUpdated(new Date(dataUpdatedAt).toLocaleTimeString());
-    }
-  }, [dataUpdatedAt]);
+  const lastUpdated = dataUpdatedAt
+    ? new Date(dataUpdatedAt).toLocaleTimeString()
+    : "Just now";
 
   const handleUpdatePosition = (
     index: number,
@@ -163,7 +153,7 @@ export const TrackPage: React.FC = () => {
   const verdict = trackData?.benchmark?.verdict || "outperforming";
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
       <PageTitle
         title="Live Portfolio Tracking"
         description="Monitor mark-to-market valuations, real-time P&L breakdown, and live benchmark comparisons with automated 60-second refreshes."
@@ -190,7 +180,7 @@ export const TrackPage: React.FC = () => {
                 className="p-1 text-secondary hover:text-teal rounded-md transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
                 title="Refresh prices now"
               >
-                <RefreshCw className="w-3 h-3 stroke-[2]" />
+                <RefreshCw className={`w-3 h-3 stroke-[2] ${isFetching ? "animate-spin" : ""}`} />
               </button>
             </div>
           </div>
@@ -200,7 +190,7 @@ export const TrackPage: React.FC = () => {
       {trackError && <ErrorToast error={trackError as Error} onRetry={refetch} />}
 
       {/* 1. Holdings Entry Table with 'Use Demo Holdings' Button */}
-      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+      <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
         <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
@@ -383,7 +373,7 @@ export const TrackPage: React.FC = () => {
 
       {/* 3. Verdict Banner (outperforming / underperforming / in_line) with Explanation Text */}
       <div
-        className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-glass-sm ${
+        className={`p-5 rounded-lg border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-glass-sm ${
           verdict === "outperforming"
             ? "border-positive/30 bg-positive/[0.04] text-positive"
             : verdict === "underperforming"
@@ -423,7 +413,7 @@ export const TrackPage: React.FC = () => {
       </div>
 
       {/* 4. Positions Table (price, value, P&L Rs and %, weight, day change coloured green/red) */}
-      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+      <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
         <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
@@ -511,7 +501,7 @@ export const TrackPage: React.FC = () => {
       {/* 5. Benchmark Controls, Growth Overlay Chart & Allocation Donut */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Growth Overlay Chart */}
-        <div className="lg:col-span-2 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
+        <div className="lg:col-span-2 rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-main uppercase tracking-wider font-heading flex items-center gap-2">
@@ -575,6 +565,7 @@ export const TrackPage: React.FC = () => {
                     stroke="rgba(226,235,244,0.14)"
                     tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
                     tickLine={false}
+                    minTickGap={45}
                   />
                   <YAxis
                     stroke="rgba(226,235,244,0.14)"
@@ -631,7 +622,7 @@ export const TrackPage: React.FC = () => {
         </div>
 
         {/* Allocation Donut */}
-        <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
+        <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-main uppercase tracking-wider font-heading flex items-center gap-2">
               <PieIcon className="w-4 h-4 text-teal stroke-[1.75]" />
@@ -702,7 +693,7 @@ export const TrackPage: React.FC = () => {
 
       {/* 6. Metrics Comparison Table: Portfolio vs Benchmark */}
       {trackData?.benchmark?.portfolio && trackData?.benchmark?.benchmark_metrics && (
-        <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+        <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
           <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex items-center justify-between">
             <h3 className="text-sm font-bold text-main uppercase tracking-wider font-heading flex items-center gap-2">
               <Award className="w-4 h-4 text-teal stroke-[1.75]" />

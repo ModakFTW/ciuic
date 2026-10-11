@@ -34,12 +34,12 @@ export const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-app text-main font-sans antialiased selection:bg-teal-subtle selection:text-white">
       {/* Sidebar Navigation */}
-      <aside className="w-14 md:w-56 lg:w-60 border-r border-[rgba(226,235,244,0.15)] bg-sidebar flex flex-col justify-between flex-shrink-0 sticky top-0 h-screen z-30 transition-all duration-200">
+      <aside className="w-14 md:w-56 lg:w-60 border-r border-[rgba(226,235,244,0.15)] bg-sidebar flex flex-col justify-between flex-shrink-0 sticky top-0 h-screen z-30 transition-[width] duration-150 ease-out">
         <div>
           {/* Logo & Terminal Brand */}
           <div className="px-3 md:px-5 py-4 border-b border-[rgba(226,235,244,0.12)] flex items-center justify-center md:justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-teal/15 border border-teal/30 flex items-center justify-center text-teal shadow-glass-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] flex-shrink-0">
+              <div className="w-7 h-7 rounded-md bg-teal/15 border border-teal/30 flex items-center justify-center text-teal shadow-glass-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] flex-shrink-0">
                 <ShieldCheck className="w-4 h-4 stroke-[2]" />
               </div>
               <div className="hidden md:block">
@@ -70,7 +70,7 @@ export const Layout: React.FC = () => {
                   key={item.path}
                   to={item.path}
                   title={item.label}
-                  className={`flex items-center justify-center md:justify-between px-2.5 md:px-3 py-2 rounded-xl text-xs font-medium transition-all min-h-[40px] ${
+                  className={`flex items-center justify-center md:justify-between px-2.5 md:px-3 py-2 rounded-md text-xs font-medium transition-colors duration-150 min-h-[40px] ${
                     isActive
                       ? "bg-white/[0.06] text-main border border-[rgba(226,235,244,0.30)] shadow-glass-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] font-semibold"
                       : "text-secondary hover:text-main hover:bg-white/[0.03] border border-transparent"
@@ -86,7 +86,7 @@ export const Layout: React.FC = () => {
                     <span className="hidden md:inline">{item.label}</span>
                   </div>
                   <span
-                    className={`hidden md:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                    className={`hidden md:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded-sm ${
                       isActive
                         ? "bg-teal/15 text-teal border border-teal/30"
                         : "bg-white/[0.04] text-secondary/70 border border-white/[0.06]"
@@ -121,7 +121,7 @@ export const Layout: React.FC = () => {
           <button
             onClick={loadDemoPortfolio}
             title="Reset Demo Portfolio"
-            className="hidden md:block w-full text-center text-xs font-mono text-secondary hover:text-main py-2 rounded-lg bg-white/[0.035] hover:bg-white/[0.065] border border-[rgba(226,235,244,0.15)] hover:border-[rgba(226,235,244,0.28)] transition-all cursor-pointer min-h-[36px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
+            className="hidden md:block w-full text-center text-xs font-mono text-secondary hover:text-main py-2 rounded-md bg-white/[0.035] hover:bg-white/[0.065] border border-[rgba(226,235,244,0.15)] hover:border-[rgba(226,235,244,0.28)] transition-colors duration-150 cursor-pointer min-h-[36px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
           >
             Reset Demo Portfolio
           </button>
@@ -130,8 +130,8 @@ export const Layout: React.FC = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
-        <header className="h-14 border-b border-[rgba(226,235,244,0.15)] bg-[#0C1118]/85 backdrop-blur-md px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20 gap-2">
+        {/* Top Header - Opaque charcoal surface with thin border */}
+        <header className="h-14 border-b border-[rgba(226,235,244,0.15)] bg-[#0C1118] px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20 gap-2">
           <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <span className="text-xs font-mono text-secondary flex items-center gap-1.5 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-teal flex-shrink-0" />

@@ -7,7 +7,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import type {
   Holding,
   RiskLevel,
@@ -228,6 +228,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         currency: debouncedParams.currency,
       }),
     enabled: debouncedParams.holdings.length >= 2,
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -263,6 +264,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       });
     },
     enabled: tickers.length >= 2,
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -288,11 +290,11 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       loadPreset,
       applyCounterfactual,
       analyzeData: analyzeQuery.data,
-      isAnalyzing: analyzeQuery.isLoading,
+      isAnalyzing: analyzeQuery.isFetching,
       analyzeError: (analyzeQuery.error as Error) || null,
       refetchAnalyze: analyzeQuery.refetch,
       allocateData: allocateQuery.data,
-      isAllocating: allocateQuery.isLoading,
+      isAllocating: allocateQuery.isFetching,
       allocateError: (allocateQuery.error as Error) || null,
       refetchAllocate: allocateQuery.refetch,
       meta,
@@ -309,11 +311,11 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       loadPreset,
       applyCounterfactual,
       analyzeQuery.data,
-      analyzeQuery.isLoading,
+      analyzeQuery.isFetching,
       analyzeQuery.error,
       analyzeQuery.refetch,
       allocateQuery.data,
-      allocateQuery.isLoading,
+      allocateQuery.isFetching,
       allocateQuery.error,
       allocateQuery.refetch,
       meta,

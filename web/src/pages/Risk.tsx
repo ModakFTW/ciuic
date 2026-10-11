@@ -9,10 +9,6 @@ import {
   PieChart as PieIcon,
   X,
   Check,
-  TrendingDown,
-  TrendingUp,
-  Activity,
-  Sliders,
   CheckCircle2,
 } from "lucide-react";
 import {
@@ -88,7 +84,7 @@ export const RiskPage: React.FC = () => {
           title="Risk Analysis"
           description="Forward 126-trading-day risk classification, calibrated probabilities, and factor attribution."
         />
-        <div className="p-12 rounded-2xl glass-panel text-center space-y-4 max-w-xl mx-auto shadow-glass">
+        <div className="p-12 rounded-lg glass-panel text-center space-y-4 max-w-xl mx-auto shadow-glass">
           <div className="w-12 h-12 rounded-xl bg-warning/15 border border-warning/30 flex items-center justify-center text-warning mx-auto">
             <AlertTriangle className="w-6 h-6 stroke-[1.75]" />
           </div>
@@ -99,7 +95,7 @@ export const RiskPage: React.FC = () => {
           <div className="pt-2">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
             >
               <span>Return to Portfolio Builder</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
@@ -151,7 +147,7 @@ export const RiskPage: React.FC = () => {
       : [];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="space-y-6">
       <PageTitle
         title="Risk Intelligence & Factor Attribution"
         description="Forward 126-trading-day multi-class risk model, calibrated class probabilities, and factor risk drivers."
@@ -169,7 +165,7 @@ export const RiskPage: React.FC = () => {
           data?.counterfactual && data.risk_label === "High" ? (
             <button
               onClick={() => setShowCounterfactualModal(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium glass-panel-interactive text-main border border-warning/30 hover:border-warning/60 transition-all min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs font-mono font-medium glass-panel-interactive text-main border border-warning/30 hover:border-warning/60 transition-colors duration-150 min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96]"
               title="Compare and morph risk to Medium using counterfactual frontier optimization"
             >
               <span className="w-2 h-2 rounded-full bg-warning shadow-sm" />
@@ -185,7 +181,7 @@ export const RiskPage: React.FC = () => {
       )}
 
       {/* Model Verdict & Calibrated Probabilities Header Card */}
-      <div className="rounded-2xl glass-panel-elevated p-6 space-y-5 shadow-glass">
+      <div className="rounded-lg glass-panel-elevated p-6 space-y-5 shadow-glass">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-3.5 flex-1">
             <div className="flex items-center gap-2">
@@ -219,7 +215,7 @@ export const RiskPage: React.FC = () => {
           </div>
 
           {/* Calibrated Class Probabilities */}
-          <div className="w-full lg:w-80 bg-[#080B10]/70 p-4 rounded-xl border border-[rgba(226,235,244,0.15)] space-y-3 shadow-glass-sm">
+          <div className="w-full lg:w-80 bg-[#080B10]/70 p-4 rounded-md border border-[rgba(226,235,244,0.15)] space-y-3 shadow-glass-sm">
             <div className="flex items-center justify-between text-xs font-mono text-secondary">
               <span className="flex items-center gap-1.5 font-medium">
                 <Gauge className="w-3.5 h-3.5 text-secondary/70 stroke-[1.75]" />
@@ -239,7 +235,7 @@ export const RiskPage: React.FC = () => {
                 </div>
                 <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-positive rounded-full transition-all duration-300"
+                    className="h-full bg-positive rounded-full transition-[width] duration-300 ease-out"
                     style={{ width: `${(data?.probs?.Low ?? 0.04) * 100}%` }}
                   />
                 </div>
@@ -255,7 +251,7 @@ export const RiskPage: React.FC = () => {
                 </div>
                 <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-warning rounded-full transition-all duration-300"
+                    className="h-full bg-warning rounded-full transition-[width] duration-300 ease-out"
                     style={{ width: `${(data?.probs?.Medium ?? 0.28) * 100}%` }}
                   />
                 </div>
@@ -271,7 +267,7 @@ export const RiskPage: React.FC = () => {
                 </div>
                 <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-negative rounded-full transition-all duration-300"
+                    className="h-full bg-negative rounded-full transition-[width] duration-300 ease-out"
                     style={{ width: `${(data?.probs?.High ?? 0.68) * 100}%` }}
                   />
                 </div>
@@ -329,7 +325,7 @@ export const RiskPage: React.FC = () => {
       </div>
 
       {/* Asset Contribution: Risk vs Return Chart */}
-      <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+      <div className="rounded-lg glass-panel p-5 space-y-4 shadow-glass">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[rgba(226,235,244,0.10)]">
           <div>
             <h2 className="text-sm font-bold text-main flex items-center gap-2 font-sans tracking-tight">
@@ -433,7 +429,7 @@ export const RiskPage: React.FC = () => {
       {/* Factor Drivers Hierarchy & Sector Exposure Donut */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* SHAP Risk Drivers Bar Chart with Direction Arrows */}
-        <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+        <div className="rounded-lg glass-panel p-5 space-y-4 shadow-glass">
           <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.10)]">
             <h3 className="text-sm font-bold text-main flex items-center gap-2 font-sans">
               <span className="w-2 h-2 rounded-full bg-teal" />
@@ -512,7 +508,7 @@ export const RiskPage: React.FC = () => {
         </div>
 
         {/* Sector Exposure Donut */}
-        <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+        <div className="rounded-lg glass-panel p-5 space-y-4 shadow-glass">
           <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.10)]">
             <h3 className="text-sm font-bold text-main flex items-center gap-2 font-sans">
               <PieIcon className="w-4 h-4 text-teal stroke-[1.75]" />
@@ -582,7 +578,7 @@ export const RiskPage: React.FC = () => {
 
       {/* Explanations List Rendered Verbatim */}
       {data?.explanations && data.explanations.length > 0 && (
-        <div className="p-5 rounded-2xl glass-panel space-y-3 shadow-glass">
+        <div className="p-5 rounded-lg glass-panel space-y-3 shadow-glass">
           <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-main flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-teal stroke-[2]" />
             Risk Diagnostics & Model Findings
@@ -601,7 +597,7 @@ export const RiskPage: React.FC = () => {
       {/* Counterfactual Target Medium Modal */}
       {showCounterfactualModal && data?.counterfactual && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-          <div className="rounded-2xl glass-panel-elevated max-w-lg w-full p-6 space-y-5 border border-[rgba(226,235,244,0.25)] shadow-glass animate-in fade-in zoom-in-95 duration-150">
+          <div className="rounded-lg glass-panel-elevated max-w-lg w-full p-6 space-y-5 border border-[rgba(226,235,244,0.25)] shadow-glass animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.12)]">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-warning" />
@@ -668,13 +664,13 @@ export const RiskPage: React.FC = () => {
             <div className="pt-3 border-t border-[rgba(226,235,244,0.12)] flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowCounterfactualModal(false)}
-                className="px-3.5 py-2 rounded-xl text-xs font-mono font-medium text-secondary hover:text-main bg-white/[0.04] hover:bg-white/[0.08] border border-[rgba(226,235,244,0.15)] transition-all cursor-pointer min-h-[38px] active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
+                className="px-3.5 py-2 rounded-md text-xs font-mono font-medium text-secondary hover:text-main bg-white/[0.04] hover:bg-white/[0.08] border border-[rgba(226,235,244,0.15)] transition-colors duration-150 cursor-pointer min-h-[38px] active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60"
               >
                 Cancel
               </button>
               <button
                 onClick={handleApplyCounterfactual}
-                className="px-4 py-2 rounded-xl text-xs font-mono font-semibold text-main bg-warning/20 hover:bg-warning/30 border border-warning/50 text-warning transition-all shadow-glass-sm cursor-pointer min-h-[38px] flex items-center gap-2 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60"
+                className="px-4 py-2 rounded-md text-xs font-mono font-semibold text-main bg-warning/20 hover:bg-warning/30 border border-warning/50 text-warning transition-colors duration-150 shadow-glass-sm cursor-pointer min-h-[38px] flex items-center gap-2 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-warning/60"
               >
                 <Check className="w-3.5 h-3.5 stroke-[2]" />
                 <span>Apply Medium Risk Weights</span>

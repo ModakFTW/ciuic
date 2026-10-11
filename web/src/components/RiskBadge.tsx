@@ -38,16 +38,16 @@ export const RiskBadge: React.FC<RiskBadgeProps> = ({
   if (size === "xl") {
     return (
       <div
-        className={`inline-flex items-center gap-3.5 px-4 py-3 rounded-xl border bg-white/[0.04] backdrop-blur-md ${colorClasses} shadow-glass-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ${className}`}
+        className={`inline-flex items-center gap-3.5 px-4 py-3 rounded-lg border bg-white/[0.04] backdrop-blur-md ${colorClasses} shadow-glass-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ${className}`}
       >
-        <div className="p-2 rounded-lg bg-[#080B10]/60 border border-current/20">
+        <div className="p-2 rounded-md bg-[#080B10]/60 border border-current/20">
           <Icon className="w-5 h-5 stroke-[1.75]" />
         </div>
         <div>
           <div className="flex items-baseline gap-2.5">
             <span className="text-base font-bold tracking-tight text-main">{text}</span>
             {score !== undefined && (
-              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-md bg-[#080B10]/80 border border-current/30 tabular-nums">
+              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-sm bg-[#080B10]/80 border border-current/30 tabular-nums">
                 Score {score}/100
               </span>
             )}
@@ -63,9 +63,9 @@ export const RiskBadge: React.FC<RiskBadgeProps> = ({
   }
 
   const sizeClasses = {
-    sm: "px-2 py-0.5 text-[10px] gap-1 rounded-md",
-    md: "px-2.5 py-1 text-xs gap-1.5 rounded-lg",
-    lg: "px-3 py-1.5 text-xs font-medium gap-2 rounded-lg",
+    sm: "px-2 py-0.5 text-[10px] gap-1 rounded-sm",
+    md: "px-2.5 py-1 text-xs gap-1.5 rounded-md",
+    lg: "px-3 py-1.5 text-xs font-medium gap-2 rounded-md",
   }[size];
 
   return (

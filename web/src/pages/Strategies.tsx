@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   LineChart,
   Line,
@@ -8,14 +8,10 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  Legend,
 } from "recharts";
 import {
-  ShieldCheck,
   TrendingUp,
   Award,
-  Layers,
-  Sparkles,
   Info,
   CheckCircle2,
   AlertTriangle,
@@ -36,7 +32,7 @@ import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
 export const StrategiesPage: React.FC = () => {
   const { holdings, risk_level, benchmark, period, currency, amount } = usePortfolio();
 
-  const [shieldFloor, setShieldFloor] = useState<number>(-0.15); // Default -15%
+  const [shieldFloor] = useState<number>(-0.15); // Default -15%
 
   const total = holdings.reduce((sum, h) => sum + (Number(h.amount) || 0), 0);
   const weights: Record<string, number> = {};
@@ -61,6 +57,7 @@ export const StrategiesPage: React.FC = () => {
         currency,
       }),
     enabled: holdings.length >= 2,
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -98,7 +95,7 @@ export const StrategiesPage: React.FC = () => {
           title="Strategy Comparison & Drawdown Shield"
           description="Comprehensive 5-way backtest benchmarking Original vs Recommended vs Equal-Weight vs Drawdown Shield vs Market Index."
         />
-        <div className="p-12 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] text-center space-y-4 shadow-glass-md">
+        <div className="p-12 rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] text-center space-y-4 shadow-glass-md">
           <div className="w-12 h-12 rounded-xl bg-warning/10 border border-warning/30 flex items-center justify-center mx-auto text-warning">
             <AlertTriangle className="w-6 h-6 stroke-[1.75]" />
           </div>
@@ -108,7 +105,7 @@ export const StrategiesPage: React.FC = () => {
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal hover:bg-teal/90 text-background-base font-bold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96] shadow-glass-sm"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-teal hover:bg-teal/90 text-background-base font-bold text-xs transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 active:scale-[0.96] shadow-glass-sm"
           >
             <span>Return to Portfolio Builder</span>
             <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
@@ -125,10 +122,10 @@ export const StrategiesPage: React.FC = () => {
           title="Strategy Comparison & Drawdown Shield"
           description="Comprehensive 5-way backtest benchmarking Original vs Recommended vs Equal-Weight vs Drawdown Shield vs Market Index."
         />
-        <div className="p-8 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)]">
+        <div className="p-8 rounded-lg glass-panel border border-[rgba(226,235,244,0.18)]">
           <CardSkeleton rows={5} />
         </div>
-        <div className="p-8 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)]">
+        <div className="p-8 rounded-lg glass-panel border border-[rgba(226,235,244,0.18)]">
           <CardSkeleton rows={5} />
         </div>
       </div>
@@ -136,7 +133,7 @@ export const StrategiesPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-8">
       <PageTitle
         title="Strategy Comparison & Drawdown Shield"
         description="Comprehensive 5-way backtest benchmarking Original vs Recommended vs Equal-Weight vs Drawdown Shield vs Market Index."
@@ -162,7 +159,7 @@ export const StrategiesPage: React.FC = () => {
       )}
 
       {/* 1. One Chart with Five Lines */}
-      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
+      <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
@@ -187,7 +184,7 @@ export const StrategiesPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="h-84 w-full">
+        <div className="h-80 min-h-[320px] w-full">
           {chartData.length === 0 ? (
             <div className="h-full w-full flex items-center justify-center text-secondary text-xs font-mono border border-dashed border-[rgba(226,235,244,0.1)] rounded-xl">
               No backtest series data available for the current selection.
@@ -201,6 +198,7 @@ export const StrategiesPage: React.FC = () => {
                   stroke="rgba(226,235,244,0.12)"
                   fontSize={10}
                   tickLine={false}
+                  minTickGap={45}
                   tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
                 />
                 <YAxis
@@ -280,7 +278,7 @@ export const StrategiesPage: React.FC = () => {
       </div>
 
       {/* 2. Metrics Table with Best Value per Column Highlighted using best_by & Risk Label Badge */}
-      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+      <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
         <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-warning stroke-[1.75]" />
@@ -380,7 +378,7 @@ export const StrategiesPage: React.FC = () => {
       </div>
 
       {/* 3. Weights Comparison Table for First Three (Original, Recommended, Equal Weight) */}
-      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+      <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
         <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Scale className="w-4 h-4 text-teal stroke-[1.75]" />
@@ -446,7 +444,7 @@ export const StrategiesPage: React.FC = () => {
 
       {/* 4. Verbatim Explanations List */}
       {compareData?.explanations && (
-        <div className="p-5 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] space-y-3 shadow-glass-sm">
+        <div className="p-5 rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] space-y-3 shadow-glass-sm">
           <h3 className="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-2 font-heading">
             <CheckCircle2 className="w-4 h-4 text-teal stroke-[1.75]" />
             Strategy Comparison Explanations

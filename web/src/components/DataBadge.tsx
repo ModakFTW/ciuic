@@ -13,7 +13,7 @@ export const DataBadge: React.FC<DataBadgeProps> = ({ meta, className = "" }) =>
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono border transition-colors ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono border ${
         isLive
           ? "bg-positive/10 text-positive border-positive/30 shadow-glass-sm"
           : "glass-panel-elevated border-[rgba(226,235,244,0.18)] text-secondary"

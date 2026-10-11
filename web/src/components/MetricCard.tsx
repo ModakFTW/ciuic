@@ -26,10 +26,10 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 }) => {
   return (
     <div
-      className={`rounded-xl border p-4 transition-all duration-150 backdrop-blur-md shadow-glass-sm ${
+      className={`rounded-lg border p-4 backdrop-blur-md shadow-glass-sm ${
         highlight
           ? "bg-white/[0.06] border-[rgba(226,235,244,0.30)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]"
-          : "bg-white/[0.035] border-[rgba(226,235,244,0.18)] hover:border-[rgba(226,235,244,0.28)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+          : "bg-white/[0.035] border-[rgba(226,235,244,0.18)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]"
       } ${className}`}
     >
       <div className="flex items-center justify-between gap-2 mb-2">

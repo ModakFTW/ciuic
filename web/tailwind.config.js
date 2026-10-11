@@ -6,6 +6,16 @@ export default {
   ],
   darkMode: 'class',
   theme: {
+    borderRadius: {
+      none: '0px',
+      sm: '6px',
+      DEFAULT: '10px',
+      md: '10px',
+      lg: '14px',
+      xl: '14px',
+      '2xl': '14px',
+      full: '9999px',
+    },
     extend: {
       colors: {
         app: '#080B10',
@@ -92,14 +102,6 @@ export default {
         sm: '0 1px 3px 0 rgba(0, 0, 0, 0.35)',
         md: '0 4px 12px -2px rgba(0, 0, 0, 0.40)',
         lg: '0 8px 24px -4px rgba(0, 0, 0, 0.50)',
-      },
-      borderRadius: {
-        xs: '4px',
-        sm: '6px',
-        md: '8px',
-        lg: '10px',
-        xl: '12px',
-        '2xl': '14px',
       },
       backdropBlur: {
         xs: '2px',

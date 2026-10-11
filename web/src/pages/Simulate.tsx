@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   LineChart,
   Line,
@@ -10,7 +10,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  Legend,
 } from "recharts";
 import {
   TrendingUp,
@@ -18,11 +17,9 @@ import {
   Calendar,
   Clock,
   Layers,
-  Sparkles,
   CheckCircle2,
   DollarSign,
   Plus,
-  Sliders,
   X,
   ArrowRight,
   AlertTriangle,
@@ -33,13 +30,13 @@ import { simulatePortfolio, getRegimes } from "../api/client";
 import { PageTitle } from "../components/PageTitle";
 import { MetricCard } from "../components/MetricCard";
 import { ErrorToast } from "../components/ErrorToast";
-import { CardSkeleton, Skeleton } from "../components/Skeleton";
+import { CardSkeleton } from "../components/Skeleton";
 import { ChartTooltip } from "../components/ChartTooltip";
 import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
 import type { RebalanceFrequency, Period } from "../api/types";
 
 export const SimulatePage: React.FC = () => {
-  const { holdings, amount, currency, period } = usePortfolio();
+  const { holdings, amount, currency } = usePortfolio();
 
   // Date range picker states (ISO format YYYY-MM-DD)
   const defaultStart = "2023-01-01";
@@ -55,7 +52,6 @@ export const SimulatePage: React.FC = () => {
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonPreset, setComparisonPreset] = useState<"recommended" | "equal">("recommended");
 
-  // Fetch regimes
   const { data: regimesData } = useQuery({
     queryKey: ["regimes"],
     queryFn: () => getRegimes(),
@@ -141,13 +137,13 @@ export const SimulatePage: React.FC = () => {
         currency,
       }),
     enabled: Object.keys(primaryWeights).length >= 2,
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
   });
 
   // Second Simulation Query (Comparison)
   const {
     data: compData,
-    isLoading: isCompSimulating,
   } = useQuery({
     queryKey: [
       "simulateComparison",
@@ -167,6 +163,7 @@ export const SimulatePage: React.FC = () => {
         currency,
       }),
     enabled: showComparison && Object.keys(comparisonWeights).length >= 2,
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -198,7 +195,7 @@ export const SimulatePage: React.FC = () => {
           title="Historical Simulation & Rebalancing"
           description="Backtest growth curves, evaluate regime pullbacks, and compare two asset weight sets on the same historical timeline."
         />
-        <div className="p-12 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] text-center space-y-4 shadow-glass-md">
+        <div className="p-12 rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] text-center space-y-4 shadow-glass-md">
           <div className="w-12 h-12 rounded-xl bg-warning/10 border border-warning/30 flex items-center justify-center mx-auto text-warning">
             <AlertTriangle className="w-6 h-6 stroke-[1.75]" />
           </div>
@@ -208,7 +205,7 @@ export const SimulatePage: React.FC = () => {
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal hover:bg-teal/90 text-background-base font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-teal/50 shadow-glass-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-teal hover:bg-teal/90 text-background-base font-bold text-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-teal/50 shadow-glass-sm"
           >
             <span>Return to Portfolio Builder</span>
             <ArrowRight className="w-4 h-4 stroke-[2]" />
@@ -237,7 +234,7 @@ export const SimulatePage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
       <PageTitle
         title="Historical Simulation & Rebalancing"
         description="Backtest growth curves, evaluate regime pullbacks, and compare two asset weight sets on the same historical timeline."
@@ -246,7 +243,7 @@ export const SimulatePage: React.FC = () => {
       {simError && <ErrorToast error={simError as Error} onRetry={refetchPrimary} />}
 
       {/* Regimes & Date Picker Toolbar */}
-      <div className="p-5 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] space-y-4 shadow-glass-sm">
+      <div className="p-5 rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] space-y-4 shadow-glass-sm">
         {/* Top Controls: Regime Chips */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="space-y-2">
@@ -259,7 +256,7 @@ export const SimulatePage: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => handleSelectRegime(null)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
                   activeRegime === null
                     ? "bg-teal/15 text-teal border-teal/40 font-semibold shadow-glass-sm"
                     : "bg-white/[0.03] text-secondary border-[rgba(226,235,244,0.12)] hover:text-main hover:bg-white/[0.06]"
@@ -271,7 +268,7 @@ export const SimulatePage: React.FC = () => {
                 <button
                   key={regime.id}
                   onClick={() => handleSelectRegime(regime.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
                     activeRegime === regime.id
                       ? "bg-teal/15 text-teal border-teal/40 font-semibold shadow-glass-sm"
                       : "bg-white/[0.03] text-secondary border-[rgba(226,235,244,0.12)] hover:text-main hover:bg-white/[0.06]"
@@ -288,12 +285,12 @@ export const SimulatePage: React.FC = () => {
             <span className="text-xs font-semibold uppercase tracking-wider text-secondary block">
               Rebalance Frequency:
             </span>
-            <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-[rgba(226,235,244,0.14)]">
+            <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-md border border-[rgba(226,235,244,0.14)]">
               {(["none", "monthly", "quarterly"] as RebalanceFrequency[]).map((f) => (
                 <button
                   key={f}
                   onClick={() => setRebalance(f)}
-                  className={`px-3 py-1 text-xs font-medium rounded-lg capitalize transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
+                  className={`px-3 py-1 text-xs font-medium rounded-md capitalize transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 ${
                     rebalance === f
                       ? "bg-teal text-background-base font-bold shadow-sm"
                       : "text-secondary hover:text-main"
@@ -319,7 +316,7 @@ export const SimulatePage: React.FC = () => {
                   setStartDate(e.target.value);
                   setActiveRegime(null);
                 }}
-                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 transition-colors"
+                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-md text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 transition-colors"
               />
               <span className="text-secondary">To:</span>
               <input
@@ -329,7 +326,7 @@ export const SimulatePage: React.FC = () => {
                   setEndDate(e.target.value);
                   setActiveRegime(null);
                 }}
-                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 transition-colors"
+                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-md text-main focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 transition-colors"
               />
             </div>
           </div>
@@ -339,13 +336,13 @@ export const SimulatePage: React.FC = () => {
             {!showComparison ? (
               <button
                 onClick={() => setShowComparison(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-teal/10 text-teal border border-teal/30 hover:bg-teal/20 transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 cursor-pointer shadow-glass-sm"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold bg-teal/10 text-teal border border-teal/30 hover:bg-teal/20 transition-colors active:scale-[0.96] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal/60 cursor-pointer shadow-glass-sm"
               >
                 <Plus className="w-3.5 h-3.5 stroke-[2]" />
                 <span>Compare Second Weight Set</span>
               </button>
             ) : (
-              <div className="flex items-center gap-2 bg-white/[0.04] px-3 py-1.5 rounded-xl border border-[rgba(226,235,244,0.18)] text-xs">
+              <div className="flex items-center gap-2 bg-white/[0.04] px-3 py-1.5 rounded-md border border-[rgba(226,235,244,0.18)] text-xs">
                 <span className="text-teal font-semibold">Comparing:</span>
                 <select
                   value={comparisonPreset}
@@ -361,7 +358,7 @@ export const SimulatePage: React.FC = () => {
                 </select>
                 <button
                   onClick={() => setShowComparison(false)}
-                  className="text-secondary hover:text-negative transition-colors ml-1 p-0.5 rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-negative/60"
+                  className="text-secondary hover:text-negative transition-colors ml-1 p-0.5 rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-negative/60"
                   title="Remove comparison line"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -374,7 +371,6 @@ export const SimulatePage: React.FC = () => {
 
       {/* Final Value Highlight Card & Summary Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* final_value card */}
         <MetricCard
           title="Final Portfolio Value"
           value={formatCurrency(simData?.final_value ?? 1724000, currency)}
@@ -413,7 +409,7 @@ export const SimulatePage: React.FC = () => {
       </div>
 
       {/* Growth Line Chart from series.portfolio (Plots 2 Series if comparison active) */}
-      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
+      <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
@@ -455,6 +451,7 @@ export const SimulatePage: React.FC = () => {
                   stroke="rgba(226,235,244,0.14)"
                   tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
                   tickLine={false}
+                  minTickGap={45}
                 />
                 <YAxis
                   stroke="rgba(226,235,244,0.14)"
@@ -515,7 +512,7 @@ export const SimulatePage: React.FC = () => {
       </div>
 
       {/* Underwater Drawdown Area Chart from drawdown */}
-      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
+      <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
@@ -547,6 +544,7 @@ export const SimulatePage: React.FC = () => {
                   stroke="rgba(226,235,244,0.14)"
                   tick={{ fill: "#9BA7B5", fontSize: 10, fontFamily: "IBM Plex Mono, monospace" }}
                   tickLine={false}
+                  minTickGap={45}
                 />
                 <YAxis
                   stroke="rgba(226,235,244,0.14)"
@@ -604,7 +602,7 @@ export const SimulatePage: React.FC = () => {
       </div>
 
       {/* Metrics Table: total_return, volatility, max_drawdown, sharpe, sortino */}
-      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+      <div className="rounded-lg glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
         <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex items-center justify-between">
           <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
             <Layers className="w-4 h-4 text-teal stroke-[1.75]" />
