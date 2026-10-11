@@ -104,6 +104,18 @@ def analyze_portfolio(req: AnalyzeRequest) -> dict[str, Any]:
                 tickers=tickers,
             )
 
+        # Attach benchmark prices if available so predict_risk and features calculate blended benchmark metrics
+        try:
+            loader_fn = _price_loader if _price_loader is not None else load_prices
+            bench_cols = [b for b in ["^NSEI", "^NDX"] if b not in prices.columns]
+            if bench_cols:
+                bench_df = loader_fn(bench_cols, start, end, req.currency)
+                for b in bench_cols:
+                    if b in bench_df.columns:
+                        prices[b] = bench_df[b]
+        except Exception:
+            pass
+
         # ── 3. Currency-aware risk-free rate ───────────────────────────
         rf = 0.04 if req.currency.upper() == "USD" else 0.065
 
@@ -178,6 +190,20 @@ def analyze_portfolio(req: AnalyzeRequest) -> dict[str, Any]:
         risk_drivers = explain_res["risk_drivers"]
         explanations = explain_res["explanations"]
 
+        # Plain-English explanation for dominant risk contributors (e.g. NVDA + TSLA)
+        sorted_rc = sorted(rc_dict.items(), key=lambda x: x[1], reverse=True)
+        if len(sorted_rc) >= 2:
+            top1_t, top1_rc = sorted_rc[0]
+            top2_t, top2_rc = sorted_rc[1]
+            joint_share = top1_rc + top2_rc
+            if joint_share >= 0.50:
+                rc_exp = (
+                    f"Top risk contributors {top1_t} ({top1_rc:.1%}) and {top2_t} ({top2_rc:.1%}) "
+                    f"account for {joint_share:.1%} of total portfolio risk."
+                )
+                if rc_exp not in explanations:
+                    explanations.append(rc_exp)
+
         # ── 10. Counterfactual ("Make it Medium" / "Make it Low") ──────
         counterfactual: dict[str, Any] | None = None
         if risk_label != "Low":
@@ -191,18 +217,43 @@ def analyze_portfolio(req: AnalyzeRequest) -> dict[str, Any]:
                     rf=rf,
                 )
                 cf = opt_res.get("counterfactual")
-                if cf is not None:
+                if (
+                    cf is not None
+                    and cf.get("target_label") == target_level
+                    and cf.get("predicted_label") == target_level
+                ):
                     counterfactual = cf
                 else:
-                    # Use the recommended allocation if it achieves the target label
-                    rec_label = opt_res.get("predicted_risk_after", {}).get("label")
-                    if rec_label == target_level:
-                        rec_weights = {r["ticker"]: r["weight"] for r in opt_res.get("recommended", [])}
+                    # Search for candidate along the L1 interpolation ray or recommended allocation
+                    rec_weights = {r["ticker"]: r["weight"] for r in opt_res.get("recommended", [])}
+                    best_cf_weights = None
+                    for alpha in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0]:
+                        w_cand = {
+                            t: round((1.0 - alpha) * weights_dict.get(t, 0.0) + alpha * rec_weights.get(t, 0.0), 4)
+                            for t in tickers
+                        }
+                        tot = sum(w_cand.values())
+                        if tot > 0:
+                            w_cand = {k: v / tot for k, v in w_cand.items()}
+                        cand_pred = predict_risk(w_cand, prices, rf=rf)
+                        if cand_pred["label"] == target_level:
+                            best_cf_weights = {k: round(v, 4) for k, v in w_cand.items()}
+                            break
+
+                    if best_cf_weights is not None:
                         counterfactual = {
                             "target_label": target_level,
-                            "weights": rec_weights,
-                            "predicted_label": rec_label,
+                            "weights": best_cf_weights,
+                            "predicted_label": target_level,
                         }
+                    else:
+                        rec_label = opt_res.get("predicted_risk_after", {}).get("label")
+                        if rec_label == target_level:
+                            counterfactual = {
+                                "target_label": target_level,
+                                "weights": rec_weights,
+                                "predicted_label": rec_label,
+                            }
             except Exception:
                 counterfactual = None
 

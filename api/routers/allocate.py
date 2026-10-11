@@ -96,6 +96,18 @@ def allocate_portfolio(req: AllocateRequest) -> dict[str, Any]:
                 tickers=req.tickers,
             )
 
+        # Attach benchmark prices if available so predict_risk and features calculate blended benchmark metrics
+        try:
+            loader_fn = _price_loader if _price_loader is not None else load_prices
+            bench_cols = [b for b in ["^NSEI", "^NDX"] if b not in prices.columns]
+            if bench_cols:
+                bench_df = loader_fn(bench_cols, start, end, req.currency)
+                for b in bench_cols:
+                    if b in bench_df.columns:
+                        prices[b] = bench_df[b]
+        except Exception:
+            pass
+
         # ── 4. Run portfolio optimizer ─────────────────────────────────
         opt_res = optimize_portfolio(
             tickers=req.tickers,

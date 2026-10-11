@@ -329,6 +329,22 @@ def optimize_portfolio(
         cand_weights_list.append(cand_weights)
         cand_metrics.append((v_c, r_c, s_c))
 
+    # Also include blends along L1 ray between current weights and profile/minvar weights
+    if current_weights:
+        w_cur_vec = np.array([float(current_weights.get(t, 0.0)) for t in valid_tickers], dtype=float)
+        tot_cur = float(np.sum(w_cur_vec))
+        if tot_cur > 0:
+            w_cur_vec = w_cur_vec / tot_cur
+            for alpha in [0.2, 0.35, 0.5, 0.65, 0.8]:
+                w_b = alpha * w_cur_vec + (1.0 - alpha) * w_profile
+                w_b = np.clip(w_b, 0.0, eff_cap)
+                w_b = w_b / np.sum(w_b)
+                v_b = float(np.sqrt(w_b @ cov @ w_b))
+                r_b = float(w_b @ mu)
+                s_b = float((r_b - rf_val) / (v_b + 1e-8))
+                cand_weights_list.append({valid_tickers[i]: float(w_b[i]) for i in range(n)})
+                cand_metrics.append((v_b, r_b, s_b))
+
     # Classify with ML model in batch (ML gate)
     preds = predict_risk_batch(cand_weights_list, prices, rf=rf_val)
 
@@ -486,7 +502,7 @@ def optimize_portfolio(
             "ann_return": round(c["ann_return"], 4),
             "label": c["label"],
         }
-        for c in frontier_candidates
+        for c in frontier_candidates[:n_frontier]
     ]
 
     result: dict[str, Any] = {

@@ -300,5 +300,60 @@
   - `test_api_post_scenario_errors`: verifies typed error handling for unknown tickers and invalid weights.
 - Entire project test suite: **102 passed in 21.50s**.
 
+### Prompt 9 — Verification of "Make it Medium" Flow with tech_heavy Preset (Real & Synthetic Data) (✅ 102/102 tests passed)
 
+#### 1. Verification on Real Endpoints with Real Data (`data/cache/prices.parquet`)
+- **Root Cause & Fix in `api/routers/analyze.py` and `api/routers/allocate.py`**:
+  - Previously, `prices` loaded only portfolio holdings without benchmark symbols (`^NSEI`, `^NDX`), resulting in `beta_blend = NaN` and `bench_vol_63 = NaN`.
+  - Added benchmark symbols loading and merging into `prices` so `predict_risk` evaluates the true blended benchmark.
+  - With benchmarks merged, `tech_heavy` correctly classifies as **High** risk (`probs = {Low: 0.163, Medium: 0.313, High: 0.523}`, `risk_score = 68`).
+- **Counterfactual Resolution ("Make it Medium")**:
+  - Implemented multi-point candidate search along $L_1$ ray between current weights and profile recommendation.
+  - Resolved counterfactual portfolio with `target_label = "Medium"` and `predicted_label = "Medium"`.
+  - Re-checked by calling `predict_risk(counterfactual["weights"], prices)` directly: confirms label is **Medium** (`risk_score = 52`, `probs = {Low: 0.275, Medium: 0.401, High: 0.324}`).
+- **Top Risk Contribution & Plain-English Explanations**:
+  - NVDA: $30.3\%$ risk contribution; TSLA: $38.9\%$ risk contribution.
+  - Combined NVDA + TSLA risk contribution: **$69.2\%$** of total portfolio risk.
+  - Added plain-English explanation in `explanations`:
+    `"Top risk contributors TSLA (38.9%) and NVDA (30.3%) account for 69.2% of total portfolio risk."`
+- **Efficient Frontier Contract Adherence**:
+  - Fixed candidate generation in `engine/optimize.py` so `res["efficient_frontier"]` contains exactly $25$ points (`assert len(res["efficient_frontier"]) == 25`), maintaining frozen contract compatibility while retaining widened candidate pool for internal optimization.
 
+#### 2. Before and After Weights & Labels Summary (for Harsh)
+```
+========================================================================================
+ASSET               BEFORE (ORIGINAL)       AFTER (COUNTERFACTUAL)      CHANGE
+----------------------------------------------------------------------------------------
+NVDA                20.00%                  18.51%                      -1.49%
+TSLA                20.00%                  13.44%                      -6.56%
+RELIANCE.NS         20.00%                  23.16%                      +3.16%
+TCS.NS              20.00%                  19.23%                      -0.77%
+HDFCBANK.NS         10.00%                  12.39%                      +2.39%
+GOLDBEES.NS         10.00%                  13.28%                      +3.28%
+----------------------------------------------------------------------------------------
+RISK LABEL          High                    Medium                      FLIPPED TO MEDIUM
+RISK SCORE          68 / 100                52 / 100                    -16 points
+CONFIDENCE          52.3% (High)            40.1% (Medium)              Calibrated
+PROBABILITIES       Low: 16.3%              Low: 27.5%                  +11.2%
+                    Medium: 31.3%           Medium: 40.1%               +8.8%
+                    High: 52.3%             High: 32.4%                 -19.9%
+========================================================================================
+```
+
+#### 3. Test Suites Verification (Synthetic & Unit Tests)
+- Ran complete test suite across all 14 test modules:
+  - `tests/ml/test_build_dataset.py` (4 passed)
+  - `tests/ml/test_explain.py` (5 passed)
+  - `tests/ml/test_features.py` (10 passed)
+  - `tests/ml/test_predict.py` (5 passed)
+  - `tests/ml/test_shim.py` (22 passed)
+  - `tests/ml/test_train.py` (5 passed)
+  - `tests/test_contract.py` (8 passed)
+  - `tests/test_cppi.py` (5 passed)
+  - `tests/test_metrics.py` (10 passed)
+  - `tests/test_offline.py` (4 passed)
+  - `tests/test_optimize.py` (6 passed)
+  - `tests/test_routers_analyze_allocate.py` (4 passed)
+  - `tests/test_scenario.py` (8 passed)
+  - `tests/test_simulate_no_lookahead.py` (6 passed)
+- Overall status: **102 passed in 15.87s** (100% passing).
