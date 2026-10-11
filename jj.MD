@@ -76,7 +76,7 @@
    - `POST /api/allocate` (SLSQP optimization, 25 frontier candidates, ML gate, recommended amounts & rationales, tradeoff, before/after metrics, meta)
    - `GET /api/model/info` (serves `eval.json` with model evaluation metrics and cutpoints)
 
-7. **`engine/scenario.py` + Router**:
+7. **`engine/scenario.py` + Router** (✅ Complete):
    - `POST /api/scenario` per decisions D52 and D53 (historical replay: `covid_2020`, `bear_2022`; shocks: `market_crash`, `market_recovery`, `high_volatility` with 1,000 MC paths, `sector_downturn`).
 
 8. **Supplementary (Time Permitting / Optional)**:
@@ -266,5 +266,39 @@
     - `test_analyze_typed_errors`: Confirms typed error handling for unknown tickers, invalid weights, and insufficient price history.
     - `test_allocate_dependency_injection`: Verifies dependency injection with custom price fixtures.
 - Entire project test suite: **94 passed in 13.40s**.
+
+### Prompt 8 — scenario.py & POST /api/scenario router (✅ 102/102 tests passed)
+- `engine/scenario.py`:
+  - `apply_scenario(weights, prices, scenario, ...)` pure function.
+  - Weights safety: does not mutate input weights dictionary; normalizes working copy.
+  - Blended benchmark (`0.5 * ^NSEI + 0.5 * ^NDX`) used to estimate asset betas over lookback window, clipped to $[0.2, 2.0]$.
+  - Scenarios supported (D53):
+    - `market_crash`: $\text{clip}(\beta_i, 0.2, 2.0) \times \text{magnitude}$ (default magnitude $-0.30$).
+    - `market_recovery`: $\text{clip}(\beta_i, 0.2, 2.0) \times \text{magnitude}$ (default magnitude $+0.20$).
+    - `sector_downturn`: assets in the target sector take full magnitude (default $-0.25$), others take $0.25 \times \beta_i \times \text{magnitude}$.
+    - `high_volatility`: doubles covariance matrix ($2 \times \Sigma$), runs 1,000 seeded Monte Carlo 6-month (126-day) simulation paths, returns `mc: {p5, p50, p95}` percentiles.
+  - Historical Replay (D52):
+    - `covid_2020` (`2020-02-19` to `2020-03-23`) and `bear_2022` (`2022-01-03` to `2022-10-12`) using actual market returns.
+    - Assets lacking data in the replay window are dropped, remaining weights renormalized, and missing assets explicitly flagged in `explanations`.
+  - `risk_label_after`: re-runs `predict_risk` on a stressed 63-day window where the asset shock is compounded forward into price levels.
+  - Outputs conforming to contract §6: `scenario`, `value_before`, `value_after`, `impact_pct`, `metrics_after`, `risk_label_before`, `risk_label_after`, `asset_impacts`, `mc` (if high_volatility), `explanations`.
+- `api/routers/scenario.py`:
+  - `POST /api/scenario` endpoint accepting `ScenarioRequest` from `api/schemas.py`.
+  - Validates weights (1-15 assets, sum > 0) and whitelisted tickers (`UNKNOWN_TICKER`, `INVALID_WEIGHTS`).
+  - Loads historical prices from `2019-01-01` to cover both historical replay windows and lookback history.
+  - Connects sector lookup from `UNIVERSE_MAP`.
+  - Pluggable `_price_loader` for testing dependency injection.
+  - Attaches `meta: {data_source, as_of}`.
+- `tests/test_scenario.py` (8 tests):
+  - `test_crash_impact_negative_and_recovery_positive`: confirms crash drops portfolio value, recovery grows it.
+  - `test_input_weights_are_not_mutated`: proves input weights dictionary is untouched in-place.
+  - `test_replay_flags_missing_assets`: proves missing assets in replay window are dropped, remaining renormalized, and flagged in explanations.
+  - `test_high_volatility_returns_mc_percentiles`: checks `mc: {p5, p50, p95}` monotonic ordering.
+  - `test_sector_downturn_shocks_target_sector_fully`: confirms target sector takes full shock and others are dampened.
+  - `test_api_post_scenario_contract_and_latency`: end-to-end integration test validating contract fields and types.
+  - `test_api_post_scenario_replay`: verifies replay on `covid_2020`.
+  - `test_api_post_scenario_errors`: verifies typed error handling for unknown tickers and invalid weights.
+- Entire project test suite: **102 passed in 21.50s**.
+
 
 
