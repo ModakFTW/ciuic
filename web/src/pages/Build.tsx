@@ -13,6 +13,8 @@ import {
   ArrowRight,
   RefreshCw,
   Info,
+  Layers,
+  Sparkles,
 } from "lucide-react";
 import { usePortfolio, DEMO_AMOUNT } from "../state/PortfolioContext";
 import { searchAssets, getPresets } from "../api/client";
@@ -130,22 +132,22 @@ export const BuildPage: React.FC = () => {
   const periodPreset = "preset" in period ? period.preset : "custom";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-200">
       <PageTitle
         title="Portfolio Builder"
-        description="Configure asset holdings and balance capital allocations. Minimum 2, maximum 15 assets."
+        description="Configure asset holdings, balance position weights, and set optimizer risk thresholds. Minimum 2, maximum 15 assets."
         badge={
           analyzeData?.risk_label ? (
             <RiskBadge label={analyzeData.risk_label} size="sm" />
           ) : null
         }
         actions={
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {/* Load Demo Portfolio Button */}
             <button
               onClick={handleLoadDemoPortfolio}
               disabled={isLoadingPresets}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs font-medium bg-surface-elevated hover:bg-surface-hover text-text-primary border border-border transition-colors min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium glass-panel-interactive text-secondary hover:text-main transition-all min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
               title="Loads demo portfolio: Tech-Heavy (₹10,00,000)"
             >
               <span>Load Demo Portfolio</span>
@@ -155,14 +157,14 @@ export const BuildPage: React.FC = () => {
             <button
               onClick={() => navigate("/risk")}
               disabled={!isAssetCountValid}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium transition-colors min-h-[40px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent active:scale-[0.98] ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all min-h-[40px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98] ${
                 isAssetCountValid
-                  ? "bg-accent hover:bg-accent-hover text-white shadow-sm cursor-pointer"
-                  : "bg-surface-hover text-text-muted cursor-not-allowed border border-border"
+                  ? "bg-teal/20 hover:bg-teal/30 text-teal border border-teal/40 shadow-glass-sm cursor-pointer"
+                  : "bg-white/[0.03] text-secondary/40 cursor-not-allowed border border-white/[0.06]"
               }`}
             >
               <span>Analyze Risk</span>
-              <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.75} />
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
             </button>
           </div>
         }
@@ -170,58 +172,58 @@ export const BuildPage: React.FC = () => {
 
       {analyzeError && <ErrorToast error={analyzeError} />}
 
-      {/* Inline Validation Banner */}
+      {/* Validation Status Bar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Asset Count Validation */}
         <div
-          className={`px-3.5 py-2.5 rounded-md border flex items-center justify-between text-xs font-mono transition-colors ${
+          className={`px-4 py-3 rounded-xl border flex items-center justify-between text-xs font-mono transition-all backdrop-blur-md ${
             holdings.length < 2
-              ? "bg-risk-high-subtle border-risk-high-border text-risk-high"
+              ? "bg-negative/10 border-negative/30 text-negative"
               : holdings.length > 15
-              ? "bg-risk-med-subtle border-risk-med-border text-risk-med"
-              : "bg-surface-elevated border-border text-text-secondary"
+              ? "bg-warning/10 border-warning/30 text-warning"
+              : "glass-panel text-secondary"
           }`}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {holdings.length < 2 ? (
-              <AlertTriangle className="w-4 h-4 text-risk-high" strokeWidth={1.75} />
+              <AlertTriangle className="w-4 h-4 text-negative stroke-[2]" />
             ) : holdings.length > 15 ? (
-              <AlertTriangle className="w-4 h-4 text-risk-med" strokeWidth={1.75} />
+              <AlertTriangle className="w-4 h-4 text-warning stroke-[2]" />
             ) : (
-              <CheckCircle2 className="w-4 h-4 text-risk-low" strokeWidth={1.75} />
+              <CheckCircle2 className="w-4 h-4 text-positive stroke-[2]" />
             )}
             <span>
-              Asset Count: <strong className="tabular-nums text-text-primary">{holdings.length} / 15</strong> (Min 2)
+              Asset Count: <strong className="tabular-nums text-main">{holdings.length} / 15</strong> (Min 2)
             </span>
           </div>
           {holdings.length < 2 && (
-            <span className="text-risk-high font-medium">Add at least 1 more asset</span>
+            <span className="text-negative font-medium">Add at least 1 more position</span>
           )}
         </div>
 
         {/* Weight Sum Validation */}
         <div
-          className={`px-3.5 py-2.5 rounded-md border flex items-center justify-between text-xs font-mono transition-colors ${
+          className={`px-4 py-3 rounded-xl border flex items-center justify-between text-xs font-mono transition-all backdrop-blur-md ${
             isWeightValid
-              ? "bg-surface-elevated border-border text-text-secondary"
-              : "bg-risk-med-subtle border-risk-med-border text-risk-med"
+              ? "glass-panel text-secondary"
+              : "bg-warning/10 border-warning/30 text-warning"
           }`}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {isWeightValid ? (
-              <CheckCircle2 className="w-4 h-4 text-risk-low" strokeWidth={1.75} />
+              <CheckCircle2 className="w-4 h-4 text-positive stroke-[2]" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-risk-med" strokeWidth={1.75} />
+              <AlertTriangle className="w-4 h-4 text-warning stroke-[2]" />
             )}
             <span>
-              Allocation Sum: <strong className="tabular-nums text-text-primary">{currentWeightSum.toFixed(1)}%</strong>
+              Allocation Sum: <strong className="tabular-nums text-main">{currentWeightSum.toFixed(1)}%</strong>
             </span>
           </div>
 
           {!isWeightValid && (
             <button
               onClick={handleNormalizeWeights}
-              className="px-2 py-0.5 rounded bg-surface hover:bg-surface-hover text-text-primary border border-border font-medium transition-colors cursor-pointer min-h-[28px]"
+              className="px-2.5 py-1 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.20)] font-medium transition-all cursor-pointer min-h-[30px]"
             >
               Normalize to 100%
             </button>
@@ -229,49 +231,13 @@ export const BuildPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Top Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <MetricCard
-          title="Total Capital"
-          value={formatCurrency(totalAmount, currency)}
-          subtitle={`${holdings.length} Active Positions`}
-          helper={`Currency: ${currency}`}
-          badge={<DollarSign className="w-4 h-4 text-accent-light" strokeWidth={1.75} />}
-        />
-        <MetricCard
-          title="Risk Category"
-          value={analyzeData?.risk_label || (isAnalyzing ? "Analyzing..." : "Pending")}
-          subtitle={`Score: ${analyzeData?.risk_score ?? "--"}/100`}
-          trend={analyzeData?.risk_label === "High" ? "down" : "up"}
-          trendValue={analyzeData?.risk_label === "High" ? "High Risk" : "Controlled"}
-          badge={
-            analyzeData?.risk_label ? (
-              <RiskBadge label={analyzeData.risk_label} size="sm" showIcon={false} />
-            ) : null
-          }
-        />
-        <MetricCard
-          title="Target Appetite"
-          value={risk_level.toUpperCase()}
-          subtitle="Optimizer Threshold"
-          trend="neutral"
-          trendValue={`Target: ${risk_level}`}
-        />
-        <MetricCard
-          title="Benchmark"
-          value={benchmark}
-          subtitle={`Horizon: ${periodPreset}`}
-          badge={<CheckCircle2 className="w-4 h-4 text-risk-low" strokeWidth={1.75} />}
-        />
-      </div>
-
       {/* Preset Selector Bar */}
       {presetsData?.presets && (
-        <div className="p-3.5 rounded-lg border border-border bg-surface flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-sm">
+        <div className="p-4 rounded-xl glass-panel flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-glass-sm">
           <div className="flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-accent-light" strokeWidth={1.75} />
-            <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Presets:
+            <Sliders className="w-4 h-4 text-teal stroke-[1.75]" />
+            <span className="text-xs font-mono font-medium uppercase tracking-wider text-secondary">
+              Benchmark Presets:
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -279,10 +245,10 @@ export const BuildPage: React.FC = () => {
               <button
                 key={preset.id}
                 onClick={() => loadPreset(preset)}
-                className="px-3 py-1.5 rounded-md text-xs font-medium border border-border bg-surface-elevated hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2 min-h-[36px] cursor-pointer"
+                className="px-3 py-1.5 rounded-lg text-xs font-mono border border-[rgba(226,235,244,0.15)] bg-white/[0.035] hover:bg-white/[0.08] text-secondary hover:text-main transition-all flex items-center gap-2 min-h-[34px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal"
               >
                 <span>{preset.name}</span>
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 rounded bg-surface text-text-muted border border-border-subtle">
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-white/[0.05] text-secondary/70 border border-white/[0.08]">
                   {preset.risk_level}
                 </span>
               </button>
@@ -291,26 +257,26 @@ export const BuildPage: React.FC = () => {
         </div>
       )}
 
-      {/* Controls Bar: Risk Level, Currency, Benchmark, Lookback Period */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 rounded-lg border border-border bg-surface shadow-sm">
+      {/* Parameter Controls Bar: Risk Level, Currency, Benchmark, Lookback Period */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 p-4 rounded-xl glass-panel shadow-glass-sm">
         {/* Risk Level Selector */}
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1.5">
-            Target Risk Level
+          <label className="block text-[10px] font-mono font-medium uppercase tracking-wider text-secondary mb-1.5">
+            Target Risk Appetite
           </label>
-          <div className="grid grid-cols-3 gap-1 bg-surface-elevated p-1 rounded-md border border-border">
+          <div className="grid grid-cols-3 gap-1 bg-[#080B10]/60 p-1 rounded-xl border border-[rgba(226,235,244,0.12)]">
             {(["low", "medium", "high"] as RiskLevel[]).map((level) => (
               <button
                 key={level}
                 onClick={() => setRiskLevel(level)}
-                className={`py-1.5 text-xs font-medium rounded capitalize transition-colors min-h-[34px] cursor-pointer ${
+                className={`py-1.5 text-xs font-mono font-medium rounded-lg capitalize transition-all min-h-[32px] cursor-pointer ${
                   risk_level === level
                     ? level === "low"
-                      ? "bg-risk-low-subtle text-risk-low border border-risk-low-border"
+                      ? "bg-positive/15 text-positive border border-positive/30 shadow-glass-sm font-semibold"
                       : level === "medium"
-                      ? "bg-risk-med-subtle text-risk-med border border-risk-med-border"
-                      : "bg-risk-high-subtle text-risk-high border border-risk-high-border"
-                    : "text-text-secondary hover:text-text-primary"
+                      ? "bg-warning/15 text-warning border border-warning/30 shadow-glass-sm font-semibold"
+                      : "bg-negative/15 text-negative border border-negative/30 shadow-glass-sm font-semibold"
+                    : "text-secondary hover:text-main"
                 }`}
               >
                 {level}
@@ -321,18 +287,18 @@ export const BuildPage: React.FC = () => {
 
         {/* Currency Toggle */}
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1.5">
-            Currency
+          <label className="block text-[10px] font-mono font-medium uppercase tracking-wider text-secondary mb-1.5">
+            Base Currency
           </label>
-          <div className="grid grid-cols-2 gap-1 bg-surface-elevated p-1 rounded-md border border-border">
+          <div className="grid grid-cols-2 gap-1 bg-[#080B10]/60 p-1 rounded-xl border border-[rgba(226,235,244,0.12)]">
             {(["INR", "USD"] as Currency[]).map((curr) => (
               <button
                 key={curr}
                 onClick={() => setCurrency(curr)}
-                className={`py-1.5 text-xs font-mono font-medium rounded uppercase transition-colors min-h-[34px] cursor-pointer ${
+                className={`py-1.5 text-xs font-mono font-medium rounded-lg uppercase transition-all min-h-[32px] cursor-pointer ${
                   currency === curr
-                    ? "bg-accent-subtle text-accent-light border border-accent-border font-semibold"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "bg-teal/20 text-teal border border-teal/40 shadow-glass-sm font-semibold"
+                    : "text-secondary hover:text-main"
                 }`}
               >
                 {curr === "INR" ? "₹ INR" : "$ USD"}
@@ -343,18 +309,18 @@ export const BuildPage: React.FC = () => {
 
         {/* Benchmark Selector */}
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1.5">
-            Benchmark
+          <label className="block text-[10px] font-mono font-medium uppercase tracking-wider text-secondary mb-1.5">
+            Market Benchmark
           </label>
-          <div className="grid grid-cols-3 gap-1 bg-surface-elevated p-1 rounded-md border border-border">
+          <div className="grid grid-cols-3 gap-1 bg-[#080B10]/60 p-1 rounded-xl border border-[rgba(226,235,244,0.12)]">
             {(["NIFTY50", "NASDAQ100", "auto"] as Benchmark[]).map((b) => (
               <button
                 key={b}
                 onClick={() => setBenchmark(b)}
-                className={`py-1.5 text-xs font-medium rounded transition-colors truncate px-1 min-h-[34px] cursor-pointer ${
+                className={`py-1.5 text-xs font-mono font-medium rounded-lg transition-all truncate px-1 min-h-[32px] cursor-pointer ${
                   benchmark === b
-                    ? "bg-accent-subtle text-accent-light border border-accent-border font-semibold"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "bg-teal/20 text-teal border border-teal/40 shadow-glass-sm font-semibold"
+                    : "text-secondary hover:text-main"
                 }`}
               >
                 {b}
@@ -365,18 +331,18 @@ export const BuildPage: React.FC = () => {
 
         {/* Period Selector */}
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-1.5">
+          <label className="block text-[10px] font-mono font-medium uppercase tracking-wider text-secondary mb-1.5">
             Lookback Horizon
           </label>
-          <div className="grid grid-cols-4 gap-1 bg-surface-elevated p-1 rounded-md border border-border">
+          <div className="grid grid-cols-4 gap-1 bg-[#080B10]/60 p-1 rounded-xl border border-[rgba(226,235,244,0.12)]">
             {(["1y", "3y", "5y", "max"] as const).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod({ preset: p })}
-                className={`py-1.5 text-xs font-mono font-medium rounded transition-colors min-h-[34px] cursor-pointer ${
+                className={`py-1.5 text-xs font-mono font-medium rounded-lg transition-all min-h-[32px] cursor-pointer ${
                   periodPreset === p
-                    ? "bg-accent-subtle text-accent-light border border-accent-border font-semibold"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "bg-teal/20 text-teal border border-teal/40 shadow-glass-sm font-semibold"
+                    : "text-secondary hover:text-main"
                 }`}
               >
                 {p}
@@ -389,75 +355,75 @@ export const BuildPage: React.FC = () => {
       {/* Holdings & Asset Search Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Holdings Table */}
-        <div className="lg:col-span-2 rounded-lg border border-border bg-surface overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="lg:col-span-2 rounded-2xl glass-panel overflow-hidden shadow-glass">
+          <div className="p-4 border-b border-[rgba(226,235,244,0.10)] flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold text-text-primary">Portfolio Positions</h2>
-              <p className="text-xs text-text-muted mt-0.5">
+              <h2 className="text-sm font-bold text-main font-sans">Portfolio Positions</h2>
+              <p className="text-xs text-secondary mt-0.5">
                 Adjust position values in {currency} or % weight.
               </p>
             </div>
 
             {/* Value / Percent Toggle */}
-            <div className="flex items-center gap-1 bg-surface-elevated p-1 rounded-md border border-border">
+            <div className="flex items-center gap-1 bg-[#080B10]/60 p-1 rounded-xl border border-[rgba(226,235,244,0.12)]">
               <button
                 onClick={() => setMode("amount")}
-                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded transition-colors min-h-[32px] cursor-pointer ${
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-mono font-medium rounded-lg transition-all min-h-[30px] cursor-pointer ${
                   mode === "amount"
-                    ? "bg-accent text-white font-medium shadow-sm"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "bg-teal/20 text-teal border border-teal/40 font-semibold shadow-glass-sm"
+                    : "text-secondary hover:text-main"
                 }`}
               >
-                <DollarSign className="w-3.5 h-3.5" strokeWidth={1.75} />
+                <DollarSign className="w-3.5 h-3.5 stroke-[1.75]" />
                 <span>{currency === "INR" ? "₹ Amount" : "$ Amount"}</span>
               </button>
               <button
                 onClick={() => setMode("percent")}
-                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded transition-colors min-h-[32px] cursor-pointer ${
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-mono font-medium rounded-lg transition-all min-h-[30px] cursor-pointer ${
                   mode === "percent"
-                    ? "bg-accent text-white font-medium shadow-sm"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "bg-teal/20 text-teal border border-teal/40 font-semibold shadow-glass-sm"
+                    : "text-secondary hover:text-main"
                 }`}
               >
-                <Percent className="w-3.5 h-3.5" strokeWidth={1.75} />
+                <Percent className="w-3.5 h-3.5 stroke-[1.75]" />
                 <span>% Weight</span>
               </button>
             </div>
           </div>
 
           {holdings.length === 0 ? (
-            <div className="p-12 text-center text-text-muted space-y-2">
-              <Info className="w-6 h-6 mx-auto text-text-muted" strokeWidth={1.75} />
-              <p className="text-xs">No assets selected. Use search to add instruments or load demo portfolio.</p>
+            <div className="p-12 text-center text-secondary space-y-2">
+              <Info className="w-6 h-6 mx-auto text-secondary/60 stroke-[1.75]" />
+              <p className="text-xs font-sans">No assets configured. Use the asset search panel to add positions.</p>
             </div>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-[rgba(226,235,244,0.08)]">
               {holdings.map((holding) => {
                 const weightPct = totalAmount > 0 ? (holding.amount / totalAmount) * 100 : 0;
                 return (
                   <div
                     key={holding.ticker}
-                    className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface-hover transition-colors"
+                    className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-white/[0.03] transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-surface-elevated border border-border flex items-center justify-center font-mono font-medium text-xs text-accent-light">
+                      <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-[rgba(226,235,244,0.15)] flex items-center justify-center font-mono font-bold text-xs text-teal shadow-glass-sm">
                         {holding.ticker.slice(0, 3)}
                       </div>
                       <div>
-                        <div className="font-medium text-text-primary font-mono text-xs flex items-center gap-2">
+                        <div className="font-bold text-main font-mono text-xs flex items-center gap-2">
                           <span>{holding.ticker}</span>
                           {holding.ticker.endsWith(".NS") ? (
-                            <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-surface-elevated text-text-muted border border-border-subtle">
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.05] text-secondary border border-white/[0.08]">
                               NSE
                             </span>
                           ) : (
-                            <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-surface-elevated text-text-muted border border-border-subtle">
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.05] text-secondary border border-white/[0.08]">
                               US
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-text-muted font-mono">
-                          Weight: <strong className="text-text-secondary tabular-nums">{weightPct.toFixed(1)}%</strong>
+                        <div className="text-xs text-secondary font-mono">
+                          Weight: <strong className="text-main tabular-nums">{weightPct.toFixed(1)}%</strong>
                         </div>
                       </div>
                     </div>
@@ -465,7 +431,7 @@ export const BuildPage: React.FC = () => {
                     <div className="flex items-center gap-3">
                       {mode === "amount" ? (
                         <div className="relative">
-                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-text-muted font-mono">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-secondary font-mono">
                             {currency === "INR" ? "₹" : "$"}
                           </span>
                           <input
@@ -476,7 +442,7 @@ export const BuildPage: React.FC = () => {
                             onChange={(e) =>
                               handleUpdateAmount(holding.ticker, parseFloat(e.target.value) || 0)
                             }
-                            className="w-32 pl-6 pr-2.5 py-1.5 bg-surface-elevated border border-border rounded-md text-xs font-mono text-text-primary text-right focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent min-h-[38px] tabular-nums"
+                            className="w-32 pl-6 pr-2.5 py-1.5 bg-[#080B10] border border-[rgba(226,235,244,0.18)] rounded-xl text-xs font-mono text-main text-right focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal min-h-[38px] tabular-nums"
                           />
                         </div>
                       ) : (
@@ -490,9 +456,9 @@ export const BuildPage: React.FC = () => {
                             onChange={(e) =>
                               handleUpdatePercent(holding.ticker, parseFloat(e.target.value) || 0)
                             }
-                            className="w-24 pl-2.5 pr-6 py-1.5 bg-surface-elevated border border-border rounded-md text-xs font-mono text-text-primary text-right focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent min-h-[38px] tabular-nums"
+                            className="w-24 pl-2.5 pr-6 py-1.5 bg-[#080B10] border border-[rgba(226,235,244,0.18)] rounded-xl text-xs font-mono text-main text-right focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal min-h-[38px] tabular-nums"
                           />
-                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-text-muted font-mono">
+                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-secondary font-mono">
                             %
                           </span>
                         </div>
@@ -501,19 +467,19 @@ export const BuildPage: React.FC = () => {
                       <button
                         onClick={() => handleRemoveAsset(holding.ticker)}
                         disabled={holdings.length <= 2}
-                        className={`p-2 rounded-md transition-colors min-h-[38px] min-w-[38px] flex items-center justify-center cursor-pointer ${
+                        className={`p-2 rounded-xl transition-all min-h-[38px] min-w-[38px] flex items-center justify-center cursor-pointer ${
                           holdings.length <= 2
-                            ? "text-text-muted opacity-40 cursor-not-allowed"
-                            : "text-text-muted hover:text-risk-high hover:bg-surface-elevated"
+                            ? "text-secondary/30 opacity-40 cursor-not-allowed"
+                            : "text-secondary hover:text-negative hover:bg-negative/10 hover:border-negative/30 border border-transparent"
                         }`}
                         title={
                           holdings.length <= 2
                             ? "Minimum 2 assets required"
-                            : "Remove asset"
+                            : "Remove position"
                         }
                         aria-label="Remove asset"
                       >
-                        <Trash2 className="w-4 h-4" strokeWidth={1.75} />
+                        <Trash2 className="w-4 h-4 stroke-[1.75]" />
                       </button>
                     </div>
                   </div>
@@ -522,16 +488,16 @@ export const BuildPage: React.FC = () => {
             </div>
           )}
 
-          <div className="p-3 bg-surface-elevated border-t border-border flex items-center justify-between text-xs text-text-muted font-mono">
+          <div className="p-3.5 bg-[#0A0E15] border-t border-[rgba(226,235,244,0.10)] flex items-center justify-between text-xs text-secondary font-mono">
             <span>
               Total Capital:{" "}
-              <strong className="text-text-primary font-mono tabular-nums">
+              <strong className="text-main font-mono tabular-nums">
                 {formatCurrency(totalAmount, currency)}
               </strong>
             </span>
             <div className="flex items-center gap-2">
               {isAnalyzing && (
-                <span className="flex items-center gap-1 text-accent-light font-mono text-xs">
+                <span className="flex items-center gap-1 text-teal font-mono text-xs">
                   <RefreshCw className="w-3 h-3 animate-spin" />
                   Calculating...
                 </span>
@@ -544,34 +510,34 @@ export const BuildPage: React.FC = () => {
         </div>
 
         {/* Add Asset Search Box with Debounce */}
-        <div className="rounded-lg border border-border bg-surface p-4 space-y-3.5 shadow-sm">
+        <div className="rounded-2xl glass-panel p-4 space-y-3.5 shadow-glass">
           <div>
-            <h2 className="text-sm font-semibold text-text-primary">Asset Search</h2>
-            <p className="text-xs text-text-muted mt-0.5">
+            <h2 className="text-sm font-bold text-main font-sans">Asset Search</h2>
+            <p className="text-xs text-secondary mt-0.5">
               Universe of 36 eligible equity and ETF assets.
             </p>
           </div>
 
           <div className="relative">
-            <Search className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" strokeWidth={1.75} />
+            <Search className="w-4 h-4 text-secondary absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.75]" />
             <input
               type="text"
               placeholder="Search ticker or name (INFY, AAPL)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-surface-elevated border border-border rounded-md text-xs text-text-primary placeholder-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent min-h-[40px]"
+              className="w-full pl-9 pr-3 py-2 bg-[#080B10] border border-[rgba(226,235,244,0.18)] rounded-xl text-xs text-main placeholder-secondary/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal min-h-[40px]"
             />
           </div>
 
           <div className="space-y-1.5 max-h-[460px] overflow-y-auto pr-1">
             {isSearching && (
               <div className="py-3 space-y-2">
-                <Skeleton className="h-9 w-full" />
-                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-9 w-full rounded-xl" />
+                <Skeleton className="h-9 w-full rounded-xl" />
               </div>
             )}
             {!isSearching && searchData?.results?.length === 0 && (
-              <div className="text-xs text-text-muted text-center py-4 font-mono">
+              <div className="text-xs text-secondary text-center py-4 font-mono">
                 No matching assets found.
               </div>
             )}
@@ -580,32 +546,32 @@ export const BuildPage: React.FC = () => {
               return (
                 <div
                   key={asset.ticker}
-                  className="p-2.5 rounded-md border border-border bg-surface-elevated hover:bg-surface-hover flex items-center justify-between gap-3 transition-colors"
+                  className="p-2.5 rounded-xl border border-[rgba(226,235,244,0.12)] bg-white/[0.025] hover:bg-white/[0.06] hover:border-[rgba(226,235,244,0.22)] flex items-center justify-between gap-3 transition-all"
                 >
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 font-mono text-xs font-medium text-text-primary">
+                    <div className="flex items-center gap-1.5 font-mono text-xs font-semibold text-main">
                       <span>{asset.ticker}</span>
-                      <span className="text-[10px] text-text-muted font-sans">
+                      <span className="text-[10px] text-secondary font-sans">
                         · {asset.market} ({asset.currency})
                       </span>
                     </div>
-                    <div className="text-xs text-text-secondary truncate">{asset.name}</div>
-                    <div className="text-[10px] text-text-muted font-mono">{asset.sector}</div>
+                    <div className="text-xs text-secondary truncate">{asset.name}</div>
+                    <div className="text-[10px] text-secondary/70 font-mono">{asset.sector}</div>
                   </div>
 
                   <button
                     disabled={isAdded || holdings.length >= 15}
                     onClick={() => handleAddAsset(asset.ticker)}
-                    className={`p-1.5 rounded-md text-xs font-medium transition-colors flex items-center justify-center min-h-[34px] min-w-[34px] ${
+                    className={`p-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center min-h-[34px] min-w-[34px] ${
                       isAdded
-                        ? "text-text-muted bg-surface cursor-not-allowed opacity-50"
+                        ? "text-secondary/40 bg-white/[0.02] cursor-not-allowed opacity-50 border border-white/[0.05]"
                         : holdings.length >= 15
-                        ? "text-text-muted bg-surface cursor-not-allowed opacity-50"
-                        : "text-text-primary hover:text-white bg-surface hover:bg-accent border border-border cursor-pointer"
+                        ? "text-secondary/40 bg-white/[0.02] cursor-not-allowed opacity-50 border border-white/[0.05]"
+                        : "text-main hover:text-white bg-white/[0.05] hover:bg-teal hover:border-teal text-teal border border-[rgba(226,235,244,0.18)] cursor-pointer"
                     }`}
                     aria-label={`Add ${asset.ticker}`}
                   >
-                    {isAdded ? "Added" : <Plus className="w-3.5 h-3.5" strokeWidth={1.75} />}
+                    {isAdded ? "Added" : <Plus className="w-3.5 h-3.5 stroke-[2]" />}
                   </button>
                 </div>
               );

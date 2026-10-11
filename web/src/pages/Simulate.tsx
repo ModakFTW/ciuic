@@ -197,18 +197,20 @@ export const SimulatePage: React.FC = () => {
           title="Historical Simulation & Rebalancing"
           description="Backtest growth curves, evaluate regime pullbacks, and compare two asset weight sets on the same historical timeline."
         />
-        <div className="p-12 rounded-2xl border border-[#1F293D] bg-[#111827] text-center space-y-4">
-          <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto" />
-          <h2 className="text-lg font-bold text-white">Insufficient Portfolio Positions</h2>
-          <p className="text-sm text-slate-400 max-w-md mx-auto">
+        <div className="p-12 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] text-center space-y-4 shadow-glass-md">
+          <div className="w-12 h-12 rounded-xl bg-warning/10 border border-warning/30 flex items-center justify-center mx-auto text-warning">
+            <AlertTriangle className="w-6 h-6 stroke-[1.75]" />
+          </div>
+          <h2 className="text-lg font-bold text-main font-heading">Insufficient Portfolio Positions</h2>
+          <p className="text-sm text-secondary max-w-md mx-auto">
             You need at least 2 assets configured to run backtests, regime simulations, and drawdown analysis.
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal hover:bg-teal/90 text-background-base font-bold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-teal/50 shadow-glass-sm"
           >
             <span>Return to Portfolio Builder</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 stroke-[2]" />
           </Link>
         </div>
       </div>
@@ -243,23 +245,23 @@ export const SimulatePage: React.FC = () => {
       {simError && <ErrorToast error={simError as Error} onRetry={refetchPrimary} />}
 
       {/* Regimes & Date Picker Toolbar */}
-      <div className="p-5 rounded-xl border border-[#1F293D] bg-[#111827] space-y-4">
+      <div className="p-5 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] space-y-4 shadow-glass-sm">
         {/* Top Controls: Regime Chips */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-sky-400" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+              <Clock className="w-4 h-4 text-teal stroke-[1.75]" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-secondary">
                 Regime Presets (1-Click Range):
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => handleSelectRegime(null)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                   activeRegime === null
-                    ? "bg-sky-500/20 text-sky-300 border-sky-500/40 font-bold"
-                    : "bg-slate-800 text-slate-400 border-slate-700 hover:text-white"
+                    ? "bg-teal/15 text-teal border-teal/40 font-semibold shadow-glass-sm"
+                    : "bg-white/[0.03] text-secondary border-[rgba(226,235,244,0.12)] hover:text-main hover:bg-white/[0.06]"
                 }`}
               >
                 Standard Horizon (2023 - 2026)
@@ -268,10 +270,10 @@ export const SimulatePage: React.FC = () => {
                 <button
                   key={regime.id}
                   onClick={() => handleSelectRegime(regime.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                     activeRegime === regime.id
-                      ? "bg-sky-500/20 text-sky-300 border-sky-500/40 font-bold"
-                      : "bg-slate-800 text-slate-400 border-slate-700 hover:text-white"
+                      ? "bg-teal/15 text-teal border-teal/40 font-semibold shadow-glass-sm"
+                      : "bg-white/[0.03] text-secondary border-[rgba(226,235,244,0.12)] hover:text-main hover:bg-white/[0.06]"
                   }`}
                 >
                   {regime.label}
@@ -282,18 +284,18 @@ export const SimulatePage: React.FC = () => {
 
           {/* Rebalance Select */}
           <div className="space-y-1.5 flex-shrink-0">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+            <span className="text-xs font-semibold uppercase tracking-wider text-secondary block">
               Rebalance Frequency:
             </span>
-            <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+            <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-[rgba(226,235,244,0.14)]">
               {(["none", "monthly", "quarterly"] as RebalanceFrequency[]).map((f) => (
                 <button
                   key={f}
                   onClick={() => setRebalance(f)}
-                  className={`px-3 py-1 text-xs font-medium rounded capitalize transition-all ${
+                  className={`px-3 py-1 text-xs font-medium rounded-lg capitalize transition-all ${
                     rebalance === f
-                      ? "bg-sky-500 text-slate-950 font-bold shadow-sm"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-teal text-background-base font-bold shadow-sm"
+                      : "text-secondary hover:text-main"
                   }`}
                 >
                   {f}
@@ -304,11 +306,11 @@ export const SimulatePage: React.FC = () => {
         </div>
 
         {/* Date Range Picker Row */}
-        <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="pt-3 border-t border-[rgba(226,235,244,0.1)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Calendar className="w-4 h-4 text-sky-400 flex-shrink-0" />
+            <Calendar className="w-4 h-4 text-teal stroke-[1.75] flex-shrink-0" />
             <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="text-slate-400">From:</span>
+              <span className="text-secondary">From:</span>
               <input
                 type="date"
                 value={startDate}
@@ -316,9 +318,9 @@ export const SimulatePage: React.FC = () => {
                   setStartDate(e.target.value);
                   setActiveRegime(null);
                 }}
-                className="px-2.5 py-1 bg-slate-900 border border-slate-750 rounded-lg text-white focus:outline-none focus:border-sky-500"
+                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main focus:outline-none focus:border-teal transition-colors"
               />
-              <span className="text-slate-400">To:</span>
+              <span className="text-secondary">To:</span>
               <input
                 type="date"
                 value={endDate}
@@ -326,7 +328,7 @@ export const SimulatePage: React.FC = () => {
                   setEndDate(e.target.value);
                   setActiveRegime(null);
                 }}
-                className="px-2.5 py-1 bg-slate-900 border border-slate-750 rounded-lg text-white focus:outline-none focus:border-sky-500"
+                className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main focus:outline-none focus:border-teal transition-colors"
               />
             </div>
           </div>
@@ -336,29 +338,29 @@ export const SimulatePage: React.FC = () => {
             {!showComparison ? (
               <button
                 onClick={() => setShowComparison(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-teal/10 text-teal border border-teal/30 hover:bg-teal/20 transition-all cursor-pointer shadow-glass-sm"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 stroke-[2]" />
                 <span>Compare Second Weight Set</span>
               </button>
             ) : (
-              <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
-                <span className="text-emerald-400 font-semibold">Comparing:</span>
+              <div className="flex items-center gap-2 bg-white/[0.04] px-3 py-1.5 rounded-xl border border-[rgba(226,235,244,0.18)] text-xs">
+                <span className="text-teal font-semibold">Comparing:</span>
                 <select
                   value={comparisonPreset}
                   onChange={(e) => setComparisonPreset(e.target.value as any)}
-                  className="bg-transparent text-white font-mono focus:outline-none cursor-pointer"
+                  className="bg-transparent text-main font-mono focus:outline-none cursor-pointer"
                 >
-                  <option value="recommended" className="bg-slate-900">
+                  <option value="recommended" className="bg-[#0C1118] text-main">
                     ML Recommended Weights
                   </option>
-                  <option value="equal" className="bg-slate-900">
+                  <option value="equal" className="bg-[#0C1118] text-main">
                     Equal Weight (1/N)
                   </option>
                 </select>
                 <button
                   onClick={() => setShowComparison(false)}
-                  className="text-slate-500 hover:text-rose-400 ml-1"
+                  className="text-secondary hover:text-negative transition-colors ml-1 p-0.5 rounded"
                   title="Remove comparison line"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -378,7 +380,7 @@ export const SimulatePage: React.FC = () => {
           subtitle={`Starting Amount: ${formatCurrency(amount, currency)}`}
           trend="up"
           trendValue={formatPercent(simData?.metrics?.total_return ?? 0.724, 1, true)}
-          badge={<DollarSign className="w-4 h-4 text-emerald-400" />}
+          badge={<DollarSign className="w-4 h-4 text-positive stroke-[1.75]" />}
           highlight
         />
 
@@ -405,19 +407,19 @@ export const SimulatePage: React.FC = () => {
             2
           )}`}
           subtitle="Risk-Adjusted Ratios"
-          badge={<CheckCircle2 className="w-4 h-4 text-sky-400" />}
+          badge={<CheckCircle2 className="w-4 h-4 text-teal stroke-[1.75]" />}
         />
       </div>
 
       {/* Growth Line Chart from series.portfolio (Plots 2 Series if comparison active) */}
-      <div className="rounded-xl border border-[#1F293D] bg-[#111827] p-5 space-y-4">
+      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-sky-400" />
+            <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-teal stroke-[1.75]" />
               Capital Growth Trajectory (Indexed to {formatCurrency(amount, currency)})
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-secondary">
               {showComparison
                 ? "Simulated growth comparison between Primary Portfolio and Alternative Weights."
                 : `Simulated portfolio performance with ${rebalance} rebalancing.`}
@@ -425,13 +427,13 @@ export const SimulatePage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 text-xs font-mono">
-            <span className="flex items-center gap-1.5 text-sky-400">
-              <span className="w-3 h-0.5 bg-sky-400 inline-block" />
+            <span className="flex items-center gap-1.5 text-teal">
+              <span className="w-3 h-0.5 bg-teal inline-block" />
               Primary Portfolio
             </span>
             {showComparison && (
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-3 h-0.5 bg-emerald-400 inline-block" />
+              <span className="flex items-center gap-1.5 text-warning">
+                <span className="w-3 h-0.5 bg-warning inline-block" />
                 Comparison ({comparisonPreset})
               </span>
             )}
@@ -441,10 +443,10 @@ export const SimulatePage: React.FC = () => {
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
-              <XAxis dataKey="date" stroke="#64748B" fontSize={11} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
+              <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
               <YAxis
-                stroke="#64748B"
+                stroke="#9BA7B5"
                 fontSize={11}
                 tickLine={false}
                 tickFormatter={(v) =>
@@ -458,16 +460,16 @@ export const SimulatePage: React.FC = () => {
                   if (!payload || !payload.length) return null;
                   const item = payload[0].payload;
                   return (
-                    <div className="bg-slate-900 border border-slate-750 p-3 rounded-lg text-xs font-mono shadow-xl space-y-1">
-                      <div className="text-slate-400 font-bold border-b border-slate-800 pb-1">
+                    <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-3 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md space-y-1">
+                      <div className="text-secondary font-bold border-b border-white/[0.08] pb-1">
                         {item.date}
                       </div>
-                      <div className="text-sky-400">
+                      <div className="text-teal">
                         Primary: {currency === "INR" ? "₹" : "$"}
                         {item.primary?.toLocaleString()}
                       </div>
                       {showComparison && item.comparison && (
-                        <div className="text-emerald-400">
+                        <div className="text-warning">
                           Comparison ({comparisonPreset}): {currency === "INR" ? "₹" : "$"}
                           {item.comparison?.toLocaleString()}
                         </div>
@@ -480,7 +482,7 @@ export const SimulatePage: React.FC = () => {
                 type="monotone"
                 dataKey="primary"
                 name="Primary Portfolio"
-                stroke="#0ea5e9"
+                stroke="#74C7BE"
                 strokeWidth={2.5}
                 dot={false}
               />
@@ -489,7 +491,7 @@ export const SimulatePage: React.FC = () => {
                   type="monotone"
                   dataKey="comparison"
                   name="Comparison Portfolio"
-                  stroke="#10B981"
+                  stroke="#D9B675"
                   strokeWidth={2}
                   strokeDasharray="3 3"
                   dot={false}
@@ -501,16 +503,16 @@ export const SimulatePage: React.FC = () => {
       </div>
 
       {/* Underwater Drawdown Area Chart from drawdown */}
-      <div className="rounded-xl border border-[#1F293D] bg-[#111827] p-5 space-y-4">
+      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <TrendingDown className="w-4 h-4 text-rose-400" />
+            <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
+              <TrendingDown className="w-4 h-4 text-negative stroke-[1.75]" />
               Underwater Drawdown Profile
             </h2>
-            <p className="text-xs text-slate-400">Percentage decline from all-time portfolio peak value.</p>
+            <p className="text-xs text-secondary">Percentage decline from all-time portfolio peak value.</p>
           </div>
-          <span className="text-xs font-mono text-slate-500">Unit: % drawdown</span>
+          <span className="text-xs font-mono text-secondary">Unit: % drawdown</span>
         </div>
 
         <div className="h-48 w-full">
@@ -518,14 +520,14 @@ export const SimulatePage: React.FC = () => {
             <AreaChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
               <defs>
                 <linearGradient id="drawdownGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.0} />
-                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0.35} />
+                  <stop offset="5%" stopColor="#E47782" stopOpacity={0.0} />
+                  <stop offset="95%" stopColor="#E47782" stopOpacity={0.35} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
-              <XAxis dataKey="date" stroke="#64748B" fontSize={11} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
+              <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
               <YAxis
-                stroke="#64748B"
+                stroke="#9BA7B5"
                 fontSize={11}
                 tickLine={false}
                 domain={["auto", 0]}
@@ -536,13 +538,13 @@ export const SimulatePage: React.FC = () => {
                   if (!payload || !payload.length) return null;
                   const item = payload[0].payload;
                   return (
-                    <div className="bg-slate-900 border border-slate-750 p-2.5 rounded-lg text-xs font-mono shadow-xl space-y-1">
-                      <div className="text-slate-400">{item.date}</div>
-                      <div className="text-rose-400 font-bold">
+                    <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-2.5 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md space-y-1">
+                      <div className="text-secondary">{item.date}</div>
+                      <div className="text-negative font-bold">
                         Primary Drawdown: {item.primaryDD}%
                       </div>
                       {showComparison && item.comparisonDD !== null && (
-                        <div className="text-emerald-400">
+                        <div className="text-warning font-bold">
                           Comparison Drawdown: {item.comparisonDD}%
                         </div>
                       )}
@@ -554,7 +556,7 @@ export const SimulatePage: React.FC = () => {
                 type="monotone"
                 dataKey="primaryDD"
                 name="Primary Drawdown"
-                stroke="#EF4444"
+                stroke="#E47782"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#drawdownGradient)"
@@ -564,7 +566,7 @@ export const SimulatePage: React.FC = () => {
                   type="monotone"
                   dataKey="comparisonDD"
                   name="Comparison Drawdown"
-                  stroke="#10B981"
+                  stroke="#D9B675"
                   strokeWidth={1.5}
                   fillOpacity={0}
                 />
@@ -575,14 +577,14 @@ export const SimulatePage: React.FC = () => {
       </div>
 
       {/* Metrics Table: total_return, volatility, max_drawdown, sharpe, sortino */}
-      <div className="rounded-xl border border-[#1F293D] bg-[#111827] overflow-hidden">
-        <div className="p-4 border-b border-[#1F293D] flex items-center justify-between">
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <Layers className="w-4 h-4 text-sky-400" />
+      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+        <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex items-center justify-between">
+          <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
+            <Layers className="w-4 h-4 text-teal stroke-[1.75]" />
             Simulation Performance Metrics
           </h2>
           {showComparison && (
-            <span className="text-xs font-mono text-emerald-400">
+            <span className="text-xs font-mono text-warning">
               Multi-Portfolio Comparison Active
             </span>
           )}
@@ -590,13 +592,13 @@ export const SimulatePage: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-slate-900/80 border-b border-[#1F293D] text-slate-400">
+            <thead className="bg-white/[0.03] border-b border-[rgba(226,235,244,0.14)] text-secondary">
               <tr>
                 <th className="p-3.5">Metric</th>
                 <th className="p-3.5 text-right">Primary Allocation</th>
                 {showComparison && (
                   <>
-                    <th className="p-3.5 text-right text-emerald-400">
+                    <th className="p-3.5 text-right text-warning">
                       Comparison ({comparisonPreset})
                     </th>
                     <th className="p-3.5 text-right">Variance / Delta</th>
@@ -604,19 +606,19 @@ export const SimulatePage: React.FC = () => {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-[rgba(226,235,244,0.08)]">
               {/* Total Return */}
-              <tr className="hover:bg-slate-800/30">
-                <td className="p-3.5 font-bold text-white">Total Return</td>
-                <td className="p-3.5 text-right text-emerald-400 font-bold">
+              <tr className="hover:bg-white/[0.025] transition-colors">
+                <td className="p-3.5 font-bold text-main font-sans">Total Return</td>
+                <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                   +{( (simData?.metrics?.total_return || 0.724) * 100 ).toFixed(1)}%
                 </td>
                 {showComparison && (
                   <>
-                    <td className="p-3.5 text-right text-emerald-300 font-bold">
+                    <td className="p-3.5 text-right text-positive/90 font-bold tabular-nums">
                       +{((compData?.metrics?.total_return || 0.648) * 100).toFixed(1)}%
                     </td>
-                    <td className="p-3.5 text-right text-slate-400">
+                    <td className="p-3.5 text-right text-secondary tabular-nums">
                       {(
                         ((compData?.metrics?.total_return || 0.648) -
                           (simData?.metrics?.total_return || 0.724)) *
@@ -628,17 +630,17 @@ export const SimulatePage: React.FC = () => {
               </tr>
 
               {/* Volatility */}
-              <tr className="hover:bg-slate-800/30">
-                <td className="p-3.5 font-bold text-white">Annualized Volatility</td>
-                <td className="p-3.5 text-right text-rose-300">
+              <tr className="hover:bg-white/[0.025] transition-colors">
+                <td className="p-3.5 font-bold text-main font-sans">Annualized Volatility</td>
+                <td className="p-3.5 text-right text-negative/90 tabular-nums">
                   {((simData?.metrics?.volatility || 0.264) * 100).toFixed(1)}%
                 </td>
                 {showComparison && (
                   <>
-                    <td className="p-3.5 text-right text-emerald-300">
+                    <td className="p-3.5 text-right text-positive tabular-nums">
                       {((compData?.metrics?.volatility || 0.175) * 100).toFixed(1)}%
                     </td>
-                    <td className="p-3.5 text-right text-emerald-400 font-bold">
+                    <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                       {(
                         ((compData?.metrics?.volatility || 0.175) -
                           (simData?.metrics?.volatility || 0.264)) *
@@ -650,17 +652,17 @@ export const SimulatePage: React.FC = () => {
               </tr>
 
               {/* Max Drawdown */}
-              <tr className="hover:bg-slate-800/30">
-                <td className="p-3.5 font-bold text-white">Max Drawdown</td>
-                <td className="p-3.5 text-right text-rose-400 font-semibold">
+              <tr className="hover:bg-white/[0.025] transition-colors">
+                <td className="p-3.5 font-bold text-main font-sans">Max Drawdown</td>
+                <td className="p-3.5 text-right text-negative font-semibold tabular-nums">
                   {((simData?.metrics?.max_drawdown || -0.342) * 100).toFixed(1)}%
                 </td>
                 {showComparison && (
                   <>
-                    <td className="p-3.5 text-right text-emerald-300 font-semibold">
+                    <td className="p-3.5 text-right text-positive/90 font-semibold tabular-nums">
                       {((compData?.metrics?.max_drawdown || -0.198) * 100).toFixed(1)}%
                     </td>
-                    <td className="p-3.5 text-right text-emerald-400 font-bold">
+                    <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                       +{(
                         (Math.abs(simData?.metrics?.max_drawdown || -0.342) -
                           Math.abs(compData?.metrics?.max_drawdown || -0.198)) *
@@ -672,17 +674,17 @@ export const SimulatePage: React.FC = () => {
               </tr>
 
               {/* Sharpe */}
-              <tr className="hover:bg-slate-800/30">
-                <td className="p-3.5 font-bold text-white">Sharpe Ratio</td>
-                <td className="p-3.5 text-right text-white">
+              <tr className="hover:bg-white/[0.025] transition-colors">
+                <td className="p-3.5 font-bold text-main font-sans">Sharpe Ratio</td>
+                <td className="p-3.5 text-right text-main tabular-nums">
                   {(simData?.metrics?.sharpe || 0.504).toFixed(2)}
                 </td>
                 {showComparison && (
                   <>
-                    <td className="p-3.5 text-right text-emerald-400 font-bold">
+                    <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                       {(compData?.metrics?.sharpe || 0.663).toFixed(2)}
                     </td>
-                    <td className="p-3.5 text-right text-emerald-400 font-bold">
+                    <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                       +{(
                         (compData?.metrics?.sharpe || 0.663) -
                         (simData?.metrics?.sharpe || 0.504)
@@ -693,17 +695,17 @@ export const SimulatePage: React.FC = () => {
               </tr>
 
               {/* Sortino */}
-              <tr className="hover:bg-slate-800/30">
-                <td className="p-3.5 font-bold text-white">Sortino Ratio</td>
-                <td className="p-3.5 text-right text-white">
+              <tr className="hover:bg-white/[0.025] transition-colors">
+                <td className="p-3.5 font-bold text-main font-sans">Sortino Ratio</td>
+                <td className="p-3.5 text-right text-main tabular-nums">
                   {(simData?.metrics?.sortino || 0.682).toFixed(2)}
                 </td>
                 {showComparison && (
                   <>
-                    <td className="p-3.5 text-right text-emerald-400 font-bold">
+                    <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                       {(compData?.metrics?.sortino || 0.941).toFixed(2)}
                     </td>
-                    <td className="p-3.5 text-right text-emerald-400 font-bold">
+                    <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                       +{(
                         (compData?.metrics?.sortino || 0.941) -
                         (simData?.metrics?.sortino || 0.682)

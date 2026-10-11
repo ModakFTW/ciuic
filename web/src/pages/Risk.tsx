@@ -9,9 +9,11 @@ import {
   PieChart as PieIcon,
   X,
   Check,
-  HelpCircle,
   TrendingDown,
   TrendingUp,
+  Activity,
+  Sliders,
+  CheckCircle2,
 } from "lucide-react";
 import {
   BarChart,
@@ -34,7 +36,14 @@ import { CardSkeleton } from "../components/Skeleton";
 import { ErrorToast } from "../components/ErrorToast";
 import { formatPercent, formatRatio } from "../utils/format";
 
-const SECTOR_COLORS = ["#2563EB", "#FBBF24", "#34D399", "#8B5CF6", "#06B6D4", "#64748B"];
+const PRECISION_SECTOR_COLORS = [
+  "#74C7BE", // Muted Teal
+  "#D9B675", // Warning Gold
+  "#86C8A0", // Positive Sage
+  "#9BA7B5", // Secondary Slate
+  "#687787", // Dim Steel
+  "#4A5568", // Deep Slate
+];
 
 export const RiskPage: React.FC = () => {
   const {
@@ -53,7 +62,7 @@ export const RiskPage: React.FC = () => {
       <div className="space-y-6">
         <PageTitle
           title="Risk Analysis"
-          description="Forward 126-trading-day risk classification and factor attribution."
+          description="Forward 126-trading-day risk classification, calibrated probabilities, and factor attribution."
         />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <CardSkeleton />
@@ -76,21 +85,25 @@ export const RiskPage: React.FC = () => {
       <div className="space-y-6">
         <PageTitle
           title="Risk Analysis"
-          description="Forward 126-trading-day risk classification and factor attribution."
+          description="Forward 126-trading-day risk classification, calibrated probabilities, and factor attribution."
         />
-        <div className="p-12 rounded-lg border border-border bg-surface text-center space-y-4">
-          <AlertTriangle className="w-8 h-8 text-risk-med mx-auto" strokeWidth={1.75} />
-          <h2 className="text-base font-semibold text-text-primary">Portfolio Requires At Least 2 Assets</h2>
-          <p className="text-xs text-text-secondary max-w-md mx-auto">
-            Configure at least 2 assets to calculate risk classification and covariance attribution.
+        <div className="p-12 rounded-2xl glass-panel text-center space-y-4 max-w-xl mx-auto shadow-glass">
+          <div className="w-12 h-12 rounded-xl bg-warning/15 border border-warning/30 flex items-center justify-center text-warning mx-auto">
+            <AlertTriangle className="w-6 h-6 stroke-[1.75]" />
+          </div>
+          <h2 className="text-base font-bold text-main font-sans">Portfolio Requires At Least 2 Positions</h2>
+          <p className="text-xs text-secondary max-w-md mx-auto leading-relaxed">
+            Configure at least 2 assets in the portfolio builder to calculate risk classification and covariance factor attribution.
           </p>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-accent hover:bg-accent-hover text-white font-medium text-xs transition-colors min-h-[40px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
-          >
-            <span>Return to Portfolio Builder</span>
-            <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.75} />
-          </Link>
+          <div className="pt-2">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-main border border-[rgba(226,235,244,0.25)] font-semibold text-xs transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
+            >
+              <span>Return to Portfolio Builder</span>
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -117,7 +130,7 @@ export const RiskPage: React.FC = () => {
       weight: +(stat.weight * 100).toFixed(1),
     })) || [];
 
-  // 2. Risk Drivers Bar Chart Data with Direction Arrows
+  // 2. Risk Drivers Bar Chart Data with Direction
   const riskDriversData =
     data?.risk_drivers?.map((driver) => ({
       factor: driver.factor,
@@ -137,10 +150,10 @@ export const RiskPage: React.FC = () => {
       : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-200">
       <PageTitle
-        title="Risk Analysis"
-        description="Forward 126-trading-day risk classification, calibrated probabilities, and factor attribution."
+        title="Risk Intelligence & Factor Attribution"
+        description="Forward 126-trading-day multi-class risk model, calibrated class probabilities, and factor risk drivers."
         badge={
           data?.risk_label ? (
             <RiskBadge
@@ -155,12 +168,12 @@ export const RiskPage: React.FC = () => {
           data?.counterfactual && data.risk_label === "High" ? (
             <button
               onClick={() => setShowCounterfactualModal(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs font-medium bg-surface-elevated hover:bg-surface-hover text-text-primary border border-border transition-colors min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-medium glass-panel-interactive text-main border border-warning/30 hover:border-warning/60 transition-all min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal active:scale-[0.98]"
               title="Compare and morph risk to Medium using counterfactual frontier optimization"
             >
-              <span className="w-2 h-2 rounded-full bg-risk-med" />
+              <span className="w-2 h-2 rounded-full bg-warning shadow-sm" />
               <span>Target Medium Risk</span>
-              <ArrowRight className="w-3.5 h-3.5 text-text-muted" strokeWidth={1.75} />
+              <ArrowRight className="w-3.5 h-3.5 text-secondary stroke-[2]" />
             </button>
           ) : null
         }
@@ -170,62 +183,62 @@ export const RiskPage: React.FC = () => {
         <ErrorToast error={analyzeError} onRetry={refetchAnalyze} />
       )}
 
-      {/* Model Verdict Card */}
-      <div className="rounded-lg border border-border bg-surface p-5 space-y-4 shadow-sm">
+      {/* Model Verdict & Calibrated Probabilities Header Card */}
+      <div className="rounded-2xl glass-panel-elevated p-6 space-y-5 shadow-glass">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="space-y-3">
+          <div className="space-y-3.5 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary flex items-center gap-1.5">
-                <ShieldAlert className="w-3.5 h-3.5 text-accent-light" strokeWidth={1.75} />
-                Forward 126-Day Model Verdict
+              <span className="text-xs font-mono uppercase tracking-wider text-secondary flex items-center gap-1.5 font-medium">
+                <ShieldAlert className="w-4 h-4 text-teal stroke-[1.75]" />
+                Forward 126-Trading-Day Classification
               </span>
-              <span className="text-border">|</span>
-              <span className="text-xs text-text-muted font-mono">
+              <span className="text-white/[0.15]">|</span>
+              <span className="text-xs text-secondary/70 font-mono">
                 Walk-Forward Terciles
               </span>
             </div>
 
-            {/* Big RiskBadge with risk_score and confidence */}
+            {/* Prominent Risk Badge with Score & Confidence */}
             <div className="flex flex-wrap items-center gap-3">
               <RiskBadge
                 label={data?.risk_label || "High"}
-                size="lg"
+                size="xl"
                 score={data?.risk_score ?? 82}
                 confidence={data?.confidence ?? 0.82}
               />
             </div>
 
-            <p className="text-xs text-text-secondary max-w-2xl leading-relaxed">
+            <p className="text-xs text-secondary max-w-2xl leading-relaxed font-sans">
               Trained on walk-forward terciles. Predicts forward 6-month volatility and drawdown severity with{" "}
-              <strong className="text-text-primary font-mono tabular-nums">
-                {formatPercent(data?.confidence ?? 0.82, 0)} confidence
+              <strong className="text-main font-mono tabular-nums">
+                {formatPercent(data?.confidence ?? 0.82, 0)} model confidence
               </strong>
               .
             </p>
           </div>
 
           {/* Calibrated Class Probabilities */}
-          <div className="w-full lg:w-80 bg-surface-elevated p-4 rounded-md border border-border space-y-3">
-            <div className="flex items-center justify-between text-xs font-medium text-text-secondary">
-              <span className="flex items-center gap-1.5">
-                <Gauge className="w-3.5 h-3.5 text-text-muted" strokeWidth={1.75} />
+          <div className="w-full lg:w-80 bg-[#080B10]/70 p-4 rounded-xl border border-[rgba(226,235,244,0.15)] space-y-3 shadow-glass-sm">
+            <div className="flex items-center justify-between text-xs font-mono text-secondary">
+              <span className="flex items-center gap-1.5 font-medium">
+                <Gauge className="w-3.5 h-3.5 text-secondary/70 stroke-[1.75]" />
                 Class Probabilities
               </span>
-              <span className="font-mono text-text-muted tabular-nums">Sum: 100%</span>
+              <span className="text-[11px] text-secondary/60 tabular-nums">Sum: 100%</span>
             </div>
 
             <div className="space-y-2.5">
               {/* Low Risk */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-risk-low font-medium">Low Risk</span>
-                  <span className="text-text-primary tabular-nums">
+                  <span className="text-positive font-medium">Low Risk</span>
+                  <span className="text-main tabular-nums font-semibold">
                     {formatPercent(data?.probs?.Low ?? 0.04, 1)}
                   </span>
                 </div>
-                <div className="h-1.5 w-full bg-surface-hover rounded overflow-hidden">
+                <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-risk-low rounded transition-all duration-300"
+                    className="h-full bg-positive rounded-full transition-all duration-300"
                     style={{ width: `${(data?.probs?.Low ?? 0.04) * 100}%` }}
                   />
                 </div>
@@ -234,14 +247,14 @@ export const RiskPage: React.FC = () => {
               {/* Medium Risk */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-risk-med font-medium">Medium Risk</span>
-                  <span className="text-text-primary tabular-nums">
+                  <span className="text-warning font-medium">Medium Risk</span>
+                  <span className="text-main tabular-nums font-semibold">
                     {formatPercent(data?.probs?.Medium ?? 0.28, 1)}
                   </span>
                 </div>
-                <div className="h-1.5 w-full bg-surface-hover rounded overflow-hidden">
+                <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-risk-med rounded transition-all duration-300"
+                    className="h-full bg-warning rounded-full transition-all duration-300"
                     style={{ width: `${(data?.probs?.Medium ?? 0.28) * 100}%` }}
                   />
                 </div>
@@ -250,14 +263,14 @@ export const RiskPage: React.FC = () => {
               {/* High Risk */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-risk-high font-medium">High Risk</span>
-                  <span className="text-text-primary tabular-nums">
+                  <span className="text-negative font-medium">High Risk</span>
+                  <span className="text-main tabular-nums font-semibold">
                     {formatPercent(data?.probs?.High ?? 0.68, 1)}
                   </span>
                 </div>
-                <div className="h-1.5 w-full bg-surface-hover rounded overflow-hidden">
+                <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-risk-high rounded transition-all duration-300"
+                    className="h-full bg-negative rounded-full transition-all duration-300"
                     style={{ width: `${(data?.probs?.High ?? 0.68) * 100}%` }}
                   />
                 </div>
@@ -267,7 +280,7 @@ export const RiskPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Metric Cards Row: ann_return, volatility, max_drawdown, sharpe, sortino, diversification_ratio */}
+      {/* Selected Portfolio Analytics Row */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <MetricCard
           title="Ann. Return"
@@ -314,20 +327,20 @@ export const RiskPage: React.FC = () => {
         />
       </div>
 
-      {/* Horizontal Bar Chart: Risk Contribution vs Return Contribution */}
-      <div className="rounded-lg border border-border bg-surface p-5 space-y-4 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      {/* Asset Contribution: Risk vs Return Chart */}
+      <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[rgba(226,235,244,0.10)]">
           <div>
-            <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-              <Layers className="w-4 h-4 text-accent-light" strokeWidth={1.75} />
-              Asset Contribution: Risk vs Return
+            <h2 className="text-sm font-bold text-main flex items-center gap-2 font-sans tracking-tight">
+              <Layers className="w-4 h-4 text-teal stroke-[1.75]" />
+              Asset Risk Contribution vs Return Contribution
             </h2>
-            <p className="text-xs text-text-secondary mt-0.5">
+            <p className="text-xs text-secondary mt-0.5">
               NVDA and TSLA account for ~58% of total risk relative to 45% of allocated capital.
             </p>
           </div>
-          <div className="text-xs font-mono text-text-muted">
-            Units: <span className="text-text-primary font-medium">% of Total</span>
+          <div className="text-xs font-mono text-secondary">
+            Units: <span className="text-main font-semibold">% of Total</span>
           </div>
         </div>
 
@@ -338,24 +351,25 @@ export const RiskPage: React.FC = () => {
               data={assetContributionData}
               margin={{ top: 10, right: 30, left: 30, bottom: 20 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#22252B" horizontal={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(226, 235, 244, 0.08)" horizontal={false} />
               <XAxis
                 type="number"
                 unit="%"
-                stroke="#5A6072"
+                stroke="#687787"
                 fontSize={11}
+                tickLine={false}
                 label={{
                   value: "Contribution (%)",
                   position: "insideBottom",
                   offset: -10,
-                  fill: "#8B93A7",
+                  fill: "#9BA7B5",
                   fontSize: 11,
                 }}
               />
               <YAxis
                 type="category"
                 dataKey="ticker"
-                stroke="#5A6072"
+                stroke="#687787"
                 fontSize={11}
                 tickLine={false}
               />
@@ -364,14 +378,14 @@ export const RiskPage: React.FC = () => {
                   if (!payload || !payload.length) return null;
                   const item = payload[0].payload;
                   return (
-                    <div className="bg-surface border border-border p-2.5 rounded text-xs font-mono shadow-sm space-y-1">
-                      <div className="font-semibold text-text-primary border-b border-border pb-1">
+                    <div className="glass-panel p-3 rounded-xl text-xs font-mono shadow-glass space-y-1.5 border border-[rgba(226,235,244,0.25)]">
+                      <div className="font-bold text-main border-b border-[rgba(226,235,244,0.12)] pb-1">
                         {item.ticker} (Weight: {item.weight}%)
                       </div>
-                      <div className="text-risk-high">
+                      <div className="text-negative font-medium">
                         Risk Contribution: {item.risk_contribution}%
                       </div>
-                      <div className="text-risk-low">
+                      <div className="text-positive font-medium">
                         Return Contribution: {item.return_contribution}%
                       </div>
                     </div>
@@ -381,35 +395,35 @@ export const RiskPage: React.FC = () => {
               <Legend
                 verticalAlign="top"
                 align="right"
-                wrapperStyle={{ paddingBottom: 10, fontSize: 11 }}
+                wrapperStyle={{ paddingBottom: 10, fontSize: 11, fontFamily: "IBM Plex Mono" }}
               />
               <Bar
                 dataKey="risk_contribution"
                 name="Risk Contribution (%)"
-                fill="#F87171"
-                radius={[0, 3, 3, 0]}
+                fill="#E47782"
+                radius={[0, 4, 4, 0]}
               />
               <Bar
                 dataKey="return_contribution"
                 name="Return Contribution (%)"
-                fill="#34D399"
-                radius={[0, 3, 3, 0]}
+                fill="#86C8A0"
+                radius={[0, 4, 4, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* SHAP Drivers Bar Chart & Sector Exposure Donut */}
+      {/* Factor Drivers Hierarchy & Sector Exposure Donut */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* SHAP Risk Drivers Bar Chart with Direction Arrows */}
-        <div className="rounded-lg border border-border bg-surface p-5 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-accent" />
+        <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+          <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.10)]">
+            <h3 className="text-sm font-bold text-main flex items-center gap-2 font-sans">
+              <span className="w-2 h-2 rounded-full bg-teal" />
               Factor Attribution (SHAP Impact)
             </h3>
-            <span className="text-xs font-mono text-text-muted">Magnitude</span>
+            <span className="text-xs font-mono text-secondary">Impact %</span>
           </div>
 
           <div className="h-60 w-full">
@@ -419,23 +433,24 @@ export const RiskPage: React.FC = () => {
                 data={riskDriversData}
                 margin={{ top: 10, right: 30, left: 60, bottom: 15 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#22252B" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(226, 235, 244, 0.08)" horizontal={false} />
                 <XAxis
                   type="number"
-                  stroke="#5A6072"
+                  stroke="#687787"
                   fontSize={11}
+                  tickLine={false}
                   label={{
                     value: "Impact Magnitude (%)",
                     position: "insideBottom",
                     offset: -10,
-                    fill: "#8B93A7",
+                    fill: "#9BA7B5",
                     fontSize: 11,
                   }}
                 />
                 <YAxis
                   type="category"
                   dataKey="factor"
-                  stroke="#5A6072"
+                  stroke="#687787"
                   fontSize={10}
                   tickLine={false}
                   width={140}
@@ -445,69 +460,38 @@ export const RiskPage: React.FC = () => {
                     if (!payload || !payload.length) return null;
                     const p = payload[0].payload;
                     return (
-                      <div className="bg-surface border border-border p-2.5 rounded text-xs font-mono shadow-sm space-y-1">
-                        <div className="font-semibold text-text-primary">{p.factor}</div>
-                        <div className={p.rawImpact > 0 ? "text-risk-high" : "text-risk-low"}>
-                          {p.direction === "increases_risk"
-                            ? "↑ Increases Risk"
-                            : "↓ Dampens Risk"}
-                          : {p.rawImpact > 0 ? `+${p.impact}` : p.impact}%
+                      <div className="glass-panel p-2.5 rounded-xl text-xs font-mono shadow-glass border border-[rgba(226,235,244,0.22)] space-y-1">
+                        <div className="font-bold text-main">{p.factor}</div>
+                        <div className={p.rawImpact > 0 ? "text-negative" : "text-positive"}>
+                          Impact: {p.impact}% ({p.direction})
                         </div>
                       </div>
                     );
                   }}
                 />
-                <Bar dataKey="impact" name="Impact (%)" radius={[0, 3, 3, 0]}>
+                <Bar dataKey="impact" radius={[0, 4, 4, 0]}>
                   {riskDriversData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={entry.rawImpact >= 0 ? "#F87171" : "#34D399"}
+                      fill={entry.rawImpact > 0 ? "#E47782" : "#86C8A0"}
                     />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-
-          {/* Directional Summary Chips */}
-          <div className="space-y-1.5 pt-2 border-t border-border">
-            {riskDriversData.map((d, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between text-xs p-2 rounded-md bg-surface-elevated border border-border"
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`font-mono font-bold text-xs ${
-                      d.direction === "increases_risk" ? "text-risk-high" : "text-risk-low"
-                    }`}
-                  >
-                    {d.arrow}
-                  </span>
-                  <span className="text-text-secondary">{d.factor}</span>
-                </div>
-                <span
-                  className={`font-mono text-xs px-1.5 py-0.5 rounded ${
-                    d.direction === "increases_risk"
-                      ? "text-risk-high bg-risk-high-subtle border border-risk-high-border"
-                      : "text-risk-low bg-risk-low-subtle border border-risk-low-border"
-                  }`}
-                >
-                  {d.rawImpact > 0 ? `+${d.impact}%` : `${d.impact}%`}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Sector Exposure Donut */}
-        <div className="rounded-lg border border-border bg-surface p-5 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-              <PieIcon className="w-4 h-4 text-accent-light" strokeWidth={1.75} />
-              Sector Exposure
+        <div className="rounded-2xl glass-panel p-5 space-y-4 shadow-glass">
+          <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.10)]">
+            <h3 className="text-sm font-bold text-main flex items-center gap-2 font-sans">
+              <PieIcon className="w-4 h-4 text-teal stroke-[1.75]" />
+              Sector Allocation
             </h3>
-            <span className="text-xs font-mono text-text-muted">% of Portfolio</span>
+            <span className="text-xs font-mono text-secondary">
+              Concentration (HHI: {data?.metrics?.hhi ? (data.metrics.hhi * 10000).toFixed(0) : "2480"})
+            </span>
           </div>
 
           <div className="h-60 w-full flex items-center justify-center">
@@ -515,15 +499,19 @@ export const RiskPage: React.FC = () => {
               <PieChart>
                 <Pie
                   data={sectorData}
+                  cx="50%"
+                  cy="50%"
                   innerRadius={55}
-                  outerRadius={80}
+                  outerRadius={85}
                   paddingAngle={3}
                   dataKey="value"
+                  stroke="#080B10"
+                  strokeWidth={2}
                 >
                   {sectorData.map((entry, index) => (
                     <Cell
-                      key={`cell-${index}`}
-                      fill={SECTOR_COLORS[index % SECTOR_COLORS.length]}
+                      key={`sector-${index}`}
+                      fill={PRECISION_SECTOR_COLORS[index % PRECISION_SECTOR_COLORS.length]}
                     />
                   ))}
                 </Pie>
@@ -532,159 +520,122 @@ export const RiskPage: React.FC = () => {
                     if (!payload || !payload.length) return null;
                     const p = payload[0].payload;
                     return (
-                      <div className="bg-surface border border-border p-2 rounded text-xs font-mono shadow-sm">
-                        <span className="text-text-muted">{p.name}: </span>
-                        <span className="text-text-primary font-medium">{p.value}%</span>
+                      <div className="glass-panel p-2.5 rounded-xl text-xs font-mono shadow-glass border border-[rgba(226,235,244,0.22)]">
+                        <span className="font-bold text-main">{p.name}: </span>
+                        <span className="text-teal font-semibold">{p.value}%</span>
                       </div>
                     );
                   }}
                 />
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
+                  wrapperStyle={{ fontSize: 11, fontFamily: "IBM Plex Mono", paddingTop: 8 }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2 border-t border-border">
-            {sectorData.map((item, idx) => (
-              <div key={item.name} className="flex items-center gap-2">
-                <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: SECTOR_COLORS[idx % SECTOR_COLORS.length] }}
-                />
-                <span className="text-text-secondary truncate">{item.name}</span>
-                <span className="text-text-primary ml-auto tabular-nums">{item.value}%</span>
-              </div>
+      {/* Explanations List Rendered Verbatim */}
+      {data?.explanations && data.explanations.length > 0 && (
+        <div className="p-5 rounded-2xl glass-panel space-y-3 shadow-glass">
+          <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-main flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-teal stroke-[2]" />
+            Risk Diagnostics & Model Findings
+          </h3>
+          <ul className="space-y-2 text-xs text-secondary font-sans">
+            {data.explanations.map((exp, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <span className="text-teal font-bold mt-0.5">•</span>
+                <span className="leading-relaxed select-text text-main/90">{exp}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
-      </div>
+      )}
 
-      {/* "Why is this risky?" List Rendering explanations[] verbatim */}
-      <div className="rounded-lg border border-border bg-surface p-5 space-y-4 shadow-sm">
-        <div className="flex items-center gap-2">
-          <HelpCircle className="w-4 h-4 text-text-muted" strokeWidth={1.75} />
-          <h2 className="text-sm font-semibold text-text-primary">
-            Why is this portfolio labeled {data?.risk_label || "High"} Risk?
-          </h2>
-        </div>
-
-        <div className="space-y-2">
-          {data?.explanations && data.explanations.length > 0 ? (
-            data.explanations.map((explanation, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-3 p-3 rounded-md border border-border bg-surface-elevated hover:bg-surface-hover transition-colors"
-              >
-                <span className="w-5 h-5 rounded bg-risk-high-subtle text-risk-high border border-risk-high-border flex items-center justify-center font-mono font-medium text-xs flex-shrink-0 mt-0.5">
-                  {index + 1}
-                </span>
-                <p className="text-xs text-text-secondary leading-relaxed select-text font-mono">
-                  {explanation}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="text-xs text-text-muted italic">No explanations available.</p>
-          )}
-        </div>
-      </div>
-
-      {/* Make it Medium Counterfactual Modal */}
+      {/* Counterfactual Target Medium Modal */}
       {showCounterfactualModal && data?.counterfactual && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-canvas/80 backdrop-blur-sm">
-          <div className="bg-surface border border-border rounded-lg max-w-xl w-full p-5 shadow-xl space-y-5">
-            <div className="flex items-start justify-between gap-4 border-b border-border pb-3">
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-text-primary">
-                  Counterfactual Optimization: Target Medium Risk
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="rounded-2xl glass-panel-elevated max-w-lg w-full p-6 space-y-5 border border-[rgba(226,235,244,0.25)] shadow-glass animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[rgba(226,235,244,0.12)]">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-warning" />
+                <h3 className="font-bold text-base text-main font-sans">
+                  Target Medium Risk Adjustment
                 </h3>
-                <p className="text-xs text-text-muted">
-                  Minimum L1 distance shift from current allocation to target frontier candidates.
-                </p>
               </div>
               <button
                 onClick={() => setShowCounterfactualModal(false)}
-                className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-hover transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
+                className="text-secondary hover:text-main p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
-                <X className="w-4 h-4" strokeWidth={1.75} />
+                <X className="w-4 h-4 stroke-[1.75]" />
               </button>
             </div>
 
-            {/* Target vs Current Label */}
-            <div className="p-3.5 rounded-md bg-surface-elevated border border-border flex items-center justify-between">
-              <div>
-                <span className="text-[10px] text-text-muted uppercase tracking-wider block mb-1">Current Risk</span>
-                <RiskBadge label={data.risk_label} size="sm" />
+            <p className="text-xs text-secondary leading-relaxed">
+              Calculates minimal L2-norm weight distance to transition portfolio classification from{" "}
+              <strong className="text-negative font-mono">High</strong> to{" "}
+              <strong className="text-warning font-mono">Medium</strong> risk.
+            </p>
+
+            {/* Weights delta comparison table */}
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+              <div className="grid grid-cols-4 text-[10px] font-mono text-secondary uppercase tracking-wider pb-1.5 border-b border-[rgba(226,235,244,0.10)]">
+                <span>Asset</span>
+                <span className="text-right">Current</span>
+                <span className="text-right">Suggested</span>
+                <span className="text-right">Delta</span>
               </div>
+              {Object.entries(data.counterfactual.weights).map(([ticker, newWeight]) => {
+                const curStat = data.asset_stats.find((a) => a.ticker === ticker);
+                const curWeight = curStat ? curStat.weight : 0;
+                const diff = newWeight - curWeight;
 
-              <ArrowRight className="w-4 h-4 text-text-muted" strokeWidth={1.75} />
-
-              <div>
-                <span className="text-[10px] text-text-muted uppercase tracking-wider block mb-1">Target Risk</span>
-                <RiskBadge label={data.counterfactual.predicted_label} size="sm" />
-              </div>
-            </div>
-
-            {/* Weights Comparison Table */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Allocation Shift
-              </h4>
-              <div className="divide-y divide-border border border-border rounded-md overflow-hidden text-xs font-mono">
-                <div className="p-2.5 bg-surface-elevated grid grid-cols-4 font-medium text-text-muted">
-                  <span>Ticker</span>
-                  <span className="text-right">Current</span>
-                  <span className="text-right">Target</span>
-                  <span className="text-right">Delta</span>
-                </div>
-                {Object.entries(data.counterfactual.weights).map(([ticker, newWeight]) => {
-                  const currentAsset = data.asset_stats.find((a) => a.ticker === ticker);
-                  const currentWeight = currentAsset ? currentAsset.weight : 0;
-                  const diff = newWeight - currentWeight;
-
-                  return (
-                    <div
-                      key={ticker}
-                      className="p-2.5 bg-surface grid grid-cols-4 items-center hover:bg-surface-hover"
+                return (
+                  <div
+                    key={ticker}
+                    className="grid grid-cols-4 text-xs font-mono py-1.5 items-center border-b border-white/[0.04]"
+                  >
+                    <span className="font-bold text-main">{ticker}</span>
+                    <span className="text-right text-secondary tabular-nums">
+                      {(curWeight * 100).toFixed(1)}%
+                    </span>
+                    <span className="text-right text-main font-medium tabular-nums">
+                      {(newWeight * 100).toFixed(1)}%
+                    </span>
+                    <span
+                      className={`text-right font-medium tabular-nums ${
+                        diff > 0
+                          ? "text-positive"
+                          : diff < 0
+                          ? "text-negative"
+                          : "text-secondary"
+                      }`}
                     >
-                      <span className="font-medium text-text-primary">{ticker}</span>
-                      <span className="text-right text-text-secondary tabular-nums">
-                        {(currentWeight * 100).toFixed(1)}%
-                      </span>
-                      <span className="text-right text-text-primary font-medium tabular-nums">
-                        {(newWeight * 100).toFixed(1)}%
-                      </span>
-                      <span
-                        className={`text-right font-medium tabular-nums ${
-                          diff > 0
-                            ? "text-risk-low"
-                            : diff < 0
-                            ? "text-risk-high"
-                            : "text-text-muted"
-                        }`}
-                      >
-                        {diff > 0 ? `+${(diff * 100).toFixed(1)}%` : `${(diff * 100).toFixed(1)}%`}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                      {diff > 0 ? `+${(diff * 100).toFixed(1)}%` : `${(diff * 100).toFixed(1)}%`}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="pt-3 border-t border-[rgba(226,235,244,0.12)] flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowCounterfactualModal(false)}
-                className="px-3 py-2 rounded-md text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors min-h-[40px] cursor-pointer"
+                className="px-3.5 py-2 rounded-xl text-xs font-mono font-medium text-secondary hover:text-main bg-white/[0.04] hover:bg-white/[0.08] border border-[rgba(226,235,244,0.15)] transition-all cursor-pointer min-h-[38px]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleApplyCounterfactual}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium bg-accent hover:bg-accent-hover text-white transition-colors min-h-[40px] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent active:scale-[0.98]"
+                className="px-4 py-2 rounded-xl text-xs font-mono font-semibold text-main bg-warning/20 hover:bg-warning/30 border border-warning/50 text-warning transition-all shadow-glass-sm cursor-pointer min-h-[38px] flex items-center gap-2"
               >
-                <Check className="w-3.5 h-3.5" strokeWidth={1.75} />
-                <span>Apply Target Allocation</span>
+                <Check className="w-3.5 h-3.5 stroke-[2]" />
+                <span>Apply Medium Risk Weights</span>
               </button>
             </div>
           </div>

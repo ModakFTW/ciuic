@@ -13,31 +13,30 @@ export const DataBadge: React.FC<DataBadgeProps> = ({ meta, className = "" }) =>
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-2xs font-mono border transition-colors ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono border transition-colors ${
         isLive
-          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-          : "bg-surface border-border text-terminal-muted"
+          ? "bg-positive/10 text-positive border-positive/30 shadow-glass-sm"
+          : "glass-panel-elevated border-[rgba(226,235,244,0.18)] text-secondary"
       } ${className}`}
       title={isLive ? `Live market pricing as of ${asOf}` : `Offline cached data as of ${asOf}`}
     >
       {isLive ? (
         <>
           <span className="relative flex h-1.5 w-1.5">
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-positive"></span>
           </span>
           <span className="flex items-center gap-1">
-            <Radio className="w-3 h-3 text-emerald-400 stroke-[1.75]" />
-            <span className="font-semibold text-emerald-300">LIVE</span>
-            <span className="text-emerald-500/50">|</span>
-            <span className="tabular-nums text-emerald-200">{asOf}</span>
+            <Radio className="w-3 h-3 text-positive stroke-[1.75]" />
+            <span className="font-semibold text-positive">LIVE</span>
+            <span className="text-secondary/50">|</span>
+            <span className="tabular-nums text-main">{asOf}</span>
           </span>
         </>
       ) : (
         <>
-          <Database className="w-3 h-3 text-terminal-dim stroke-[1.75]" />
-          <span>
-            Cache <span className="tabular-nums text-terminal-text">{asOf}</span>
-          </span>
+          <Database className="w-3 h-3 text-secondary stroke-[1.75]" />
+          <span className="hidden xs:inline">Cache</span>
+          <span className="tabular-nums text-main">{asOf}</span>
         </>
       )}
     </div>

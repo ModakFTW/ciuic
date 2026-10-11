@@ -41,7 +41,7 @@ import { CardSkeleton, Skeleton } from "../components/Skeleton";
 import { formatCurrency, formatPercent, formatRatio } from "../utils/format";
 import type { LookbackPeriod, PositionIn, Benchmark } from "../api/types";
 
-const COLORS = ["#0ea5e9", "#f59e0b", "#10b981", "#8b5cf6", "#ec4899", "#64748b"];
+const COLORS = ["#74C7BE", "#86C8A0", "#D9B675", "#A4B3C6", "#6A94C7", "#E47782"];
 
 const DEMO_POSITIONS: PositionIn[] = [
   { ticker: "NVDA", quantity: 29, buy_price: 8620 },
@@ -179,20 +179,20 @@ export const TrackPage: React.FC = () => {
           <div className="flex items-center gap-3">
             {/* Auto-refresh timer badge */}
             <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel-elevated border border-[rgba(226,235,244,0.18)] text-xs font-mono text-secondary shadow-glass-sm"
               title="Automatically pulls live market closes and daily FX series every 60 seconds"
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-teal" />
               </span>
               <span>Last updated: {lastUpdated}</span>
               <button
                 onClick={() => refetch()}
-                className="p-1 text-slate-400 hover:text-sky-400 rounded transition-colors"
+                className="p-1 text-secondary hover:text-teal rounded transition-colors"
                 title="Refresh prices now"
               >
-                <RefreshCw className="w-3 h-3" />
+                <RefreshCw className="w-3 h-3 stroke-[2]" />
               </button>
             </div>
           </div>
@@ -202,23 +202,23 @@ export const TrackPage: React.FC = () => {
       {trackError && <ErrorToast error={trackError as Error} onRetry={refetch} />}
 
       {/* 1. Holdings Entry Table with 'Use Demo Holdings' Button */}
-      <div className="rounded-xl border border-[#1F293D] bg-[#111827] overflow-hidden shadow-lg">
-        <div className="p-4 border-b border-[#1F293D] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+        <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Layers className="w-4 h-4 text-sky-400" />
+            <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
+              <Layers className="w-4 h-4 text-teal stroke-[1.75]" />
               Holdings Entry & Cost Basis Editor
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-secondary">
               Input asset quantities and buy execution prices to compute live mark-to-market performance.
             </p>
           </div>
 
           <button
             onClick={handleUseDemoHoldings}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-sky-500/10 text-sky-300 border border-sky-500/30 hover:bg-sky-500/20 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-teal/10 text-teal border border-teal/30 hover:bg-teal/20 transition-all cursor-pointer shadow-glass-sm"
           >
-            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+            <Sparkles className="w-3.5 h-3.5 text-teal stroke-[1.75]" />
             <span>Use Demo Holdings</span>
           </button>
         </div>
@@ -226,7 +226,7 @@ export const TrackPage: React.FC = () => {
         {/* Positions Input Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-slate-900/80 border-b border-[#1F293D] text-slate-400 uppercase tracking-wider text-[11px]">
+            <thead className="bg-white/[0.03] border-b border-[rgba(226,235,244,0.14)] text-secondary uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="p-3.5">Asset Ticker</th>
                 <th className="p-3.5 text-right">Quantity</th>
@@ -239,12 +239,12 @@ export const TrackPage: React.FC = () => {
                 <th className="p-3.5 text-center w-16">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-[rgba(226,235,244,0.08)]">
               {positions.map((pos, idx) => {
                 const rowCost = pos.quantity * pos.buy_price;
                 return (
-                  <tr key={pos.ticker} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3.5 font-bold text-white flex items-center gap-2">
+                  <tr key={pos.ticker} className="hover:bg-white/[0.025] transition-colors">
+                    <td className="p-3.5 font-bold text-main flex items-center gap-2">
                       <span>{pos.ticker}</span>
                     </td>
                     <td className="p-3.5 text-right">
@@ -259,7 +259,7 @@ export const TrackPage: React.FC = () => {
                             parseFloat(e.target.value) || 0
                           )
                         }
-                        className="w-24 px-2 py-1 bg-slate-900 border border-slate-750 rounded text-right text-white focus:outline-none focus:border-sky-500"
+                        className="w-24 px-2 py-1 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus:outline-none focus:border-teal transition-colors tabular-nums"
                       />
                     </td>
                     <td className="p-3.5 text-right">
@@ -275,10 +275,10 @@ export const TrackPage: React.FC = () => {
                             parseFloat(e.target.value) || 0
                           )
                         }
-                        className="w-28 px-2 py-1 bg-slate-900 border border-slate-750 rounded text-right text-white focus:outline-none focus:border-sky-500"
+                        className="w-28 px-2 py-1 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus:outline-none focus:border-teal transition-colors tabular-nums"
                       />
                     </td>
-                    <td className="p-3.5 text-right text-slate-300 font-semibold">
+                    <td className="p-3.5 text-right text-secondary font-semibold tabular-nums">
                       {currency === "INR" ? "₹" : "$"}
                       {rowCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </td>
@@ -286,10 +286,10 @@ export const TrackPage: React.FC = () => {
                       <button
                         onClick={() => handleRemovePosition(idx)}
                         disabled={positions.length <= 1}
-                        className={`p-1.5 rounded transition-colors ${
+                        className={`p-1.5 rounded-lg transition-colors ${
                           positions.length <= 1
-                            ? "text-slate-600 cursor-not-allowed"
-                            : "text-slate-400 hover:text-rose-400 hover:bg-slate-800"
+                            ? "text-secondary/40 cursor-not-allowed"
+                            : "text-secondary hover:text-negative hover:bg-white/[0.04]"
                         }`}
                         title="Remove position"
                       >
@@ -306,15 +306,15 @@ export const TrackPage: React.FC = () => {
         {/* Quick Add Position Form */}
         <form
           onSubmit={handleAddPosition}
-          className="p-3 bg-slate-900/60 border-t border-[#1F293D] flex flex-wrap items-center gap-3 text-xs font-mono"
+          className="p-3.5 bg-white/[0.02] border-t border-[rgba(226,235,244,0.1)] flex flex-wrap items-center gap-3 text-xs font-mono"
         >
-          <span className="text-slate-400 font-semibold">Add Position:</span>
+          <span className="text-secondary font-semibold">Add Position:</span>
           <input
             type="text"
             placeholder="Ticker (e.g. INFY.NS)"
             value={newTicker}
             onChange={(e) => setNewTicker(e.target.value)}
-            className="px-2.5 py-1 bg-slate-900 border border-slate-750 rounded text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 uppercase"
+            className="px-2.5 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-main placeholder-secondary/50 focus:outline-none focus:border-teal uppercase transition-colors"
           />
           <input
             type="number"
@@ -322,7 +322,7 @@ export const TrackPage: React.FC = () => {
             placeholder="Qty"
             value={newQuantity}
             onChange={(e) => setNewQuantity(parseFloat(e.target.value) || 0)}
-            className="w-20 px-2 py-1 bg-slate-900 border border-slate-750 rounded text-right text-white focus:outline-none focus:border-sky-500"
+            className="w-20 px-2 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus:outline-none focus:border-teal tabular-nums transition-colors"
           />
           <input
             type="number"
@@ -330,13 +330,13 @@ export const TrackPage: React.FC = () => {
             placeholder="Buy Price"
             value={newBuyPrice}
             onChange={(e) => setNewBuyPrice(parseFloat(e.target.value) || 0)}
-            className="w-28 px-2 py-1 bg-slate-900 border border-slate-750 rounded text-right text-white focus:outline-none focus:border-sky-500"
+            className="w-28 px-2 py-1.5 bg-white/[0.04] border border-[rgba(226,235,244,0.18)] rounded-lg text-right text-main focus:outline-none focus:border-teal tabular-nums transition-colors"
           />
           <button
             type="submit"
-            className="px-3 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded font-bold transition-all flex items-center gap-1"
+            className="px-3 py-1.5 bg-teal/10 hover:bg-teal/20 text-teal border border-teal/30 rounded-xl font-semibold transition-all flex items-center gap-1 shadow-glass-sm"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 stroke-[2]" />
             <span>Add Row</span>
           </button>
         </form>
@@ -348,7 +348,7 @@ export const TrackPage: React.FC = () => {
           title="Total Market Value"
           value={formatCurrency(trackData?.total_value ?? 1148500, currency)}
           subtitle={`Cost Basis: ${formatCurrency(trackData?.total_cost ?? 1000000, currency)}`}
-          badge={<DollarSign className="w-4 h-4 text-sky-400" />}
+          badge={<DollarSign className="w-4 h-4 text-teal stroke-[1.75]" />}
           highlight
         />
 
@@ -379,38 +379,38 @@ export const TrackPage: React.FC = () => {
           subtitle={`Target: ${benchmark}`}
           trend="up"
           trendValue="Excess Alpha"
-          badge={<CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+          badge={<CheckCircle2 className="w-4 h-4 text-teal stroke-[1.75]" />}
         />
       </div>
 
       {/* 3. Verdict Banner (outperforming / underperforming / in_line) with Explanation Text */}
       <div
-        className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg ${
+        className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-glass-sm ${
           verdict === "outperforming"
-            ? "border-emerald-500/30 bg-gradient-to-r from-emerald-950/25 via-[#111827] to-[#111827] text-emerald-300"
+            ? "border-positive/30 bg-positive/[0.04] text-positive"
             : verdict === "underperforming"
-            ? "border-rose-500/30 bg-gradient-to-r from-rose-950/25 via-[#111827] to-[#111827] text-rose-300"
-            : "border-amber-500/30 bg-gradient-to-r from-amber-950/25 via-[#111827] to-[#111827] text-amber-300"
+            ? "border-negative/30 bg-negative/[0.04] text-negative"
+            : "border-warning/30 bg-warning/[0.04] text-warning"
         }`}
       >
         <div className="flex items-start gap-3">
-          <div className="p-2 rounded-xl bg-black/30 border border-current mt-0.5">
+          <div className="p-2 rounded-xl bg-white/[0.04] border border-current/20 mt-0.5">
             {verdict === "outperforming" ? (
-              <TrendingUp className="w-5 h-5 text-emerald-400" />
+              <TrendingUp className="w-5 h-5 text-positive stroke-[1.75]" />
             ) : (
-              <TrendingDown className="w-5 h-5 text-rose-400" />
+              <TrendingDown className="w-5 h-5 text-negative stroke-[1.75]" />
             )}
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-sm uppercase tracking-wider">
+              <span className="font-extrabold text-sm uppercase tracking-wider font-heading">
                 Benchmark Verdict: {verdict.toUpperCase()}
               </span>
-              <span className="text-xs font-mono opacity-75">
+              <span className="text-xs font-mono opacity-80">
                 (vs {benchmark})
               </span>
             </div>
-            <p className="text-xs text-slate-200 leading-relaxed font-sans max-w-3xl">
+            <p className="text-xs text-secondary leading-relaxed font-sans max-w-3xl">
               {trackData?.explanations?.[0] ||
                 `Portfolio is currently ${verdict} the ${benchmark} index over the chosen lookback window.`}
             </p>
@@ -418,21 +418,21 @@ export const TrackPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-black/30 border border-current">
+          <span className="text-xs font-mono font-semibold px-3 py-1 rounded-full bg-white/[0.05] border border-current/30">
             {verdict === "outperforming" ? "+ Alpha Generated" : "Tracking Index"}
           </span>
         </div>
       </div>
 
       {/* 4. Positions Table (price, value, P&L Rs and %, weight, day change coloured green/red) */}
-      <div className="rounded-xl border border-[#1F293D] bg-[#111827] overflow-hidden shadow-lg">
-        <div className="p-4 border-b border-[#1F293D] flex items-center justify-between">
+      <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+        <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Activity className="w-4 h-4 text-sky-400" />
+            <h2 className="text-base font-bold text-main font-heading flex items-center gap-2">
+              <Activity className="w-4 h-4 text-teal stroke-[1.75]" />
               Live Positions Mark-to-Market Performance
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-secondary">
               Synchronized with real-time price feeds and daily currency adjustments.
             </p>
           </div>
@@ -440,7 +440,7 @@ export const TrackPage: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-slate-900/80 border-b border-[#1F293D] text-slate-400 uppercase tracking-wider text-[11px]">
+            <thead className="bg-white/[0.03] border-b border-[rgba(226,235,244,0.14)] text-secondary uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="p-3.5">Asset</th>
                 <th className="p-3.5 text-right">Latest Price</th>
@@ -453,53 +453,53 @@ export const TrackPage: React.FC = () => {
                 <th className="p-3.5 text-right">Weight</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-[rgba(226,235,244,0.08)]">
               {trackData?.positions?.map((pos) => {
                 const posProfit = pos.pnl >= 0;
                 const dayProfit = pos.day_change >= 0;
 
                 return (
-                  <tr key={pos.ticker} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3.5 font-bold text-white flex items-center gap-2">
+                  <tr key={pos.ticker} className="hover:bg-white/[0.025] transition-colors">
+                    <td className="p-3.5 font-bold text-main flex items-center gap-2">
                       <span>{pos.ticker}</span>
                     </td>
-                    <td className="p-3.5 text-right text-slate-200">
+                    <td className="p-3.5 text-right text-main tabular-nums">
                       {formatCurrency(pos.price, currency, 2)}
                     </td>
-                    <td className="p-3.5 text-right font-bold">
+                    <td className="p-3.5 text-right font-bold tabular-nums">
                       <span
-                        className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded ${
+                        className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md ${
                           dayProfit
-                            ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20"
-                            : "text-rose-400 bg-rose-500/10 border border-rose-500/20"
+                            ? "text-positive bg-positive/10 border border-positive/20"
+                            : "text-negative bg-negative/10 border border-negative/20"
                         }`}
                       >
                         {dayProfit ? (
-                          <ArrowUpRight className="w-3 h-3" />
+                          <ArrowUpRight className="w-3 h-3 stroke-[2]" />
                         ) : (
-                          <ArrowDownRight className="w-3 h-3" />
+                          <ArrowDownRight className="w-3 h-3 stroke-[2]" />
                         )}
                         {formatPercent(pos.day_change, 1, true)}
                       </span>
                     </td>
-                    <td className="p-3.5 text-right text-white font-semibold">
+                    <td className="p-3.5 text-right text-main font-semibold tabular-nums">
                       {formatCurrency(pos.value, currency)}
                     </td>
                     <td
-                      className={`p-3.5 text-right font-semibold ${
-                        posProfit ? "text-emerald-400" : "text-rose-400"
+                      className={`p-3.5 text-right font-semibold tabular-nums ${
+                        posProfit ? "text-positive" : "text-negative"
                       }`}
                     >
                       {formatCurrency(pos.pnl, currency, 0, true)}
                     </td>
                     <td
-                      className={`p-3.5 text-right font-bold ${
-                        posProfit ? "text-emerald-400" : "text-rose-400"
+                      className={`p-3.5 text-right font-bold tabular-nums ${
+                        posProfit ? "text-positive" : "text-negative"
                       }`}
                     >
                       {formatPercent(pos.pnl_pct, 1, true)}
                     </td>
-                    <td className="p-3.5 text-right text-sky-400 font-semibold">
+                    <td className="p-3.5 text-right text-teal font-semibold tabular-nums">
                       {formatPercent(pos.weight, 1)}
                     </td>
                   </tr>
@@ -513,14 +513,14 @@ export const TrackPage: React.FC = () => {
       {/* 5. Benchmark Controls, Growth Overlay Chart & Allocation Donut */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Growth Overlay Chart */}
-        <div className="lg:col-span-2 rounded-xl border border-[#1F293D] bg-[#111827] p-5 space-y-4">
+        <div className="lg:col-span-2 rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-sky-400" />
+              <h3 className="text-sm font-bold text-main uppercase tracking-wider font-heading flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-teal stroke-[1.75]" />
                 Performance vs {benchmark}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-secondary">
                 Overlay comparison indexed to identical starting date.
               </p>
             </div>
@@ -528,15 +528,15 @@ export const TrackPage: React.FC = () => {
             {/* Benchmark Selector & Lookback Chips */}
             <div className="flex flex-wrap items-center gap-2">
               {/* Benchmark Selector */}
-              <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+              <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-[rgba(226,235,244,0.14)] text-xs font-mono">
                 {(["NIFTY50", "NASDAQ100", "auto"] as Benchmark[]).map((b) => (
                   <button
                     key={b}
                     onClick={() => setBenchmark(b)}
-                    className={`px-2 py-0.5 rounded font-mono transition-all ${
+                    className={`px-2.5 py-1 rounded-lg transition-all ${
                       benchmark === b
-                        ? "bg-sky-500 text-slate-950 font-bold"
-                        : "text-slate-400 hover:text-white"
+                        ? "bg-teal text-background-base font-bold shadow-sm"
+                        : "text-secondary hover:text-main"
                     }`}
                   >
                     {b}
@@ -545,15 +545,15 @@ export const TrackPage: React.FC = () => {
               </div>
 
               {/* Lookback Chips */}
-              <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
+              <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-[rgba(226,235,244,0.14)] text-xs font-mono">
                 {(["1m", "6m", "1y", "3y"] as LookbackPeriod[]).map((lb) => (
                   <button
                     key={lb}
                     onClick={() => setLookback(lb)}
-                    className={`px-2 py-0.5 rounded font-mono uppercase transition-all ${
+                    className={`px-2 py-1 rounded-lg uppercase transition-all ${
                       lookback === lb
-                        ? "bg-sky-500 text-slate-950 font-bold"
-                        : "text-slate-400 hover:text-white"
+                        ? "bg-teal text-background-base font-bold shadow-sm"
+                        : "text-secondary hover:text-main"
                     }`}
                   >
                     {lb}
@@ -566,10 +566,10 @@ export const TrackPage: React.FC = () => {
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 0, left: 15 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
-                <XAxis dataKey="date" stroke="#64748B" fontSize={11} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(226,235,244,0.08)" vertical={false} />
+                <XAxis dataKey="date" stroke="#9BA7B5" fontSize={11} tickLine={false} />
                 <YAxis
-                  stroke="#64748B"
+                  stroke="#9BA7B5"
                   fontSize={11}
                   tickLine={false}
                   tickFormatter={(v) =>
@@ -583,14 +583,14 @@ export const TrackPage: React.FC = () => {
                     if (!payload || !payload.length) return null;
                     const item = payload[0].payload;
                     return (
-                      <div className="bg-slate-900 border border-slate-750 p-2.5 rounded-lg text-xs font-mono shadow-xl space-y-1">
-                        <div className="text-slate-400 font-bold border-b border-slate-800 pb-1">
+                      <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-2.5 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md space-y-1">
+                        <div className="text-secondary font-bold border-b border-white/[0.08] pb-1">
                           {item.date}
                         </div>
-                        <div className="text-sky-400">
+                        <div className="text-teal">
                           Portfolio: {currency === "INR" ? "₹" : "$"}{item.portfolio?.toLocaleString()}
                         </div>
-                        <div className="text-slate-400">
+                        <div className="text-secondary">
                           {benchmark}: {currency === "INR" ? "₹" : "$"}{item.benchmark?.toLocaleString()}
                         </div>
                       </div>
@@ -601,7 +601,7 @@ export const TrackPage: React.FC = () => {
                   type="monotone"
                   dataKey="portfolio"
                   name="Portfolio"
-                  stroke="#0ea5e9"
+                  stroke="#74C7BE"
                   strokeWidth={2.5}
                   dot={false}
                 />
@@ -609,7 +609,7 @@ export const TrackPage: React.FC = () => {
                   type="monotone"
                   dataKey="benchmark"
                   name={benchmark}
-                  stroke="#64748B"
+                  stroke="#9BA7B5"
                   strokeWidth={1.8}
                   strokeDasharray="4 4"
                   dot={false}
@@ -620,13 +620,13 @@ export const TrackPage: React.FC = () => {
         </div>
 
         {/* Allocation Donut */}
-        <div className="rounded-xl border border-[#1F293D] bg-[#111827] p-5 space-y-4">
+        <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] p-5 space-y-4 shadow-glass-sm">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <PieIcon className="w-4 h-4 text-sky-400" />
-              Capital Distribution Donut
+            <h3 className="text-sm font-bold text-main uppercase tracking-wider font-heading flex items-center gap-2">
+              <PieIcon className="w-4 h-4 text-teal stroke-[1.75]" />
+              Capital Distribution
             </h3>
-            <span className="text-xs font-mono text-slate-500">% Share</span>
+            <span className="text-xs font-mono text-secondary">% Share</span>
           </div>
 
           <div className="h-44 w-full flex items-center justify-center">
@@ -651,9 +651,9 @@ export const TrackPage: React.FC = () => {
                     if (!payload || !payload.length) return null;
                     const p = payload[0].payload;
                     return (
-                      <div className="bg-slate-900 border border-slate-750 p-2 rounded text-xs font-mono">
-                        <span className="font-bold text-white">{p.name}: </span>
-                        <span className="text-sky-400">{p.value}%</span>
+                      <div className="bg-[#0C1118]/95 border border-[rgba(226,235,244,0.2)] p-2 rounded-xl text-xs font-mono shadow-glass-lg backdrop-blur-md">
+                        <span className="font-bold text-main">{p.name}: </span>
+                        <span className="text-teal">{p.value}%</span>
                       </div>
                     );
                   }}
@@ -662,15 +662,15 @@ export const TrackPage: React.FC = () => {
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2 border-t border-slate-800">
+          <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-3 border-t border-[rgba(226,235,244,0.1)]">
             {allocationPie.map((item, idx) => (
               <div key={item.name} className="flex items-center gap-1.5">
                 <span
                   className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: COLORS[idx % COLORS.length] }}
                 />
-                <span className="text-slate-300 truncate">{item.name}</span>
-                <span className="text-slate-500 ml-auto">{item.value}%</span>
+                <span className="text-secondary truncate">{item.name}</span>
+                <span className="text-main ml-auto tabular-nums">{item.value}%</span>
               </div>
             ))}
           </div>
@@ -679,35 +679,35 @@ export const TrackPage: React.FC = () => {
 
       {/* 6. Metrics Comparison Table: Portfolio vs Benchmark */}
       {trackData?.benchmark?.portfolio && trackData?.benchmark?.benchmark_metrics && (
-        <div className="rounded-xl border border-[#1F293D] bg-[#111827] overflow-hidden">
-          <div className="p-4 border-b border-[#1F293D] flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <Award className="w-4 h-4 text-sky-400" />
+        <div className="rounded-2xl glass-panel border border-[rgba(226,235,244,0.18)] overflow-hidden shadow-glass-sm">
+          <div className="p-4 border-b border-[rgba(226,235,244,0.14)] flex items-center justify-between">
+            <h3 className="text-sm font-bold text-main uppercase tracking-wider font-heading flex items-center gap-2">
+              <Award className="w-4 h-4 text-teal stroke-[1.75]" />
               Risk & Return Metrics Comparison (Lookback: {lookback})
             </h3>
-            <span className="text-xs font-mono text-slate-500">Same Period & FX Converted</span>
+            <span className="text-xs font-mono text-secondary">Same Period & FX Converted</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-slate-900/80 border-b border-[#1F293D] text-slate-400 uppercase tracking-wider text-[11px]">
+              <thead className="bg-white/[0.03] border-b border-[rgba(226,235,244,0.14)] text-secondary uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="p-3.5">Metric</th>
-                  <th className="p-3.5 text-right text-sky-400">Portfolio</th>
-                  <th className="p-3.5 text-right text-slate-400">{benchmark}</th>
+                  <th className="p-3.5 text-right text-teal">Portfolio</th>
+                  <th className="p-3.5 text-right text-secondary">{benchmark}</th>
                   <th className="p-3.5 text-right">Alpha / Variance</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80">
-                <tr className="hover:bg-slate-800/30">
-                  <td className="p-3.5 font-bold text-white">Total Return</td>
-                  <td className="p-3.5 text-right text-emerald-400 font-bold">
+              <tbody className="divide-y divide-[rgba(226,235,244,0.08)]">
+                <tr className="hover:bg-white/[0.025] transition-colors">
+                  <td className="p-3.5 font-bold text-main font-sans">Total Return</td>
+                  <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                     +{(trackData.benchmark.portfolio.total_return * 100).toFixed(2)}%
                   </td>
-                  <td className="p-3.5 text-right text-slate-300">
+                  <td className="p-3.5 text-right text-secondary tabular-nums">
                     +{(trackData.benchmark.benchmark_metrics.total_return * 100).toFixed(2)}%
                   </td>
-                  <td className="p-3.5 text-right text-emerald-400 font-bold">
+                  <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                     +{(
                       (trackData.benchmark.portfolio.total_return -
                         trackData.benchmark.benchmark_metrics.total_return) *
@@ -716,15 +716,15 @@ export const TrackPage: React.FC = () => {
                   </td>
                 </tr>
 
-                <tr className="hover:bg-slate-800/30">
-                  <td className="p-3.5 font-bold text-white">Annualized Volatility</td>
-                  <td className="p-3.5 text-right text-rose-300">
+                <tr className="hover:bg-white/[0.025] transition-colors">
+                  <td className="p-3.5 font-bold text-main font-sans">Annualized Volatility</td>
+                  <td className="p-3.5 text-right text-negative/90 tabular-nums">
                     {(trackData.benchmark.portfolio.volatility * 100).toFixed(1)}%
                   </td>
-                  <td className="p-3.5 text-right text-slate-300">
+                  <td className="p-3.5 text-right text-secondary tabular-nums">
                     {(trackData.benchmark.benchmark_metrics.volatility * 100).toFixed(1)}%
                   </td>
-                  <td className="p-3.5 text-right text-rose-400">
+                  <td className="p-3.5 text-right text-negative font-medium tabular-nums">
                     +{(
                       (trackData.benchmark.portfolio.volatility -
                         trackData.benchmark.benchmark_metrics.volatility) *
@@ -733,15 +733,15 @@ export const TrackPage: React.FC = () => {
                   </td>
                 </tr>
 
-                <tr className="hover:bg-slate-800/30">
-                  <td className="p-3.5 font-bold text-white">Max Drawdown</td>
-                  <td className="p-3.5 text-right text-rose-400">
+                <tr className="hover:bg-white/[0.025] transition-colors">
+                  <td className="p-3.5 font-bold text-main font-sans">Max Drawdown</td>
+                  <td className="p-3.5 text-right text-negative font-semibold tabular-nums">
                     {(trackData.benchmark.portfolio.max_drawdown * 100).toFixed(1)}%
                   </td>
-                  <td className="p-3.5 text-right text-slate-300">
+                  <td className="p-3.5 text-right text-secondary tabular-nums">
                     {(trackData.benchmark.benchmark_metrics.max_drawdown * 100).toFixed(1)}%
                   </td>
-                  <td className="p-3.5 text-right text-slate-400">
+                  <td className="p-3.5 text-right text-secondary tabular-nums">
                     {(
                       (trackData.benchmark.portfolio.max_drawdown -
                         trackData.benchmark.benchmark_metrics.max_drawdown) *
@@ -750,15 +750,15 @@ export const TrackPage: React.FC = () => {
                   </td>
                 </tr>
 
-                <tr className="hover:bg-slate-800/30">
-                  <td className="p-3.5 font-bold text-white">Sharpe Ratio</td>
-                  <td className="p-3.5 text-right text-emerald-400 font-bold">
+                <tr className="hover:bg-white/[0.025] transition-colors">
+                  <td className="p-3.5 font-bold text-main font-sans">Sharpe Ratio</td>
+                  <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                     {trackData.benchmark.portfolio.sharpe.toFixed(2)}
                   </td>
-                  <td className="p-3.5 text-right text-slate-300">
+                  <td className="p-3.5 text-right text-secondary tabular-nums">
                     {trackData.benchmark.benchmark_metrics.sharpe.toFixed(2)}
                   </td>
-                  <td className="p-3.5 text-right text-emerald-400 font-bold">
+                  <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                     +{(
                       trackData.benchmark.portfolio.sharpe -
                       trackData.benchmark.benchmark_metrics.sharpe
@@ -766,15 +766,15 @@ export const TrackPage: React.FC = () => {
                   </td>
                 </tr>
 
-                <tr className="hover:bg-slate-800/30">
-                  <td className="p-3.5 font-bold text-white">Sortino Ratio</td>
-                  <td className="p-3.5 text-right text-emerald-400 font-bold">
+                <tr className="hover:bg-white/[0.025] transition-colors">
+                  <td className="p-3.5 font-bold text-main font-sans">Sortino Ratio</td>
+                  <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                     {trackData.benchmark.portfolio.sortino.toFixed(2)}
                   </td>
-                  <td className="p-3.5 text-right text-slate-300">
+                  <td className="p-3.5 text-right text-secondary tabular-nums">
                     {trackData.benchmark.benchmark_metrics.sortino.toFixed(2)}
                   </td>
-                  <td className="p-3.5 text-right text-emerald-400 font-bold">
+                  <td className="p-3.5 text-right text-positive font-bold tabular-nums">
                     +{(
                       trackData.benchmark.portfolio.sortino -
                       trackData.benchmark.benchmark_metrics.sortino
