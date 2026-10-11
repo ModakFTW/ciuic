@@ -1,0 +1,32 @@
+{
+  "regimes": [
+    {
+      "id": "bull_2021",
+      "label": "Bull 2021",
+      "start": "2020-11-01",
+      "end": "2021-11-15"
+    },
+    {
+      "id": "bear_2022",
+      "label": "Bear 2022",
+      "start": "2022-01-03",
+      "end": "2022-10-12"
+    },
+    {
+      "id": "covid_2020",
+      "label": "COVID Crash 2020",
+      "start": "2020-02-19",
+      "end": "2020-03-23"
+    },
+    {
+      "id": "recovery_2023",
+      "label": "Recovery 2023",
+      "start": "2023-01-01",
+      "end": "2023-12-31"
+    }
+  ],
+  "meta": {
+    "data_source": "cache",
+    "as_of": "2026-10-09"
+  }
+}

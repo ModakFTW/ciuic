@@ -1,0 +1,15 @@
+.env
+.env.local
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+node_modules/
+dist/
+.vite/
+*.egg-info/
+.venv/
+venv/
+*.log
+# ML models — committed manually after training
+# engine/ml/models/*.joblib

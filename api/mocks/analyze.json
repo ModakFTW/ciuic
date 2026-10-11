@@ -1,0 +1,67 @@
+{
+  "risk_label": "High",
+  "risk_score": 72,
+  "confidence": 0.68,
+  "probs": {"Low": 0.12, "Medium": 0.20, "High": 0.68},
+  "metrics": {
+    "total_return": 1.842,
+    "ann_return": 0.412,
+    "volatility": 0.387,
+    "max_drawdown": -0.512,
+    "sharpe": 0.91,
+    "sortino": 1.12,
+    "diversification_ratio": 1.15,
+    "cvar_95": -0.042,
+    "avg_correlation": 0.68,
+    "hhi": 0.265
+  },
+  "weights": {
+    "NVDA": 0.35,
+    "TSLA": 0.25,
+    "RELIANCE.NS": 0.20,
+    "TCS.NS": 0.10,
+    "HDFCBANK.NS": 0.10
+  },
+  "asset_stats": [
+    {"ticker": "NVDA", "weight": 0.35, "ann_return": 0.682, "volatility": 0.542, "max_drawdown": -0.661, "risk_contribution": 0.48, "return_contribution": 0.41},
+    {"ticker": "TSLA", "weight": 0.25, "ann_return": 0.312, "volatility": 0.612, "max_drawdown": -0.731, "risk_contribution": 0.29, "return_contribution": 0.18},
+    {"ticker": "RELIANCE.NS", "weight": 0.20, "ann_return": 0.152, "volatility": 0.218, "max_drawdown": -0.312, "risk_contribution": 0.13, "return_contribution": 0.22},
+    {"ticker": "TCS.NS", "weight": 0.10, "ann_return": 0.132, "volatility": 0.198, "max_drawdown": -0.282, "risk_contribution": 0.06, "return_contribution": 0.12},
+    {"ticker": "HDFCBANK.NS", "weight": 0.10, "ann_return": 0.082, "volatility": 0.221, "max_drawdown": -0.298, "risk_contribution": 0.04, "return_contribution": 0.07}
+  ],
+  "correlation": {
+    "tickers": ["NVDA", "TSLA", "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS"],
+    "matrix": [
+      [1.0,  0.72, 0.38, 0.41, 0.29],
+      [0.72, 1.0,  0.31, 0.35, 0.22],
+      [0.38, 0.31, 1.0,  0.58, 0.61],
+      [0.41, 0.35, 0.58, 1.0,  0.64],
+      [0.29, 0.22, 0.61, 0.64, 1.0 ]
+    ]
+  },
+  "sector_exposure": {
+    "Technology": 0.70,
+    "Energy": 0.20,
+    "Financials": 0.10
+  },
+  "risk_drivers": [
+    {"factor": "vol_252",  "impact": 0.38, "direction": "up"},
+    {"factor": "hhi",      "impact": 0.22, "direction": "up"},
+    {"factor": "avg_corr", "impact": 0.18, "direction": "up"},
+    {"factor": "max_dd",   "impact": 0.14, "direction": "up"},
+    {"factor": "sharpe",   "impact": 0.08, "direction": "down"}
+  ],
+  "explanations": [
+    "Your portfolio is classified as High risk (score 72/100, confidence 68%).",
+    "NVDA and TSLA together account for 77% of portfolio risk — both are high-volatility tech names.",
+    "Average pairwise correlation is 0.68, reducing diversification benefit.",
+    "The HHI concentration index of 0.265 shows moderate concentration.",
+    "Annual volatility of 38.7% is well above the High-risk threshold."
+  ],
+  "counterfactual": {
+    "target_label": "Medium",
+    "weights": {"NVDA": 0.20, "TSLA": 0.12, "RELIANCE.NS": 0.30, "TCS.NS": 0.22, "HDFCBANK.NS": 0.16},
+    "predicted_label": "Medium"
+  },
+  "meta": {"data_source": "cache", "as_of": "2026-10-09"}
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "tech_heavy",
+    "name": "Tech Heavy Portfolio",
+    "risk_level": "high",
+    "currency": "INR",
+    "holdings": [
+      {"ticker": "NVDA", "amount": 200000},
+      {"ticker": "TSLA", "amount": 200000},
+      {"ticker": "RELIANCE.NS", "amount": 200000},
+      {"ticker": "TCS.NS", "amount": 200000},
+      {"ticker": "HDFCBANK.NS", "amount": 100000},
+      {"ticker": "GOLDBEES.NS", "amount": 100000}
+    ]
+  },
+  {
+    "id": "balanced_india",
+    "name": "Balanced India Portfolio",
+    "risk_level": "medium",
+    "currency": "INR",
+    "holdings": [
+      {"ticker": "RELIANCE.NS", "amount": 150000},
+      {"ticker": "TCS.NS", "amount": 150000},
+      {"ticker": "HDFCBANK.NS", "amount": 150000},
+      {"ticker": "INFY.NS", "amount": 100000},
+      {"ticker": "GOLDBEES.NS", "amount": 200000},
+      {"ticker": "NIFTYBEES.NS", "amount": 250000}
+    ]
+  },
+  {
+    "id": "global_mix",
+    "name": "Global Mix Portfolio",
+    "risk_level": "medium",
+    "currency": "INR",
+    "holdings": [
+      {"ticker": "AAPL", "amount": 150000},
+      {"ticker": "MSFT", "amount": 150000},
+      {"ticker": "RELIANCE.NS", "amount": 150000},
+      {"ticker": "TCS.NS", "amount": 150000},
+      {"ticker": "GLD", "amount": 100000},
+      {"ticker": "SPY", "amount": 300000}
+    ]
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "scenario": "market_crash",
+  "value_before": 1000000,
+  "value_after": 698000,
+  "impact_pct": -0.302,
+  "metrics_after": {
+    "total_return": -0.302,
+    "ann_return": -0.302,
+    "volatility": 0.612,
+    "max_drawdown": -0.302,
+    "sharpe": -0.61,
+    "sortino": -0.72,
+    "diversification_ratio": 1.08,
+    "cvar_95": -0.058,
+    "avg_correlation": 0.82,
+    "hhi": 0.265
+  },
+  "risk_label_before": "High",
+  "risk_label_after": "High",
+  "asset_impacts": [
+    {"ticker": "NVDA",       "impact_pct": -0.421},
+    {"ticker": "TSLA",       "impact_pct": -0.512},
+    {"ticker": "RELIANCE.NS","impact_pct": -0.198},
+    {"ticker": "TCS.NS",     "impact_pct": -0.181},
+    {"ticker": "HDFCBANK.NS","impact_pct": -0.172}
+  ],
+  "explanations": [
+    "A simulated market crash of -30% magnitude is applied to all assets, scaled by each asset's beta.",
+    "TSLA (beta≈1.71) drops most: -51.2%. NVDA (beta≈1.40) drops -42.1%.",
+    "India stocks are partially insulated: RELIANCE.NS drops -19.8%.",
+    "Portfolio loses ₹3,02,000 from ₹10,00,000. Risk label remains High.",
+    "Educational simulation. Not financial advice."
+  ],
+  "meta": {"data_source": "cache", "as_of": "2026-10-09"}
+}

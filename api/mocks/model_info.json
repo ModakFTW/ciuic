@@ -1,0 +1,45 @@
+{
+  "trained_on": "not_yet_trained",
+  "n_samples": 0,
+  "label_definition": "0.5*fwd_vol/0.18 + 0.5*abs(fwd_mdd)/0.18",
+  "cutpoints": {
+    "low_medium": null,
+    "medium_high": null
+  },
+  "test_period": {
+    "start": "2023-01-01",
+    "end": null
+  },
+  "metrics": {
+    "model": {
+      "macro_f1": null,
+      "accuracy": null,
+      "off_by_two": null
+    },
+    "logreg": {
+      "macro_f1": null,
+      "accuracy": null,
+      "off_by_two": null
+    },
+    "persistence": {
+      "macro_f1": null,
+      "accuracy": null,
+      "off_by_two": null
+    },
+    "majority": {
+      "macro_f1": null,
+      "accuracy": null,
+      "off_by_two": null
+    }
+  },
+  "confusion_matrix": null,
+  "median_fwd_vol": {
+    "Low": null,
+    "Medium": null,
+    "High": null
+  },
+  "meta": {
+    "data_source": "cache",
+    "as_of": "2026-10-09"
+  }
+}
