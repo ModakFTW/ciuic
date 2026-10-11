@@ -22,17 +22,7 @@ import pandas as pd
 from scipy.optimize import minimize
 from sklearn.covariance import LedoitWolf
 
-from engine.ml._metrics_shim import (
-    ann_return as _ann_return,
-    cvar95 as _cvar95,
-    diversification_ratio as _div_ratio,
-    hhi as _hhi,
-    max_drawdown as _max_dd,
-    risk_contribution as _risk_contrib,
-    sharpe as _sharpe,
-    sortino as _sortino,
-    volatility as _volatility,
-)
+from engine.metrics import ann_return as _ann_return, compute_all_metrics
 from engine.ml.predict import predict_risk, predict_risk_batch
 
 RISK_LEVEL_ORDER: dict[str, int] = {
@@ -51,12 +41,12 @@ CAP_LIMITS: dict[str, float] = {
 def _compute_metrics(
     weights_dict: dict[str, float],
     prices: pd.DataFrame,
-    rf: float = 0.065,
+    currency: str = "INR",
 ) -> dict[str, float]:
-    """Compute standard portfolio metrics over the available prices window."""
+    """Compute standard portfolio metrics using engine.metrics single source of truth."""
     tickers = [t for t in weights_dict if t in prices.columns]
-    w_arr = np.array([weights_dict[t] for t in tickers], dtype=float)
-    if len(tickers) == 0 or np.sum(w_arr) <= 0:
+    w_arr = [weights_dict[t] for t in tickers]
+    if len(tickers) == 0 or sum(w_arr) <= 0:
         return {
             "total_return": 0.0,
             "ann_return": 0.0,
@@ -69,45 +59,7 @@ def _compute_metrics(
             "avg_correlation": 1.0,
             "hhi": 1.0,
         }
-
-    sub_px = prices[tickers].iloc[-252:] if len(prices) >= 252 else prices[tickers]
-    asset_rets = sub_px.pct_change().dropna()
-    port_rets = (asset_rets * w_arr).sum(axis=1).values
-
-    ar = _ann_return(port_rets)
-    n = len(port_rets)
-    tot = float(np.prod(1.0 + port_rets) - 1.0) if n > 0 else 0.0
-    vol = _volatility(port_rets)
-    mdd = _max_dd(port_rets)
-    sh = _sharpe(port_rets, rf)
-    so = _sortino(port_rets, rf)
-    cv = _cvar95(port_rets)
-    h = _hhi(w_arr)
-
-    # Correlation & diversification
-    corr_mat = asset_rets.corr().values
-    n_t = len(tickers)
-    if n_t > 1:
-        tri_mask = np.triu(np.ones((n_t, n_t), dtype=bool), k=1)
-        avg_corr = float(np.mean(corr_mat[tri_mask]))
-    else:
-        avg_corr = 1.0
-
-    cov_mat = asset_rets.cov().values * 252.0
-    dr = _div_ratio(w_arr, cov_mat)
-
-    return {
-        "total_return": tot,
-        "ann_return": ar,
-        "volatility": vol,
-        "max_drawdown": mdd,
-        "sharpe": sh,
-        "sortino": so,
-        "diversification_ratio": dr,
-        "cvar_95": cv,
-        "avg_correlation": avg_corr,
-        "hhi": h,
-    }
+    return compute_all_metrics(prices[tickers], w_arr, currency=currency)
 
 
 def counterfactual_weights(
@@ -240,7 +192,7 @@ def optimize_portfolio(
 
     # mu = 0.5 * historical ann return + 0.5 * universe mean (D39)
     mu_hist = np.array([
-        _ann_return(asset_rets[t].values) for t in valid_tickers
+        _ann_return(asset_rets[t]) for t in valid_tickers
     ], dtype=float)
     universe_mean = float(np.mean(mu_hist))
     mu = 0.5 * mu_hist + 0.5 * universe_mean
@@ -405,8 +357,8 @@ def optimize_portfolio(
     else:
         cur_w_clean = {t: 1.0 / n for t in valid_tickers}
 
-    before_metrics = _compute_metrics(cur_w_clean, prices, rf=rf_val)
-    after_metrics = _compute_metrics(rec_weights, prices, rf=rf_val)
+    before_metrics = _compute_metrics(cur_w_clean, prices, currency=currency)
+    after_metrics = _compute_metrics(rec_weights, prices, currency=currency)
 
     tradeoff = {
         "return_change": round(after_metrics["ann_return"] - before_metrics["ann_return"], 4),
@@ -528,10 +480,52 @@ def optimize_weights(
     prices: pd.DataFrame,
     risk_level: str,
     currency: str = "INR",
-) -> dict[str, Any]:
-    """Compatibility adapter for compare engine (Hardik router)."""
-    res = optimize_portfolio(tickers=tickers, prices=prices, risk_level=risk_level, currency=currency)
-    w_map = {r["ticker"]: r["weight"] for r in res.get("recommended", [])}
-    w_list = [w_map.get(t, 1.0 / len(tickers)) for t in tickers]
-    return {"weights": w_list, "result": res}
+) -> dict[str, list[float]]:
+    """Return compare-compatible recommended weights in the exact order of tickers.
+
+    Calls optimize_portfolio, maps recommended weights by ticker, and renormalises to sum 1.0.
+
+    Parameters
+    ----------
+    tickers : list[str]
+        List of asset tickers in desired output order.
+    prices : pd.DataFrame
+        Aligned price history table.
+    risk_level : str
+        Target risk level ("low", "medium", "high").
+    currency : str, default "INR"
+        Portfolio currency ("INR" or "USD").
+
+    Returns
+    -------
+    dict[str, list[float]]
+        {"weights": [float, ...]} ordered exactly as `tickers`.
+
+    Example
+    -------
+    >>> res = optimize_weights(["NVDA", "TCS.NS"], prices, "medium")
+    >>> len(res["weights"]) == 2 and abs(sum(res["weights"]) - 1.0) < 1e-4
+    True
+    """
+    res = optimize_portfolio(
+        tickers=tickers,
+        prices=prices,
+        risk_level=risk_level,
+        currency=currency,
+    )
+    rec_items = res.get("recommended", [])
+    w_map = {r["ticker"]: float(r["weight"]) for r in rec_items if "ticker" in r and "weight" in r}
+
+    w_list = [float(w_map.get(t, 0.0)) for t in tickers]
+    tot = float(sum(w_list))
+    if tot <= 0.0:
+        raise ValueError(f"All optimized weights are <= 0 for tickers: {tickers}")
+
+    # Renormalise to sum 1.0
+    norm_weights = [round(w / tot, 6) for w in w_list]
+    diff = 1.0 - sum(norm_weights)
+    if abs(diff) > 1e-9 and norm_weights:
+        norm_weights[0] = round(norm_weights[0] + diff, 6)
+
+    return {"weights": norm_weights}
 

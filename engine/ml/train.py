@@ -87,6 +87,7 @@ def train_and_evaluate(
     out_dir: str | Path | None = None,
     prices_path: str | Path | None = None,
     random_state: int = 42,
+    extra_meta: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Train the risk classifier with walk-forward validation and evaluate on test.
 
@@ -215,10 +216,24 @@ def train_and_evaluate(
         "median_fwd_vol": med_vol,
     }
 
+    if extra_meta is not None:
+        for k, v in extra_meta.items():
+            eval_result[k] = v
+
     # 5. Save artifacts
     if save:
+        import shutil
+
         target_dir = Path(out_dir) if out_dir is not None else MODELS_DIR
         target_dir.mkdir(parents=True, exist_ok=True)
+
+        # 3. Copy engine/ml/models/* to engine/ml/models/_synthetic_backup/ (skip if exists; never overwrite)
+        backup_dir = target_dir / "_synthetic_backup"
+        if not backup_dir.exists():
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            for p in target_dir.iterdir():
+                if p.is_file():
+                    shutil.copy2(p, backup_dir / p.name)
 
         # risk_clf.joblib
         model_artifact = {
@@ -306,7 +321,95 @@ def main() -> None:
         default="engine/ml/models",
         help="Output directory for model and eval artifacts (default: engine/ml/models)",
     )
+    parser.add_argument(
+        "--source",
+        choices=["csv", "cache"],
+        default="csv",
+        help="Price source: 'csv' (default) or 'cache' (data/cache/prices.parquet via data.loader)",
+    )
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Refresh cache by running data/scripts/fetch_data.py before loading",
+    )
     args = parser.parse_args()
+
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    from engine.ml.validation import (
+        get_git_commit,
+        get_universe_tickers,
+        refresh_cache,
+        validate_prices,
+    )
+
+    refreshed_success = False
+    if args.refresh:
+        _, _, refreshed_success = refresh_cache()
+
+    extra_meta: dict[str, Any] = {}
+    today_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
+    git_sha = get_git_commit()
+
+    if args.source == "cache":
+        import json
+        from data.loader import load_prices
+
+        meta_path = Path("data/cache/meta.json")
+        as_of = "unknown"
+        if meta_path.exists():
+            with open(meta_path, "r", encoding="utf-8") as f:
+                as_of = json.load(f).get("as_of", "unknown")
+
+        universe_tickers = get_universe_tickers()
+        prices_raw = load_prices(universe_tickers, "2012-01-01", as_of, currency="INR")
+        prices, dropped_rows = validate_prices(prices_raw, as_of)
+
+        extra_meta = {
+            "data_note": f"REAL: data/cache/prices.parquet as_of {as_of}",
+            "as_of": as_of,
+            "n_tickers": int(len(prices.columns)),
+            "tickers": list(prices.columns),
+            "price_rows": int(len(prices)),
+            "first_date": str(prices.index[0].date()),
+            "last_date": str(prices.index[-1].date()),
+            "trained_at": today_ist.isoformat(),
+            "git_commit": git_sha,
+            "source": "cache",
+            "refreshed": refreshed_success,
+            "partial_rows_dropped": dropped_rows,
+        }
+    else:
+        # csv source
+        p_path = Path(args.prices)
+        if p_path.exists():
+            from engine.ml.build_dataset import _load_prices
+
+            prices = _load_prices(p_path)
+            p_rows = len(prices)
+            p_cols = list(prices.columns)
+            f_date = str(prices.index[0].date()) if len(prices) > 0 else "unknown"
+            l_date = str(prices.index[-1].date()) if len(prices) > 0 else "unknown"
+        else:
+            p_rows = 0
+            p_cols = []
+            f_date = "unknown"
+            l_date = "unknown"
+
+        extra_meta = {
+            "data_note": "SYNTHETIC",
+            "as_of": l_date,
+            "n_tickers": len(p_cols),
+            "tickers": p_cols,
+            "price_rows": p_rows,
+            "first_date": f_date,
+            "last_date": l_date,
+            "trained_at": today_ist.isoformat(),
+            "git_commit": git_sha,
+            "source": "csv",
+            "refreshed": False,
+            "partial_rows_dropped": 0,
+        }
 
     dataset_path = Path(args.dataset)
     if not dataset_path.exists():
@@ -322,6 +425,7 @@ def main() -> None:
         save=True,
         out_dir=args.out,
         prices_path=args.prices,
+        extra_meta=extra_meta,
     )
 
     table_str = format_evaluation_table(eval_result)

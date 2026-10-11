@@ -41,9 +41,10 @@ app.include_router(compare.router, prefix="/api")
 
 # JJ's routers will be included when ready
 try:
-    from api.routers import analyze, allocate, scenario
+    from api.routers import analyze, allocate, scenario, brief
     app.include_router(analyze.router, prefix="/api")
     app.include_router(allocate.router, prefix="/api")
     app.include_router(scenario.router, prefix="/api")
+    app.include_router(brief.router, prefix="/api")
 except ImportError:
     pass

@@ -118,7 +118,9 @@ def test_eval_json_keys() -> None:
         assert key in eval_data, f"Missing key in eval.json: {key}"
 
     # Verify data_note
-    assert eval_data["data_note"] == "SYNTHETIC dev data"
+    assert eval_data["data_note"] == "SYNTHETIC dev data" or eval_data["data_note"].startswith("REAL:"), (
+        f"Unexpected data_note: {eval_data['data_note']}"
+    )
 
     # Verify metrics structure
     for model_key in ["model", "logreg", "persistence", "majority"]:

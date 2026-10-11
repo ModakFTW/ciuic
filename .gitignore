@@ -13,3 +13,4 @@ venv/
 *.log
 # ML models — committed manually after training
 # engine/ml/models/*.joblib
+data/cache/news/

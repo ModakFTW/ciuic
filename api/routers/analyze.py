@@ -9,6 +9,7 @@ Exact compliance with architecture.md §6 and decision D36/D37.
 from __future__ import annotations
 
 from typing import Any, Callable
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -30,14 +31,11 @@ from api.helpers import (
 )
 from api.schemas import AnalyzeRequest
 from data.loader import load_prices
-from engine.ml._metrics_shim import (
+from engine.metrics import (
     ann_return as _ann_return,
-    cvar95 as _cvar95,
-    diversification_ratio as _div_ratio,
-    hhi as _hhi,
+    compute_all_metrics,
+    correlation_matrix as _correlation_matrix,
     max_drawdown as _max_dd,
-    sharpe as _sharpe,
-    sortino as _sortino,
     volatility as _volatility,
 )
 from engine.ml.explain import (
@@ -64,6 +62,20 @@ def reset_price_loader() -> None:
     """Reset the price loader to the default data.loader.load_prices."""
     global _price_loader
     _price_loader = load_prices
+
+
+def _read_eval_data_note() -> str:
+    """Read the data_note string from eval.json, or empty string."""
+    eval_path = Path(__file__).resolve().parents[2] / "engine" / "ml" / "models" / "eval.json"
+    if eval_path.exists():
+        try:
+            import json
+            with open(eval_path, "r", encoding="utf-8") as _ef:
+                _ev = json.load(_ef)
+            return _ev.get("data_note", "")
+        except Exception:
+            pass
+    return ""
 
 
 @router.post("/analyze")
@@ -129,53 +141,32 @@ def analyze_portfolio(req: AnalyzeRequest) -> dict[str, Any]:
         # ── 5. Portfolio metrics ───────────────────────────────────────
         sub_px = prices[tickers].iloc[-252:] if len(prices) >= 252 else prices[tickers]
         asset_rets = sub_px.pct_change().dropna()
-        w_arr = np.array([weights_dict[t] for t in tickers], dtype=float)
-        port_rets = (asset_rets * w_arr).sum(axis=1).values
-
-        cov_matrix = asset_rets.cov().values * 252.0
-        corr_matrix = asset_rets.corr().values
-        n_t = len(tickers)
-        if n_t > 1:
-            tri_mask = np.triu(np.ones((n_t, n_t), dtype=bool), k=1)
-            avg_corr = float(np.mean(corr_matrix[tri_mask]))
-        else:
-            avg_corr = 1.0
-
-        metrics = {
-            "total_return": round(float(np.prod(1.0 + port_rets) - 1.0), 3) if len(port_rets) > 0 else 0.0,
-            "ann_return": round(_ann_return(port_rets), 3),
-            "volatility": round(_volatility(port_rets), 3),
-            "max_drawdown": round(_max_dd(port_rets), 3),
-            "sharpe": round(_sharpe(port_rets, rf), 2),
-            "sortino": round(_sortino(port_rets, rf), 2),
-            "diversification_ratio": round(_div_ratio(w_arr, cov_matrix), 2),
-            "cvar_95": round(_cvar95(port_rets), 3),
-            "avg_correlation": round(avg_corr, 2),
-            "hhi": round(_hhi(w_arr), 3),
-        }
+        weights_seq = [weights_dict[t] for t in tickers]
+        metrics = compute_all_metrics(prices[tickers], weights_seq, currency=req.currency)
 
         # ── 6. Per-asset stats ─────────────────────────────────────────
         rc_dict = asset_risk_contribution(weights_dict, sub_px)
-        ret_dict = {t: _ann_return(asset_rets[t].values) for t in tickers}
+        ret_dict = {t: _ann_return(asset_rets[t]) for t in tickers}
         ret_contrib_dict = return_contribution(weights_dict, ret_dict, relative=True)
 
         asset_stats: list[dict[str, Any]] = []
         for t in tickers:
-            rets_t = asset_rets[t].values
+            s_rets = asset_rets[t]
             asset_stats.append({
                 "ticker": t,
                 "weight": round(weights_dict[t], 4),
-                "ann_return": round(_ann_return(rets_t), 3),
-                "volatility": round(_volatility(rets_t), 3),
-                "max_drawdown": round(_max_dd(rets_t), 3),
+                "ann_return": round(_ann_return(s_rets), 3),
+                "volatility": round(_volatility(s_rets), 3),
+                "max_drawdown": round(_max_dd(s_rets), 3),
                 "risk_contribution": round(float(rc_dict.get(t, 0.0)), 4),
                 "return_contribution": round(float(ret_contrib_dict.get(t, 0.0)), 4),
             })
 
         # ── 7. Correlation matrix ──────────────────────────────────────
+        corr_tickers, corr_matrix_list = _correlation_matrix(prices[tickers])
         correlation = {
-            "tickers": tickers,
-            "matrix": [[round(float(val), 2) for val in row] for row in corr_matrix.tolist()],
+            "tickers": corr_tickers,
+            "matrix": corr_matrix_list,
         }
 
         # ── 8. Sector exposure ─────────────────────────────────────────
@@ -203,6 +194,27 @@ def analyze_portfolio(req: AnalyzeRequest) -> dict[str, Any]:
                 )
                 if rc_exp not in explanations:
                     explanations.append(rc_exp)
+
+        # Staleness check: compute business days between newest price date and today (IST)
+        # Ignore holidays (standard Monday-Friday business day count with numpy.busday_count).
+        from datetime import datetime
+        from pathlib import Path
+        import json
+        from zoneinfo import ZoneInfo
+        today_ist = datetime.now(ZoneInfo("Asia/Kolkata")).date()
+        newest_price_date = prices.index.max().date()
+        if newest_price_date < today_ist:
+            bus_days = int(np.busday_count(newest_price_date, today_ist))
+        else:
+            bus_days = 0
+        if bus_days > 3:
+            explanations.append(
+                f"Prices are {bus_days} business days old; the risk label reflects the last completed close on {newest_price_date}."
+            )
+
+        # Model-vs-data check: if eval.json "data_note" starts with SYNTHETIC, append warning
+        if _read_eval_data_note().startswith("SYNTHETIC"):
+            explanations.append("Model was trained on synthetic development data.")
 
         # ── 10. Counterfactual ("Make it Medium" / "Make it Low") ──────
         counterfactual: dict[str, Any] | None = None

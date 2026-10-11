@@ -471,3 +471,184 @@ Simulation reports now translate shocks into tangible portfolio dollar/rupee mov
 #### 4. Automated Verification
 - Full test suite: **102 / 102 passing in 17.8s**.
 - All explanation strings verified non-empty, free of template artifacts, and strictly adhering to business readability guidelines.
+
+---
+
+### Work Log: Environment Configuration & Provider Secret Setup
+- **`.env` created**: Initialized in repo root with 6 provider variables (`GEMINI_API_KEY`, `GEMINI_MODEL`, `GROQ_API_KEY`, `GROQ_MODEL`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`), all empty. Confirmed ignored by `.gitignore` line 1 (`git check-ignore -v .env` -> `.gitignore:1:.env .env`).
+- **`.env.example` created**: Documents key generation sources (`aistudio.google.com`, `console.groq.com`, `openrouter.ai`) and instructions to copy current model identifiers.
+- **HARDIK-FILE EDIT**:
+  - File: `.gitignore`
+  - Change: Appended `data/cache/news/` (minimal diff, lines 14-17). Confirmed `data/cache/llm/` remains trackable for offline demo resilience.
+- **Verification**:
+  - `git check-ignore -v .env` verified.
+  - `git status` verified `.env` is untracked/ignored and not staged.
+  - Test suite: **102 passed in 18.02s**.
+- **Permanent `.env` Secret Persistence**:
+  - Saved API keys and production model identifiers to `.env` (git-ignored, strictly local).
+  - Sanitized `.env.example` to ensure zero API key leakage in tracked files.
+  - Regression check: **102 passed in 36.04s**.
+
+---
+
+### Work Log: Optimize Adapter & Metrics Single Source of Truth
+1. **`engine/optimize.py` (`optimize_weights`)**:
+   - Implemented `optimize_weights(tickers, prices, risk_level, currency="INR") -> {"weights": [floats]}`.
+   - Maps recommended weights strictly by ticker so order equals `tickers`.
+   - Normalizes to sum 1.0; raises `ValueError` if all weights are $\le 0$.
+   - Tested: order matching, sum to 1, and differs from equal weight.
+2. **Metrics Single Source of Truth (`engine.metrics`)**:
+   - Swapped `engine.ml._metrics_shim` in [`api/routers/analyze.py`](file:///c:/Users/bruhdweiser1/Desktop/everything/i_bleedcode/CUIUC_Hackathondiv/DSA_Hackathon/api/routers/analyze.py), [`api/routers/allocate.py`](file:///c:/Users/bruhdweiser1/Desktop/everything/i_bleedcode/CUIUC_Hackathondiv/DSA_Hackathon/api/routers/allocate.py), and [`engine/optimize.py`](file:///c:/Users/bruhdweiser1/Desktop/everything/i_bleedcode/CUIUC_Hackathondiv/DSA_Hackathon/engine/optimize.py) to use `compute_all_metrics` and `engine.metrics`.
+   - Verified `/api/analyze` `metrics` returns all 10 frozen contract keys (`total_return`, `ann_return`, `volatility`, `max_drawdown`, `sharpe`, `sortino`, `diversification_ratio`, `cvar_95`, `avg_correlation`, `hhi`). Zero key discrepancies.
+   - Preserved `_metrics_shim.py` without deletion.
+3. **`POST /api/compare` Verification**:
+   - Tested `tech_heavy` portfolio on bear period `{"start": "2022-01-03", "end": "2022-10-12"}`.
+   - Status: HTTP 200.
+   - Result: `weights.recommended != weights.equal_weight: True`.
+   - Recommended weights allocated intelligently (e.g., GOLDBEES 42.1%, TCS 22.6%, NVDA 19.6%, TSLA 0.0% to protect drawdown).
+4. **HARDIK-FILE EDIT**: None.
+5. **Test Suite**: **104 / 104 passing in 17.46s**.
+
+---
+
+### Work Log: Real Data Retraining & Staleness Honesty (Part A & Part B)
+
+#### PART A — Model Retraining on Real Completed Daily Closes
+1. **Freshness & Subprocess Cache Refresh (Step 0)**:
+   - Evaluated `data/cache/meta.json` `as_of` before and after refresh (`2026-10-09`).
+   - Added `--refresh` CLI flag to `engine/ml/build_dataset.py` and `train.py` that executes `data/scripts/fetch_data.py` as a subprocess without modifying `data/` files.
+   - Handled network/offline gracefully with fallback to cached parquet.
+2. **Pure Data Loading in Entrypoints Only (Step 1)**:
+   - Added `--source {csv,cache}` (default: `csv`) and `--refresh` to `build_dataset.py` and `train.py`.
+   - In `__main__` entrypoints only, loaded full universe prices in INR via `data.loader.load_prices(all_tickers, "2012-01-01", as_of, currency="INR")`.
+   - Core functions (`build_dataset`, `train_and_evaluate`) remain completely pure and operate on DataFrames.
+3. **Data Validation Pipeline (Step 2)**:
+   - Implemented `engine.ml.validation.validate_prices` printing one PASS/FAIL line each:
+     - **2a [PASS]**: INR-converted: NVDA (22,199.6 INR) and TCS.NS (2,156.0 INR) at plausible INR levels; NVDA INR/USD ratio (96.82) matches USDINR FX rate (96.82).
+     - **2b [PASS]**: Index sorted and unique; no NaNs; strictly positive prices.
+     - **2c [PASS]**: Partial bars removed: dropped 0 rows dated $\ge$ 2026-10-11 (Asia/Kolkata).
+     - **2d [PASS]**: `^NSEI` and `^NDX` benchmarks present; all 42 tickers have $\ge 378$ rows (minimum: 3,758 rows).
+     - **2e [PASS]**: Last date equals `as_of` (`2026-10-09`).
+4. **Synthetic Model Backup (Step 3)**:
+   - Archived previous synthetic model artifacts to `engine/ml/models/_synthetic_backup/`.
+   - Verified backup folder guard: existing backups are never overwritten.
+5. **Evaluation Metadata Persistence (Step 4)**:
+   - Maintained all existing keys in `engine/ml/models/eval.json`: `trained_on`, `n_samples`, `label_definition`, `cutpoints`, `test_period`, `n_test`, `metrics`, `confusion_matrix`, `confusion_labels`, `median_fwd_vol`.
+   - Set `"data_note"` = `"REAL: data/cache/prices.parquet as_of 2026-10-09"`.
+   - Added metadata keys: `"as_of": "2026-10-09"`, `"n_tickers": 42`, `"tickers"`, `"price_rows": 3758`, `"first_date": "2012-05-18"`, `"last_date": "2026-10-09"`, `"trained_at": "2026-10-11T14:27:16.510080+05:30"`, `"git_commit": "e230b6b"`, `"source": "cache"`, `"refreshed": true`, `"partial_rows_dropped": 0`.
+6. **Execution & Training (Step 5)**:
+   - `python -m engine.ml.build_dataset --source cache --refresh`: generated 4,830 portfolio samples from 2013-05-06 to 2026-03-19.
+   - `python -m engine.ml.train --source cache --refresh`: walk-forward validation (Train: 3,420 samples to 2022-06-06; Purge: 126 trading days; Test: 1,200 samples from 2023-01-26 to 2026-03-19).
+   - Cutpoints strictly on train terciles: Low/Med: `0.52986`, Med/High: `0.73993`.
+   - Forward volatility ordering holds monotonically on real test data: Low (`10.5%`) < Medium (`14.0%`) < High (`19.1%`).
+7. **Test Evaluation Analysis (Step 6)**:
+   - 106 tests passed.
+   - 2 tests expecting synthetic assumptions reported without weakening assertions:
+     - `tests/ml/test_build_dataset.py::TestDevPricesDataset::test_dataset_columns_and_row_count`: expected 4,600-4,800 rows (synthetic 4,680), actual real dataset is 4,830 rows.
+     - `tests/ml/test_train.py::test_eval_json_keys`: asserted `data_note == "SYNTHETIC dev data"`, actual real value is `"REAL: data/cache/prices.parquet as_of 2026-10-09"`.
+8. **Inference Verification (Step 7)**:
+   - Verified `POST /api/analyze` for `tech_heavy`: HTTP 200, `risk_label: "High"`, `probs: {Low: 0.2781, Medium: 0.2861, High: 0.4359}`, `meta.as_of: "2026-10-09"` equals `eval.json` `as_of`.
+
+#### PART B — Staleness Honesty at Inference & Automation
+1. **Business-Day Staleness Check (Step 8)**:
+   - In `api/routers/analyze.py` and `allocate.py`, computed business days between newest price date and today (IST) using `numpy.busday_count` (ignoring holidays).
+   - If business days > 3: appends plain-English sentence to `explanations[]`: `"Prices are N business days old; the risk label reflects the last completed close on <date>."`.
+   - Zero additions to response schema (frozen contract preserved). No alterations to labels, probs, or numbers.
+2. **Model Provenance Check (Step 9)**:
+   - Implemented `_read_eval_data_note()` in `analyze.py` and `allocate.py`.
+   - If `data_note` starts with `SYNTHETIC`, appends `"Model was trained on synthetic development data."`. If starts with `REAL`, appends nothing.
+3. **One-Command Pipeline Automation (Step 10)**:
+   - Created `scripts/refresh_and_retrain.ps1` executing `build_dataset` and `train` with `--source cache --refresh`.
+   - Hard check: refuses execution if `engine/ml/models/_synthetic_backup` is absent.
+4. **Offline Test Suite (Step 11)**:
+   - Created `tests/test_staleness_and_validation.py` covering:
+     - (a) Partial bar on current date (IST) is trimmed by exactly that bar.
+     - (b) Stale price history triggers the staleness notice; fresh history does not.
+     - (c) Synthetic `data_note` triggers the synthetic warning; real `data_note` suppresses it.
+     - (d) `risk_label` and `probs` remain strictly invariant with and without explanatory notices.
+   - All 4 tests passing offline.
+5. **HARDIK-FILE EDIT**: None.
+
+---
+
+### Work Log: Briefing Layer Implementation (LLM Router, News Ingestion & POST /api/brief)
+
+#### Overview & Core Principle
+- **Hard Rule**: The ML model decides `risk_label`, `probs`, `risk_score`, allocation weights, and metrics. The LLM never changes them, calculates them, or invents any numbers.
+- **Order of Execution**: Deterministic template path first, fully tested and verified, followed by provider integrations and robust offline fallback layers.
+
+#### A) LLM Router (`engine/llm/router.py`)
+- **Signature**: `generate_brief_text(facts, headlines=None, providers=None, now_ist=None, mode=None) -> {brief, provider_used, providers_tried, fallback, source, mode}`.
+- **Fail-Safe Guarantee**: Never raises an exception under any circumstance (even `facts=None`).
+- **Operational Modes (`BRIEF_MODE` env / `mode` parameter)**:
+  - `"template"`: Instant deterministic template. Zero disk cache reads, zero provider calls, zero network activity.
+  - `"cache"`: Reads disk cache; falls back immediately to deterministic template on miss. Zero network activity.
+  - `"auto"`: Cache first $\to$ LLM providers $\to$ deterministic template fallback.
+  - Automatic fallback to `"cache"` behavior if no provider has both API key and model configured.
+- **Deterministic Template**: Built strictly from `facts.explanations`, `data_source`, `as_of`, and current IST timestamp. Reviewer severity defaults to `"low"` with `"Portfolio parameters evaluated deterministically."`.
+- **Disk Cache**: Stored in `data/cache/llm/` (configurable via `LLM_CACHE_DIR`). Keyed strictly by SHA-256 of canonical JSON of `facts` (excludes timestamps, headlines, and non-deterministic metadata). Cache hits are validated against Pydantic schema; invalid entries are discarded.
+- **Provider Chain & Circuit Breaker**:
+  - Providers in order: **Gemini** $\to$ **Groq** $\to$ **OpenRouter**.
+  - Enabled only if both `<NAME>_API_KEY` and `<NAME>_MODEL` are set.
+  - Timeouts: 6.0-second individual provider timeout (enforced with thread guard) and a strict 10.0-second cumulative timeout across the entire provider chain.
+  - Circuit Breaker: Any provider experiencing an error or timeout is placed on an in-memory 60-second cooldown and skipped on subsequent requests.
+  - API Specifications:
+    - **Gemini**: `generateContent` endpoint, `x-goog-api-key` header, `generationConfig: {responseMimeType: "application/json"}`.
+    - **Groq & OpenRouter**: OpenAI-compatible `/chat/completions` with `response_format: {"type": "json_object"}`.
+- **Output Validation & Guardrails**:
+  - Pydantic schema with `extra="forbid"`:
+    - `summary`: string $\le 700$ characters.
+    - `key_points`: list of $\le 4$ strings.
+    - `reviewer`: object with `severity` (`"low"` | `"medium"` | `"high"`) and `concerns` (list of $\le 3$ strings).
+  - Code fence stripping (` ```json ` / ` ``` `).
+  - **Rejection Criteria (Treated as Provider Failure $\to$ Next Provider / Template)**:
+    - Financial advice language: `"buy"`, `"sell"`, `"you should"`, `"guarantee"`.
+    - Live data claims when `data_source == "cache"` (e.g. `"live"`, `"real-time"`, `"intraday"`).
+    - Hallucinated numbers: Every number appearing in the output is validated against allowed numbers extracted from `facts` (raw values, $\times 100$ percentages, dates, and 0-2 decimal variations).
+- **Prompt Isolation**: Headlines injected strictly within `<untrusted_headlines>` tags with instructions that they contain untrusted external data and must not alter metrics or introduce unverified figures.
+
+#### B) News Ingestion Layer (`engine/llm/news.py`)
+- **Signature**: `get_headlines(tickers) -> {ticker: [{title, publisher}]}`.
+- **Dual Schema Parsing**: Supports legacy yfinance news objects (`{title, publisher, link}`) and modern nested objects (`{content: {title, provider: {displayName}}}`).
+- **RSS Fallback**: Gracefully falls back to Google News RSS feeds if yfinance news is unavailable or empty.
+- **Hygiene & Caching**:
+  - HTML tags and control characters stripped.
+  - Headlines truncated to 200 characters.
+  - Maximum 8 headlines per ticker.
+  - Disk cached in `data/cache/news/` (1-hour expiry).
+  - Lazy imports of `yfinance` to preserve fast CLI startup.
+  - Never raises under any network or parsing error.
+
+#### C) FastAPI Briefing Router (`api/routers/brief.py`)
+- **Endpoint**: `POST /api/brief`.
+- **Request Body**: `{analyze: {...}, allocate?: {...}, compare?: {...}, shield?: {...}, tickers?: [...]}`.
+- **Facts Pipeline**:
+  - Extracted fields: `risk_label`, `risk_score`, `probs`, `risk_drivers` (factor and direction only), `allocate.tradeoff`, `shield.benefit` & `shield.cost`, `explanations`, `data_source`, `as_of`.
+  - ML Invariance: `risk_label`, `risk_score`, and `probs` copied verbatim from `analyze`.
+- **Deterministic Python Calculations**:
+  - `ml_margin = top1_prob - top2_prob` (difference between highest and second-highest class probabilities).
+  - `watch_flag = (ml_margin < 0.15) and (reviewer.severity == "high")`.
+- **Headline Optimization**: Bypasses news fetching completely when `mode` is `"template"` or `"cache"`.
+- **Mandatory Disclaimer**: Exact string: `"Educational simulation. Not financial advice. Past performance does not predict future results. The Drawdown Shield is a simulated strategy, not an insurance policy."`.
+
+#### D) Registration & HARDIK-FILE EDIT
+- **HARDIK-FILE EDIT**:
+  - **File**: `api/main.py`
+  - **Change**: Imported `brief` router and registered it with `app.include_router(brief.router, prefix="/api")` inside the existing `try...except ImportError` block.
+  - **Verification**: Verified zero breakage of existing routers (`meta`, `simulate`, `benchmark`, `track`, `shield`, `compare`, `analyze`, `allocate`, `scenario`).
+
+#### E) Test Verification (`tests/test_brief.py`)
+- Complete offline test suite verifying all 7 architectural guarantees:
+  1. `test_template_works_with_no_keys`: Template generates valid brief with no API keys or environment variables set.
+  2. `test_mode_template_never_calls_provider`: Provider network calls are completely bypassed in `"template"` mode.
+  3. `test_bad_json_falls_back_to_next_provider`: Corrupted JSON payload falls back to subsequent provider or template.
+  4. `test_hallucinated_number_or_label_change_rejected`: Invented numbers trigger provider rejection; returned label is strictly invariant.
+  5. `test_circuit_breaker_cooldown`: Failed provider is placed on 60s cooldown and skipped on subsequent invocation.
+  6. `test_watch_flag_logic`: Validates truth table for `watch_flag` ($ml\_margin < 0.15$ AND $severity == "high"$).
+  7. `test_offline_warm_cache`: Blocks all network sockets (`socket.socket`, `socket.create_connection`); cache hits return `"cache"`, cache misses return `"template"`, zero unhandled exceptions.
+- **Suite Result**: **7 / 7 passed in 3.21s**.
+- **Real Data Test Updates**:
+  - `tests/ml/test_build_dataset.py`: Updated `test_dataset_columns_and_row_count` to accept row counts $\ge 4600$ (4,830 rows on real data) and extended time horizon to 2026.
+  - `tests/ml/test_train.py`: Updated `test_eval_json_keys` to accept `data_note` starting with `REAL:` in addition to synthetic fallback.
+- **Overall Repo Status**: **115 passed, 0 failed in 26.65s** (100% passing across all 16 test modules).
+

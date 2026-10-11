@@ -9,7 +9,9 @@ Exact compliance with architecture.md §6 and decision D39.
 from __future__ import annotations
 
 from typing import Any, Callable
+from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from fastapi import APIRouter
 
@@ -28,6 +30,7 @@ from api.helpers import (
 )
 from api.schemas import AllocateRequest
 from data.loader import load_prices
+from engine.metrics import compute_all_metrics
 from engine.optimize import optimize_portfolio
 
 router = APIRouter()
@@ -46,6 +49,21 @@ def reset_price_loader() -> None:
     """Reset the price loader to the default data.loader.load_prices."""
     global _price_loader
     _price_loader = load_prices
+
+
+def _read_eval_data_note() -> str:
+    """Read the data_note string from eval.json, or empty string."""
+    from pathlib import Path
+    eval_path = Path(__file__).resolve().parents[2] / "engine" / "ml" / "models" / "eval.json"
+    if eval_path.exists():
+        try:
+            import json
+            with open(eval_path, "r", encoding="utf-8") as _ef:
+                _ev = json.load(_ef)
+            return _ev.get("data_note", "")
+        except Exception:
+            pass
+    return ""
 
 
 @router.post("/allocate")
@@ -117,6 +135,28 @@ def allocate_portfolio(req: AllocateRequest) -> dict[str, Any]:
             amount=req.amount,
             currency=req.currency,
         )
+
+        # Staleness check: compute business days between newest price date and today (IST)
+        # Ignore holidays (standard Monday-Friday business day count with numpy.busday_count).
+        from datetime import datetime
+        from pathlib import Path
+        import json
+        import numpy as np
+        from zoneinfo import ZoneInfo
+        today_ist = datetime.now(ZoneInfo("Asia/Kolkata")).date()
+        newest_price_date = prices.index.max().date()
+        if newest_price_date < today_ist:
+            bus_days = int(np.busday_count(newest_price_date, today_ist))
+        else:
+            bus_days = 0
+        if bus_days > 3:
+            opt_res.setdefault("explanations", []).append(
+                f"Prices are {bus_days} business days old; the risk label reflects the last completed close on {newest_price_date}."
+            )
+
+        # Model-vs-data check: if eval.json "data_note" starts with SYNTHETIC, append warning
+        if _read_eval_data_note().startswith("SYNTHETIC"):
+            opt_res.setdefault("explanations", []).append("Model was trained on synthetic development data.")
 
         # ── 5. Metadata ────────────────────────────────────────────────
         meta = get_meta()

@@ -331,6 +331,17 @@ def main() -> None:
         help="Output path for dataset (default: engine/ml/models/dataset.parquet)",
     )
     parser.add_argument(
+        "--source",
+        choices=["csv", "cache"],
+        default="csv",
+        help="Price source: 'csv' (default) or 'cache' (data/cache/prices.parquet via data.loader)",
+    )
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Refresh cache by running data/scripts/fetch_data.py before loading",
+    )
+    parser.add_argument(
         "--seed",
         type=int,
         default=42,
@@ -338,7 +349,31 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    prices = _load_prices(args.prices)
+    from engine.ml.validation import (
+        get_universe_tickers,
+        refresh_cache,
+        validate_prices,
+    )
+
+    if args.refresh:
+        refresh_cache()
+
+    if args.source == "cache":
+        import json
+        from data.loader import load_prices
+
+        meta_path = Path("data/cache/meta.json")
+        as_of = "unknown"
+        if meta_path.exists():
+            with open(meta_path, "r", encoding="utf-8") as f:
+                as_of = json.load(f).get("as_of", "unknown")
+
+        universe_tickers = get_universe_tickers()
+        prices_raw = load_prices(universe_tickers, "2012-01-01", as_of, currency="INR")
+        prices, dropped_rows = validate_prices(prices_raw, as_of)
+    else:
+        prices = _load_prices(args.prices)
+
     df = build_dataset(prices, seed=args.seed)
 
     out_path = Path(args.out)

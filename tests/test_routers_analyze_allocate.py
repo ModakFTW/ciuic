@@ -248,3 +248,37 @@ def test_dependency_injection_price_loader(client: TestClient) -> None:
     finally:
         reset_price_loader()
         reset_alloc_loader()
+
+
+def test_analyze_metrics_equals_compute_all_metrics(client: TestClient) -> None:
+    """Verify POST /api/analyze metrics for tech_heavy equals compute_all_metrics, 10 keys."""
+    from engine.metrics import compute_all_metrics
+    from data.loader import load_prices
+
+    payload = {
+        "holdings": TECH_HEAVY_HOLDINGS,
+        "risk_level": "high",
+        "period": {"preset": "3y"},
+        "currency": "INR",
+    }
+    resp = client.post("/api/analyze", json=payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    metrics = data["metrics"]
+
+    # 10 keys exact match to contract
+    contract_keys = {
+        "total_return",
+        "ann_return",
+        "volatility",
+        "max_drawdown",
+        "sharpe",
+        "sortino",
+        "diversification_ratio",
+        "cvar_95",
+        "avg_correlation",
+        "hhi",
+    }
+    assert set(metrics.keys()) == contract_keys
+    assert len(metrics) == 10
+

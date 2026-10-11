@@ -1,51 +1,51 @@
 {
-  "data_note": "SYNTHETIC dev data",
-  "trained_on": "2013-01-01 to 2022-06-02",
-  "n_samples": 3540,
+  "data_note": "REAL: data/cache/prices.parquet as_of 2026-10-09",
+  "trained_on": "2013-05-06 to 2022-06-06",
+  "n_samples": 3420,
   "label_definition": "score = 0.5*fwd_vol/0.18 + 0.5*abs(fwd_mdd)/0.18, cut-points at train terciles",
   "cutpoints": {
-    "low_medium": 0.7345162536827148,
-    "medium_high": 0.9478739973702788
+    "low_medium": 0.5298590995422139,
+    "medium_high": 0.7399304071675165
   },
-  "test_period": "2023-01-24 to 2025-06-24",
-  "n_test": 930,
+  "test_period": "2023-01-26 to 2026-03-19",
+  "n_test": 1200,
   "metrics": {
     "model": {
-      "macro_f1": 0.4827,
-      "accuracy": 0.5376,
-      "off_by_two": 0.1183
+      "macro_f1": 0.4563,
+      "accuracy": 0.5192,
+      "off_by_two": 0.1383
     },
     "logreg": {
-      "macro_f1": 0.5162,
-      "accuracy": 0.5226,
-      "off_by_two": 0.0785
+      "macro_f1": 0.5102,
+      "accuracy": 0.5533,
+      "off_by_two": 0.1008
     },
     "persistence": {
-      "macro_f1": 0.4459,
-      "accuracy": 0.4473,
-      "off_by_two": 0.1226
+      "macro_f1": 0.4682,
+      "accuracy": 0.4875,
+      "off_by_two": 0.1242
     },
     "majority": {
-      "macro_f1": 0.2067,
-      "accuracy": 0.4495,
-      "off_by_two": 0.2301
+      "macro_f1": 0.1228,
+      "accuracy": 0.2258,
+      "off_by_two": 0.4375
     }
   },
   "confusion_matrix": [
     [
-      148,
-      23,
-      43
+      388,
+      31,
+      106
     ],
     [
-      93,
-      45,
-      160
+      171,
+      49,
+      184
     ],
     [
-      67,
-      44,
-      307
+      60,
+      25,
+      186
     ]
   ],
   "confusion_labels": [
@@ -54,8 +54,62 @@
     "High"
   ],
   "median_fwd_vol": {
-    "Low": 0.14794339286581792,
-    "Medium": 0.184312698470118,
-    "High": 0.23215932428946606
-  }
+    "Low": 0.10528166069900362,
+    "Medium": 0.14043059879841097,
+    "High": 0.19101989195817728
+  },
+  "as_of": "2026-10-09",
+  "n_tickers": 42,
+  "tickers": [
+    "RELIANCE.NS",
+    "TCS.NS",
+    "HDFCBANK.NS",
+    "INFY.NS",
+    "ICICIBANK.NS",
+    "ITC.NS",
+    "SBIN.NS",
+    "BHARTIARTL.NS",
+    "LT.NS",
+    "HINDUNILVR.NS",
+    "SUNPHARMA.NS",
+    "MARUTI.NS",
+    "BAJFINANCE.NS",
+    "KOTAKBANK.NS",
+    "ASIANPAINT.NS",
+    "TITAN.NS",
+    "GOLDBEES.NS",
+    "NIFTYBEES.NS",
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "TSLA",
+    "JPM",
+    "JNJ",
+    "XOM",
+    "KO",
+    "WMT",
+    "PG",
+    "V",
+    "QQQ",
+    "SPY",
+    "TLT",
+    "GLD",
+    "^NSEI",
+    "^NDX",
+    "^GSPC",
+    "USDINR=X",
+    "^VIX",
+    "^INDIAVIX"
+  ],
+  "price_rows": 3758,
+  "first_date": "2012-05-18",
+  "last_date": "2026-10-09",
+  "trained_at": "2026-10-11T14:27:16.510080+05:30",
+  "git_commit": "e230b6b",
+  "source": "cache",
+  "refreshed": true,
+  "partial_rows_dropped": 0
 }

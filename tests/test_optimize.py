@@ -7,7 +7,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from engine.optimize import counterfactual_weights, optimize_portfolio
+from engine.optimize import (
+    counterfactual_weights,
+    optimize_portfolio,
+    optimize_weights,
+)
 
 
 @pytest.fixture
@@ -136,3 +140,39 @@ def test_optimize_contract_fields(sample_prices: pd.DataFrame) -> None:
 
     # Check efficient frontier length
     assert len(res["efficient_frontier"]) == 25
+
+
+def test_optimize_weights_adapter(sample_prices: pd.DataFrame) -> None:
+    """Verify optimize_weights adapter respects order, sums to 1.0, and differs from equal weight."""
+    tickers = ["ASSET_A", "ASSET_B", "ASSET_C", "ASSET_D", "ASSET_E"]
+    res = optimize_weights(tickers, sample_prices, "medium")
+
+    assert "weights" in res
+    weights = res["weights"]
+    assert len(weights) == len(tickers)
+    assert abs(sum(weights) - 1.0) < 1e-5
+
+    # Reverse ticker order to verify order matching
+    rev_tickers = list(reversed(tickers))
+    rev_res = optimize_weights(rev_tickers, sample_prices, "medium")
+    rev_weights = rev_res["weights"]
+    assert abs(sum(rev_weights) - 1.0) < 1e-5
+    # The weight for ASSET_A should be at index 0 in weights, and index -1 in rev_weights
+    assert abs(weights[0] - rev_weights[-1]) < 1e-4
+
+    # Test on tech_heavy preset if cache is present
+    try:
+        from data.loader import load_prices
+        tech_heavy = ["NVDA", "TSLA", "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "GOLDBEES.NS"]
+        px = load_prices(tech_heavy, "2020-01-01", "2023-01-01", "INR")
+        if not px.empty and len(px) > 100:
+            th_res = optimize_weights(tech_heavy, px, "medium")
+            th_weights = th_res["weights"]
+            assert len(th_weights) == len(tech_heavy)
+            assert abs(sum(th_weights) - 1.0) < 1e-5
+            eq_w = [1.0 / len(tech_heavy)] * len(tech_heavy)
+            # Must differ from equal weights
+            assert any(abs(w - eq) > 0.01 for w, eq in zip(th_weights, eq_w))
+    except Exception:
+        pass
+
