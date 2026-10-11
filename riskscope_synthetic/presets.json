@@ -1,0 +1,112 @@
+{
+  "presets": [
+    {
+      "id": "tech_heavy",
+      "name": "Tech heavy (demo: Aman)",
+      "risk_level": "high",
+      "currency": "INR",
+      "holdings": [
+        {
+          "ticker": "NVDA",
+          "amount": 250000
+        },
+        {
+          "ticker": "TSLA",
+          "amount": 200000
+        },
+        {
+          "ticker": "RELIANCE.NS",
+          "amount": 150000
+        },
+        {
+          "ticker": "TCS.NS",
+          "amount": 150000
+        },
+        {
+          "ticker": "HDFCBANK.NS",
+          "amount": 150000
+        },
+        {
+          "ticker": "GOLDBEES.NS",
+          "amount": 100000
+        }
+      ]
+    },
+    {
+      "id": "balanced_india",
+      "name": "Balanced India",
+      "risk_level": "medium",
+      "currency": "INR",
+      "holdings": [
+        {
+          "ticker": "RELIANCE.NS",
+          "amount": 150000
+        },
+        {
+          "ticker": "TCS.NS",
+          "amount": 150000
+        },
+        {
+          "ticker": "HDFCBANK.NS",
+          "amount": 150000
+        },
+        {
+          "ticker": "ITC.NS",
+          "amount": 150000
+        },
+        {
+          "ticker": "HINDUNILVR.NS",
+          "amount": 100000
+        },
+        {
+          "ticker": "NIFTYBEES.NS",
+          "amount": 150000
+        },
+        {
+          "ticker": "GOLDBEES.NS",
+          "amount": 150000
+        }
+      ]
+    },
+    {
+      "id": "global_mix",
+      "name": "Global mix",
+      "risk_level": "medium",
+      "currency": "INR",
+      "holdings": [
+        {
+          "ticker": "AAPL",
+          "amount": 150000
+        },
+        {
+          "ticker": "MSFT",
+          "amount": 150000
+        },
+        {
+          "ticker": "JNJ",
+          "amount": 100000
+        },
+        {
+          "ticker": "KO",
+          "amount": 100000
+        },
+        {
+          "ticker": "SPY",
+          "amount": 150000
+        },
+        {
+          "ticker": "TLT",
+          "amount": 100000
+        },
+        {
+          "ticker": "GLD",
+          "amount": 100000
+        },
+        {
+          "ticker": "HDFCBANK.NS",
+          "amount": 150000
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "data_note": "SYNTHETIC data; numbers are for pipeline understanding only, not for the pitch",
+  "trained_on": "2013-01-01 to 2022-06-02",
+  "n_samples": 3540,
+  "label_definition": "score = 0.5*fwd_vol/0.18 + 0.5*abs(fwd_mdd)/0.18 over next 126 trading days; terciles on TRAIN only",
+  "cutpoints": {
+    "p33": 0.7305,
+    "p66": 0.9388
+  },
+  "test_period": "2023-01-24 to 2025-06-24",
+  "n_test": 930,
+  "metrics": {
+    "model": {
+      "macro_f1": 0.4623,
+      "accuracy": 0.5022,
+      "off_by_two": 0.1108
+    },
+    "logreg": {
+      "macro_f1": 0.4755,
+      "accuracy": 0.4785,
+      "off_by_two": 0.086
+    },
+    "persistence": {
+      "macro_f1": 0.446,
+      "accuracy": 0.4505,
+      "off_by_two": 0.1032
+    },
+    "majority": {
+      "macro_f1": 0.1991,
+      "accuracy": 0.4258,
+      "off_by_two": 0.2301
+    }
+  },
+  "confusion_matrix": [
+    [
+      142,
+      30,
+      42
+    ],
+    [
+      108,
+      50,
+      162
+    ],
+    [
+      61,
+      60,
+      275
+    ]
+  ],
+  "confusion_labels": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "median_fwd_vol": {
+    "High": 0.2313,
+    "Low": 0.1494,
+    "Medium": 0.1848
+  }
+}

@@ -1,0 +1,24 @@
+2026-10-11 11:02:30,828 | INFO | prices: 3653 days x 38 columns (2012-01-02 to 2025-12-31)
+2026-10-11 11:02:30,829 | INFO | shock_2025 window SPY     total  -20.1%  max_dd  -24.6%
+2026-10-11 11:02:30,830 | INFO | shock_2025 window QQQ     total  -25.2%  max_dd  -28.7%
+2026-10-11 11:02:30,830 | INFO | shock_2025 window ^NDX    total  -23.4%  max_dd  -27.0%
+2026-10-11 11:02:30,831 | INFO | shock_2025 window ^NSEI   total   -7.7%  max_dd  -17.3%
+2026-10-11 11:02:30,831 | INFO | shock_2025 window TLT     total   -2.8%  max_dd   -5.9%
+2026-10-11 11:02:30,832 | INFO | shock_2025 window GLD     total   +3.5%  max_dd   -2.7%
+2026-10-11 11:02:32,637 | INFO | dataset rows: 4680 (156 dates x 30 portfolios), t from 2013-01-01 to 2025-06-24
+2026-10-11 11:02:32,642 | INFO | cutpoints (TRAIN only): 33rd=0.7305 66th=0.9388
+2026-10-11 11:02:32,643 | INFO | rows per split: {'train': 3540, 'test': 930, 'purged': 210}
+2026-10-11 11:02:32,645 | INFO | train class counts: {'High': 1204, 'Low': 1168, 'Medium': 1168}
+2026-10-11 11:02:32,646 | INFO | test class counts: {'High': 396, 'Medium': 320, 'Low': 214}
+2026-10-11 11:02:36,331 | INFO | TEST metrics:
+             macro_f1  accuracy  off_by_two
+model          0.4623    0.5022      0.1108
+logreg         0.4755    0.4785      0.0860
+persistence    0.4460    0.4505      0.1032
+majority       0.1991    0.4258      0.2301
+2026-10-11 11:02:36,332 | INFO | confusion matrix (rows=true, cols=pred, order ['Low', 'Medium', 'High']): [[142, 30, 42], [108, 50, 162], [61, 60, 275]]
+2026-10-11 11:02:36,332 | INFO | median fwd_vol by true class (test): {'High': 0.2313, 'Low': 0.1494, 'Medium': 0.1848}
+2026-10-11 11:02:36,440 | INFO | demo asset risk contributions sum to 1.0000
+2026-10-11 11:02:41,872 | INFO | demo portfolio in shock window: value 1093709 -> 865197, worst drawdown -27.0%
+2026-10-11 11:02:41,873 | INFO | demo predicted label counts across log: {'High': 196, 'Medium': 3}
+2026-10-11 11:02:41,873 | INFO | DONE. Files in C:\Users\bruhdweiser1\Desktop\everything\i_bleedcode\CUIUC_Hackathondiv\DSA_Hackathon\riskscope_synthetic

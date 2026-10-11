@@ -1,0 +1,37 @@
+ticker,name,sector,market,currency,asset_class
+RELIANCE.NS,Reliance Industries,Energy,IN,INR,equity
+TCS.NS,Tata Consultancy Services,IT,IN,INR,equity
+HDFCBANK.NS,HDFC Bank,Financials,IN,INR,equity
+INFY.NS,Infosys,IT,IN,INR,equity
+ICICIBANK.NS,ICICI Bank,Financials,IN,INR,equity
+ITC.NS,ITC,Consumer Staples,IN,INR,equity
+SBIN.NS,State Bank of India,Financials,IN,INR,equity
+BHARTIARTL.NS,Bharti Airtel,Telecom,IN,INR,equity
+LT.NS,Larsen & Toubro,Industrials,IN,INR,equity
+HINDUNILVR.NS,Hindustan Unilever,Consumer Staples,IN,INR,equity
+SUNPHARMA.NS,Sun Pharma,Healthcare,IN,INR,equity
+MARUTI.NS,Maruti Suzuki,Consumer Discretionary,IN,INR,equity
+BAJFINANCE.NS,Bajaj Finance,Financials,IN,INR,equity
+KOTAKBANK.NS,Kotak Mahindra Bank,Financials,IN,INR,equity
+ASIANPAINT.NS,Asian Paints,Materials,IN,INR,equity
+TITAN.NS,Titan Company,Consumer Discretionary,IN,INR,equity
+GOLDBEES.NS,Nippon Gold BeES,Gold,IN,INR,commodity
+NIFTYBEES.NS,Nippon Nifty BeES,Index,IN,INR,equity
+AAPL,Apple,IT,US,USD,equity
+MSFT,Microsoft,IT,US,USD,equity
+NVDA,NVIDIA,IT,US,USD,equity
+GOOGL,Alphabet,Communication,US,USD,equity
+AMZN,Amazon,Consumer Discretionary,US,USD,equity
+META,Meta Platforms,Communication,US,USD,equity
+TSLA,Tesla,Consumer Discretionary,US,USD,equity
+JPM,JPMorgan Chase,Financials,US,USD,equity
+JNJ,Johnson & Johnson,Healthcare,US,USD,equity
+XOM,Exxon Mobil,Energy,US,USD,equity
+KO,Coca-Cola,Consumer Staples,US,USD,equity
+WMT,Walmart,Consumer Staples,US,USD,equity
+PG,Procter & Gamble,Consumer Staples,US,USD,equity
+V,Visa,Financials,US,USD,equity
+QQQ,Invesco QQQ,Index,US,USD,equity
+SPY,SPDR S&P 500,Index,US,USD,equity
+TLT,iShares 20+Y Treasury,Bonds,US,USD,bond
+GLD,SPDR Gold Shares,Gold,US,USD,commodity

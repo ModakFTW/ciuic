@@ -1,0 +1,61 @@
+{
+  "data_note": "SYNTHETIC dev data",
+  "trained_on": "2013-01-01 to 2022-06-02",
+  "n_samples": 3540,
+  "label_definition": "score = 0.5*fwd_vol/0.18 + 0.5*abs(fwd_mdd)/0.18, cut-points at train terciles",
+  "cutpoints": {
+    "low_medium": 0.7345162536827148,
+    "medium_high": 0.9478739973702788
+  },
+  "test_period": "2023-01-24 to 2025-06-24",
+  "n_test": 930,
+  "metrics": {
+    "model": {
+      "macro_f1": 0.4827,
+      "accuracy": 0.5376,
+      "off_by_two": 0.1183
+    },
+    "logreg": {
+      "macro_f1": 0.5162,
+      "accuracy": 0.5226,
+      "off_by_two": 0.0785
+    },
+    "persistence": {
+      "macro_f1": 0.4459,
+      "accuracy": 0.4473,
+      "off_by_two": 0.1226
+    },
+    "majority": {
+      "macro_f1": 0.2067,
+      "accuracy": 0.4495,
+      "off_by_two": 0.2301
+    }
+  },
+  "confusion_matrix": [
+    [
+      148,
+      23,
+      43
+    ],
+    [
+      93,
+      45,
+      160
+    ],
+    [
+      67,
+      44,
+      307
+    ]
+  ],
+  "confusion_labels": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "median_fwd_vol": {
+    "Low": 0.14794339286581792,
+    "Medium": 0.184312698470118,
+    "High": 0.23215932428946606
+  }
+}
