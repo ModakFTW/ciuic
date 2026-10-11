@@ -1,0 +1,14 @@
+{
+  "prices": [
+    { "ticker": "NVDA", "price": 128.50, "day_change": 0.024, "currency": "USD" },
+    { "ticker": "TSLA", "price": 248.20, "day_change": -0.018, "currency": "USD" },
+    { "ticker": "RELIANCE.NS", "price": 2840.15, "day_change": 0.007, "currency": "INR" },
+    { "ticker": "TCS.NS", "price": 4125.60, "day_change": -0.004, "currency": "INR" },
+    { "ticker": "HDFCBANK.NS", "price": 1655.40, "day_change": 0.003, "currency": "INR" },
+    { "ticker": "GOLDBEES.NS", "price": 64.80, "day_change": 0.001, "currency": "INR" }
+  ],
+  "meta": {
+    "data_source": "live",
+    "as_of": "2026-10-09"
+  }
+}

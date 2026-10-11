@@ -1,0 +1,40 @@
+{
+  "sentiment": "Cautiously Optimistic with High Tech Valuation Dispersion",
+  "sector_trends": [
+    {
+      "sector": "Technology",
+      "view": "Bullish long term, High Near-Term Volatility",
+      "note": "AI capex cycle remains strong, but valuation multiples demand double-digit earnings growth."
+    },
+    {
+      "sector": "Energy",
+      "view": "Neutral",
+      "note": "Refining margins steady; capital expenditure shifting gradually toward clean energy transitions."
+    },
+    {
+      "sector": "Financials",
+      "view": "Overweight Domestic Banks",
+      "note": "Indian credit growth solid, asset quality at decade highs, though deposit growth competition remains."
+    },
+    {
+      "sector": "Commodities",
+      "view": "Bullish Hedge",
+      "note": "Central bank gold accumulation and geopolitical tensions maintain safe-haven bid."
+    }
+  ],
+  "risks": [
+    "Geopolitical escalation triggering energy price spikes",
+    "Persistent US interest rates delaying broader equity multiple expansion",
+    "Tech sector earnings misses sparking rapid multiple compression"
+  ],
+  "headlines_used": [
+    "RBI maintains monetary stance as domestic demand counters global headwinds",
+    "Global semiconductor shipments accelerate amid enterprise AI buildout",
+    "Central banks report record gold purchases in Q3"
+  ],
+  "disclaimer": "AI-synthesized supplementary commentary. Not financial advice.",
+  "meta": {
+    "data_source": "cache",
+    "as_of": "2026-10-09"
+  }
+}
